@@ -24,3 +24,4 @@ are documented in `external/third_party/THEVENIN_PROVENANCE.md`.
 
 Python environments, build products, and recovery snapshots are excluded from Git.
 Research inputs and recorded results remain included.
+# master

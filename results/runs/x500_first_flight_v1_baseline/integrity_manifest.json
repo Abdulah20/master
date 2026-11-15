@@ -1,0 +1,43 @@
+{
+  "schema_version": 1,
+  "purpose": "supplemental_integrity_for_immutable_legacy_run",
+  "scientific_result_recomputed": false,
+  "historical_manifests_rewritten": false,
+  "source_tree_revision": {
+    "status": "unavailable_empty_git_directory",
+    "git_metadata_path": ".git",
+    "commit": null
+  },
+  "artifacts": {
+    "run_manifest": {
+      "path": "results/runs/x500_first_flight_v1_baseline/run_manifest.json",
+      "sha256": "cd416c7a3d8cd1323e6b9ccaa8e15fd9d1e006206947b4d63e65767dcf4b5cfe"
+    },
+    "validation": {
+      "path": "results/runs/x500_first_flight_v1_baseline/validation.json",
+      "sha256": "d3593f3956d2aeea4bced9fd8c398aabd5c2124b84603eeb99f24cb22917051f"
+    },
+    "scenario_manifest": {
+      "path": "build/scenarios/x500_first_flight_v1_baseline/scenario_manifest.json",
+      "sha256": "92ef509a734ff4dd7f7cce4bed8f0aa2ae6145cf92f68d866993cbddc630d2e3"
+    },
+    "scenario_model_config": {
+      "path": "build/scenarios/x500_first_flight_v1_baseline/models/x500_energy_scenario/model.config",
+      "sha256": "7940553ae0cf2e48f1016034d9d030d511e6741c990175ebcb57710f86a10900"
+    },
+    "scenario_model_sdf": {
+      "path": "build/scenarios/x500_first_flight_v1_baseline/models/x500_energy_scenario/model.sdf",
+      "sha256": "19f20fac6db281a8224c0499344739ac1b82a284c33bbdeb56a7179d7de4940b"
+    },
+    "scenario_world_sdf": {
+      "path": "build/scenarios/x500_first_flight_v1_baseline/worlds/x500_energy_first_flight.sdf",
+      "sha256": "84cbf47f25432a559154ab2cf4388734f55edfcabf9da0d6b9d2b59f89e7bd60"
+    }
+  },
+  "historical_config": {
+    "path": "config/x500_first_flight_v1.yaml",
+    "recorded_sha256": "0af8aae8d89d10cdf83d9439c45ec450b992a0a362ca182b499aa5139d88dafa",
+    "current_sha256": "0af8aae8d89d10cdf83d9439c45ec450b992a0a362ca182b499aa5139d88dafa",
+    "byte_identity_status": "match"
+  }
+}

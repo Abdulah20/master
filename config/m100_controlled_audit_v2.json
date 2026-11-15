@@ -1,0 +1,45 @@
+{
+  "report_schema": "m100_controlled_data_audit_v2",
+  "report_metadata": {
+    "supersedes_artifact": "results/logs/m100_controlled_audit_v1.json",
+    "supersedes_sha256": "5c68050e0a365bc1a3b0963cfd25b76fb23fcba2e3a4ab4e9425e5b55a60fa34",
+    "correction_scope": "ground integrated energy only; integration no longer bridges source rows excluded by the current-band filter",
+    "unchanged_claims": "ground mean power, all hover results, aggregate hover statistics, and scientific claim limits"
+  },
+  "dataset": {
+    "archive": "data/external/m100/flights.zip",
+    "parameters": "data/external/m100/parameters.csv",
+    "readme": "data/external/m100/README.txt",
+    "source_provenance": {
+      "article_doi": "10.1038/s41597-021-00930-x",
+      "dataset_doi": "10.1184/R1/12683453"
+    },
+    "expected_md5": {
+      "README.txt": "af6afbb550286df945c9ecaf4c5f72a4",
+      "parameters.csv": "7daa897a1af7847b592ccb7a459477ee",
+      "flights.zip": "cd1d267fd9b025219f9633b95158eea2"
+    }
+  },
+  "recordings": {
+    "A1": [211, 212, 213],
+    "A2": [214, 215, 216],
+    "A3": [217, 218, 219],
+    "H": [221, 222, 223, 224]
+  },
+  "ground_current_bands_A": {
+    "A1": [-1.0, 1.0],
+    "A2": [0.2, 1.0],
+    "A3": [0.8, 2.5]
+  },
+  "hover_window": {
+    "duration_s": 20.0,
+    "minimum_span_s": 19.5,
+    "minimum_current_A": 10.0,
+    "maximum_timestamp_gap_s": 0.5
+  },
+  "strict_motion_diagnostics": {
+    "horizontal_speed_95_m_s": 0.15,
+    "absolute_vertical_speed_95_m_s": 0.10,
+    "altitude_deviation_95_m": 0.25
+  }
+}

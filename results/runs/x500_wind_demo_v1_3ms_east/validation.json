@@ -1,0 +1,41 @@
+{
+  "checks": {
+    "actual_rotors_responded": true,
+    "all_numeric_values_finite": true,
+    "csv_non_empty": true,
+    "cumulative_energy_nondecreasing": true,
+    "fidelity_label_preserved": true,
+    "final_csv_has_no_source_timestamp_duplicates": true,
+    "landed_near_ground": true,
+    "no_duplicate_timestamps": true,
+    "power_drops_after_landing": true,
+    "power_rises_during_move": true,
+    "power_rises_during_takeoff": true,
+    "takeoff_reached_altitude": true,
+    "timestamps_strictly_increasing": true,
+    "ulog_has_no_dropouts": true
+  },
+  "column_count": 52,
+  "duration_s": 27.650000000000006,
+  "final_cumulative_energy_j": 7913.068348959774,
+  "maximum_altitude_relative_m": 2.988520956039429,
+  "peak_estimated_electrical_load_w": 578.5801031291564,
+  "phase_mean_estimated_electrical_load_w": {
+    "hover": 393.5688458433509,
+    "landed": 12.976144538994566,
+    "landing": 300.2511075884956,
+    "move": 394.3758450705905,
+    "post_move_hover": 390.60843234140066,
+    "prearm": 10.0,
+    "takeoff": 275.1354209417999
+  },
+  "result": "pass",
+  "row_count": 554,
+  "source_diagnostics": {
+    "vehicle_attitude_duplicate_timestamps_resolved_by_last_sample": 13
+  },
+  "time_range_s": [
+    171.4,
+    199.05
+  ]
+}

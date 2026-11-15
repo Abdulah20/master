@@ -1,0 +1,105 @@
+{
+  "columns": [
+    "simulation_time_s",
+    "mission_elapsed_s",
+    "position_north_m",
+    "position_east_m",
+    "position_down_m",
+    "altitude_relative_m",
+    "velocity_north_m_s",
+    "velocity_east_m_s",
+    "velocity_down_m_s",
+    "acceleration_north_m_s2",
+    "acceleration_east_m_s2",
+    "acceleration_down_m_s2",
+    "heading_rad",
+    "q_w",
+    "q_x",
+    "q_y",
+    "q_z",
+    "roll_rad",
+    "pitch_rad",
+    "yaw_rad",
+    "roll_rate_rad_s",
+    "pitch_rate_rad_s",
+    "yaw_rate_rad_s",
+    "motor_command_0_rad_s",
+    "motor_command_1_rad_s",
+    "motor_command_2_rad_s",
+    "motor_command_3_rad_s",
+    "actual_rotor_0_rad_s",
+    "actual_rotor_1_rad_s",
+    "actual_rotor_2_rad_s",
+    "actual_rotor_3_rad_s",
+    "estimated_shaft_power_w",
+    "estimated_electrical_load_w",
+    "plugin_cumulative_energy_j",
+    "cumulative_energy_j",
+    "cumulative_energy_wh",
+    "battery_voltage_v",
+    "battery_current_a",
+    "battery_charge_ah",
+    "battery_capacity_ah",
+    "battery_soc_fraction",
+    "flight_phase",
+    "mission_name",
+    "run_id",
+    "energy_fidelity",
+    "payload_mass_kg",
+    "total_mass_kg",
+    "target_relative_altitude_m",
+    "wind_east_m_s",
+    "wind_north_m_s",
+    "wind_up_m_s",
+    "wind_speed_m_s"
+  ],
+  "fidelity": "C_NOT_CALIBRATED",
+  "outputs": {
+    "csv": {
+      "path": "/home/abdulah/uav-energy-thesis/results/runs/x500_first_flight_v1_baseline/x500_first_flight_v1.csv",
+      "sha256": "24757c8cb47e831cc6960c61e27dbfc2b66ef57a91f4a76eff34908a2271f2fa"
+    },
+    "validation": "/home/abdulah/uav-energy-thesis/results/runs/x500_first_flight_v1_baseline/validation.json"
+  },
+  "result": "pass",
+  "scenario": {
+    "energy_fidelity": "C_NOT_CALIBRATED",
+    "mission_name": "x500_first_flight_v1",
+    "payload_mass_kg": 0.0,
+    "run_id": "x500_first_flight_v1_baseline",
+    "target_relative_altitude_m": 3.0,
+    "total_mass_kg": 2.0643076923076924,
+    "wind_east_m_s": 0.0,
+    "wind_north_m_s": 0.0,
+    "wind_speed_m_s": 0.0,
+    "wind_up_m_s": 0.0
+  },
+  "scientific_claim": "PX4/Gazebo X500 simulation with model-estimated class-C electrical energy",
+  "sources": {
+    "config": {
+      "path": "/home/abdulah/uav-energy-thesis/config/x500_first_flight_v1.yaml",
+      "sha256": "0af8aae8d89d10cdf83d9439c45ec450b992a0a362ca182b499aa5139d88dafa"
+    },
+    "energy_plugin": {
+      "path": "/home/abdulah/uav-energy-thesis/build/gazebo_energy_plugin/libMotorBatteryLoadSystem.so",
+      "sha256": "e9f046e3c8f52d6d8e43b3febdbac60bd2cfe0fdfa3ebed1e09545ae1b354f09"
+    },
+    "gazebo_jsonl": {
+      "path": "/home/abdulah/uav-energy-thesis/results/runs/x500_first_flight_v1_baseline/gazebo_energy.jsonl",
+      "sha256": "fdab80b11d38a0bc8234511dcc3bc190cb564f94c468d3271f306352071b47de"
+    },
+    "phase_markers": {
+      "path": "/home/abdulah/uav-energy-thesis/results/runs/x500_first_flight_v1_baseline/phase_markers.json",
+      "sha256": "2f54a8e44ab9819541c6a7a0228ab88931b70790caf1fe284a3d5c01d8d227a2"
+    },
+    "ulog": {
+      "path": "/home/abdulah/uav-energy-thesis/results/runs/x500_first_flight_v1_baseline/px4_runtime_live/log/2026-08-20/16_37_31.ulg",
+      "sha256": "b1686388cc940a07bb7ce60a584f504d13a7dff158cf458fbb894700f78023fc"
+    }
+  },
+  "versions": {
+    "gazebo_sim": "8.11.0",
+    "px4_git_commit": "5b3487bb31a1e069e89ba88c4feee7cdc5dd3ae2",
+    "px4_git_describe": "v1.18.0-beta1-280-g5b3487bb31"
+  }
+}

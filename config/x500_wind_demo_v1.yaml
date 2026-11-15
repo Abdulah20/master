@@ -1,0 +1,45 @@
+schema_version: 1
+
+scenario:
+  mission_name: x500_wind_demo_v1
+  run_id: x500_wind_demo_v1_3ms_east
+  fidelity: C_NOT_CALIBRATED
+
+mission:
+  target_relative_altitude_m: 3.0
+  hover_duration_s: 4.0
+  translation_north_m: 2.0
+  translation_east_m: 0.0
+  translation_speed_m_s: 1.0
+
+operating_conditions:
+  payload:
+    # Comparison contract: this recorded run is a wind-path demonstration,
+    # not a single-factor experiment. Its initial hover is 4 s, whereas the
+    # zero-wind baseline uses 5 s; do not attribute energy differences to wind alone.
+    mass_kg: 0.0
+    dimensions_m: [0.10, 0.10, 0.05]
+    position_body_m: [0.0, 0.0, -0.08]
+  wind:
+    # Gazebo ENU vector: 3 m/s toward East (+X), not meteorological "from".
+    velocity_enu_m_s: [3.0, 0.0, 0.0]
+
+logging:
+  sample_rate_hz: 20.0
+  quaternion_order: wxyz
+  euler_sequence: roll_pitch_yaw
+  angle_unit: rad
+  required_attitude_columns:
+    - q_w
+    - q_x
+    - q_y
+    - q_z
+    - roll_rad
+    - pitch_rad
+    - yaw_rad
+
+provenance:
+  px4_root: /home/abdulah/PX4-Autopilot
+  x500_model: /home/abdulah/PX4-Autopilot/Tools/simulation/gz/models/x500/model.sdf
+  x500_base_model: /home/abdulah/PX4-Autopilot/Tools/simulation/gz/models/x500_base/model.sdf
+  energy_model: /home/abdulah/uav-energy-thesis/models/x500_energy/model.sdf

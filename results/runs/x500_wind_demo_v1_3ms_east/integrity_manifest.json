@@ -1,0 +1,52 @@
+{
+  "schema_version": 1,
+  "purpose": "supplemental_integrity_for_immutable_legacy_run",
+  "scientific_result_recomputed": false,
+  "historical_manifests_rewritten": false,
+  "source_tree_revision": {
+    "status": "unavailable_empty_git_directory",
+    "git_metadata_path": ".git",
+    "commit": null
+  },
+  "artifacts": {
+    "run_manifest": {
+      "path": "results/runs/x500_wind_demo_v1_3ms_east/run_manifest.json",
+      "sha256": "f322aa3e639024552db82619e3755cde691e462fd21c77655bb3916eaf19a8c2"
+    },
+    "validation": {
+      "path": "results/runs/x500_wind_demo_v1_3ms_east/validation.json",
+      "sha256": "73fabcf0966a1574fec3c87a3d826bfbbcbec10c1d4aca00ae917c5e1d69355e"
+    },
+    "scenario_manifest": {
+      "path": "build/scenarios/x500_wind_demo_v1_3ms_east/scenario_manifest.json",
+      "sha256": "5a26db7f5522ade5c5d2d23e5947930e60f9c069ab3886aec6fceac0af687e13"
+    },
+    "scenario_model_config": {
+      "path": "build/scenarios/x500_wind_demo_v1_3ms_east/models/x500_energy_scenario/model.config",
+      "sha256": "7940553ae0cf2e48f1016034d9d030d511e6741c990175ebcb57710f86a10900"
+    },
+    "scenario_model_sdf": {
+      "path": "build/scenarios/x500_wind_demo_v1_3ms_east/models/x500_energy_scenario/model.sdf",
+      "sha256": "19f20fac6db281a8224c0499344739ac1b82a284c33bbdeb56a7179d7de4940b"
+    },
+    "scenario_world_sdf": {
+      "path": "build/scenarios/x500_wind_demo_v1_3ms_east/worlds/x500_energy_first_flight.sdf",
+      "sha256": "30d689a820855e738b4bed4526140f427b1867630b1acb53cc6b61024c8d0895"
+    },
+    "visualization_gazebo_wind_demo": {
+      "path": "results/runs/x500_wind_demo_v1_3ms_east/gazebo_wind_demo.png",
+      "sha256": "c54036b5b150924ef881c1b6fe7faa02a34774c89bc49f4b6bc63795c740b3b3"
+    },
+    "visualization_gazebo_wind_indicator": {
+      "path": "results/runs/x500_wind_demo_v1_3ms_east/gazebo_wind_indicator.png",
+      "sha256": "4cb41886088b90adc4d4ccf94e54a7c7c10bc36be91a3a613618043010f58021"
+    }
+  },
+  "historical_config": {
+    "path": "config/x500_wind_demo_v1.yaml",
+    "recorded_sha256": "28ee2d30f37354b785bdf0558bccf3b632cd57191487a3d2fbeb2940d29de21d",
+    "current_sha256": "76c82c27577e45c2c282dd919cab18698075f09ff9e8a1ce8d120bfc5c3d4809",
+    "byte_identity_status": "mismatch_after_documentation_only_edit",
+    "parsed_operating_inputs_match_historical_scenario_manifest": true
+  }
+}

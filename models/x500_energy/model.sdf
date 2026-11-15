@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<sdf version="1.9">
+  <model name="x500_energy">
+    <include merge="true">
+      <uri>model://x500</uri>
+    </include>
+
+    <!--
+      Initial 6S LiPo-like values are functional placeholders only.
+      They are NOT_CALIBRATED and must not be reported as X500 truth.
+    -->
+    <plugin filename="gz-sim-linearbatteryplugin-system"
+      name="gz::sim::systems::LinearBatteryPlugin">
+      <battery_name>x500_energy_battery</battery_name>
+      <voltage>25.2</voltage>
+      <open_circuit_voltage_constant_coef>25.2</open_circuit_voltage_constant_coef>
+      <open_circuit_voltage_linear_coef>-4.2</open_circuit_voltage_linear_coef>
+      <initial_charge>5.0</initial_charge>
+      <capacity>5.0</capacity>
+      <resistance>0.05</resistance>
+      <smooth_current_tau>1.0</smooth_current_tau>
+      <power_load>0.0</power_load>
+      <start_draining>true</start_draining>
+      <fix_issue_225>true</fix_issue_225>
+    </plugin>
+
+    <plugin filename="libMotorBatteryLoadSystem.so"
+      name="uav_energy::MotorBatteryLoadSystem">
+      <battery_name>x500_energy_battery</battery_name>
+      <joint_name_0>rotor_0_joint</joint_name_0>
+      <joint_name_1>rotor_1_joint</joint_name_1>
+      <joint_name_2>rotor_2_joint</joint_name_2>
+      <joint_name_3>rotor_3_joint</joint_name_3>
+      <motor_constant>8.54858e-06</motor_constant>
+      <moment_constant>0.016</moment_constant>
+      <rotor_velocity_slowdown>10.0</rotor_velocity_slowdown>
+      <propulsion_efficiency>0.70</propulsion_efficiency>
+      <auxiliary_power_w>10.0</auxiliary_power_w>
+      <maximum_electrical_power_w>2000.0</maximum_electrical_power_w>
+      <publish_rate_hz>20.0</publish_rate_hz>
+      <!-- Enable Gazebo WindMode on the X500 body and rotor links. -->
+      <enable_wind>true</enable_wind>
+    </plugin>
+  </model>
+</sdf>

@@ -1,0 +1,52 @@
+model:
+  name: Hover Energy Model v1
+  output_fidelity: ideal_induced_power_energy_lower_bound
+
+vehicle:
+  base_mass_kg: 2.0
+  rotor_count: 4
+  rotor_mass_kg_each: 0.016076923076923075
+  payload_mass_kg: 0.0
+  gravity_m_s2: 9.8
+
+propulsion:
+  motor_constant_N_per_rad_s_sq: 8.54858e-6
+  max_rot_velocity_rad_s: 1000.0
+  motor_command_message: actuator_outputs
+  motor_command_fields:
+    - output[0]
+    - output[1]
+    - output[2]
+    - output[3]
+  rotor_diameter_sensitivity_cases:
+    - label: diameter_sensitivity_collision
+      diameter_m: 0.2792307692307692
+      provenance: Tools/simulation/gz/models/x500_base/model.sdf collision geometry
+    - label: diameter_sensitivity_visual_mesh
+      diameter_m: 0.29276914
+      provenance: Scaled visual mesh extent; not an aerodynamic specification
+
+hover_window:
+  auto_takeoff_nav_state: 17
+  position_control_nav_state: 4
+  auto_land_nav_state: 18
+  trim_start_s: 10.0
+  trim_end_s: 10.0
+  minimum_accepted_duration_s: 10.0
+
+quality:
+  max_timestamp_gap_multiplier: 2.1
+  max_motor_command_fraction: 0.90
+  max_motor_command_duration_s: 1.0
+  max_vertical_speed_m_s: 0.10
+  max_horizontal_speed_m_s: 0.15
+  max_altitude_deviation_m: 0.10
+  max_motion_violation_fraction: 0.05
+
+provenance:
+  mass: /home/abdulah/PX4-Autopilot/Tools/simulation/gz/models/x500_base/model.sdf
+  propulsion: /home/abdulah/PX4-Autopilot/Tools/simulation/gz/models/x500/model.sdf
+  gravity: /home/abdulah/PX4-Autopilot/Tools/simulation/gz/worlds/default.sdf
+  motor_command_bridge: /home/abdulah/PX4-Autopilot/src/modules/simulation/gz_bridge/GZMixingInterfaceESC.cpp
+  air_density_message: /home/abdulah/PX4-Autopilot/msg/VehicleAirData.msg
+

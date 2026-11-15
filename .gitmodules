@@ -1,0 +1,3 @@
+[submodule "external/third_party/thevenin"]
+	path = external/third_party/thevenin
+	url = https://github.com/NREL/thevenin.git

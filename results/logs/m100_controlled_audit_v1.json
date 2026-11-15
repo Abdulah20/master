@@ -1,0 +1,280 @@
+{
+  "aggregate": {
+    "a1_interpretation": "sensor-zero diagnostic; not identifiable auxiliary power",
+    "a1_zero_current_offset_A": -0.1515314214835096,
+    "hover_flight_count": 4,
+    "hover_raw_between_flight_coefficient_of_variation_pct": 2.645145328027879,
+    "hover_raw_between_flight_standard_deviation_W": 12.661218956819392,
+    "hover_raw_mean_of_flight_means_W": 478.6587270900204,
+    "hover_zero_offset_corrected_mean_of_flight_means_W": 481.9558871309841,
+    "strict_motion_pass_count": 0
+  },
+  "claim_limits": [
+    "A1 cannot identify auxiliary power because its measured current has a negative zero offset",
+    "All strict 20 s motion diagnostics fail; hover numbers are exploratory",
+    "Four zero-payload hover flights cannot validate payload dependence",
+    "Matrice 100 measurements are not X500 electrical ground truth"
+  ],
+  "fidelity": "measured_Matrice_100_DC_battery_side_only_not_X500_ground_truth",
+  "ground_flights": {
+    "A1": [
+      {
+        "duration_s": 131.9,
+        "end_s": 131.9,
+        "flight": 211,
+        "integrated_signed_energy_Wh": -0.15973324909473932,
+        "mean_current_A": -0.17006506608475622,
+        "mean_signed_power_W": -4.359510175154645,
+        "mean_voltage_V": 25.634560133623346,
+        "median_signed_power_W": -4.283559690159678,
+        "power_standard_deviation_W": 0.36960519436897754,
+        "route": "A1",
+        "sample_count": 881,
+        "selected_fraction": 1.0,
+        "start_s": 0.0
+      },
+      {
+        "duration_s": 120.3,
+        "end_s": 120.3,
+        "flight": 212,
+        "integrated_signed_energy_Wh": -0.11247822774992133,
+        "mean_current_A": -0.13172286300000197,
+        "mean_signed_power_W": -3.362568811151905,
+        "mean_voltage_V": 25.527850374968157,
+        "median_signed_power_W": -3.4500411522668064,
+        "power_standard_deviation_W": 0.6204574232145048,
+        "route": "A1",
+        "sample_count": 805,
+        "selected_fraction": 1.0,
+        "start_s": 0.0
+      },
+      {
+        "duration_s": 58.61,
+        "end_s": 58.61,
+        "flight": 213,
+        "integrated_signed_energy_Wh": -0.06231375100779003,
+        "mean_current_A": -0.1505562905792375,
+        "mean_signed_power_W": -3.827848151316076,
+        "mean_voltage_V": 25.424901869832254,
+        "median_signed_power_W": -3.8409844405377953,
+        "power_standard_deviation_W": 0.3623192800059206,
+        "route": "A1",
+        "sample_count": 392,
+        "selected_fraction": 1.0,
+        "start_s": 0.0
+      }
+    ],
+    "A2": [
+      {
+        "duration_s": 123.21000000000001,
+        "end_s": 136.21,
+        "flight": 214,
+        "integrated_signed_energy_Wh": 0.3482009205512337,
+        "mean_current_A": 0.40396769828087575,
+        "mean_signed_power_W": 10.192421399609751,
+        "mean_voltage_V": 25.230812168824293,
+        "median_signed_power_W": 10.23257746379386,
+        "power_standard_deviation_W": 0.5310360009671915,
+        "route": "A2",
+        "sample_count": 814,
+        "selected_fraction": 0.8945054945054945,
+        "start_s": 13.0
+      },
+      {
+        "duration_s": 51.09,
+        "end_s": 58.59,
+        "flight": 215,
+        "integrated_signed_energy_Wh": 0.13930210686431352,
+        "mean_current_A": 0.39042976874410235,
+        "mean_signed_power_W": 9.815752936143543,
+        "mean_voltage_V": 25.14103872125799,
+        "median_signed_power_W": 9.800322228090637,
+        "power_standard_deviation_W": 0.48906086568999263,
+        "route": "A2",
+        "sample_count": 341,
+        "selected_fraction": 0.8721227621483376,
+        "start_s": 7.5
+      },
+      {
+        "duration_s": 51.489999999999995,
+        "end_s": 58.69,
+        "flight": 216,
+        "integrated_signed_energy_Wh": 0.1437759090551358,
+        "mean_current_A": 0.4030256011040814,
+        "mean_signed_power_W": 10.086061745318037,
+        "mean_voltage_V": 25.02592546968575,
+        "median_signed_power_W": 10.1477821397566,
+        "power_standard_deviation_W": 0.5137182432396717,
+        "route": "A2",
+        "sample_count": 332,
+        "selected_fraction": 0.8469387755102041,
+        "start_s": 7.2
+      }
+    ],
+    "A3": [
+      {
+        "duration_s": 122.19999999999999,
+        "end_s": 140.1,
+        "flight": 217,
+        "integrated_signed_energy_Wh": 1.2418006201468352,
+        "mean_current_A": 1.4794002469702094,
+        "mean_signed_power_W": 36.574902524448916,
+        "mean_voltage_V": 24.72300405362073,
+        "median_signed_power_W": 36.61419341598775,
+        "power_standard_deviation_W": 0.9197570195586826,
+        "route": "A3",
+        "sample_count": 816,
+        "selected_fraction": 0.8727272727272727,
+        "start_s": 17.9
+      },
+      {
+        "duration_s": 123.4,
+        "end_s": 137.9,
+        "flight": 218,
+        "integrated_signed_energy_Wh": 1.2373531063236478,
+        "mean_current_A": 1.4688972250639813,
+        "mean_signed_power_W": 36.08901635203403,
+        "mean_voltage_V": 24.568959166702715,
+        "median_signed_power_W": 36.14750999410353,
+        "power_standard_deviation_W": 0.8539992725607616,
+        "route": "A3",
+        "sample_count": 824,
+        "selected_fraction": 0.8646379853095488,
+        "start_s": 14.5
+      },
+      {
+        "duration_s": 126.41,
+        "end_s": 126.41,
+        "flight": 219,
+        "integrated_signed_energy_Wh": 1.2393204780256273,
+        "mean_current_A": 1.4468734371973613,
+        "mean_signed_power_W": 35.295064253076475,
+        "mean_voltage_V": 24.39395820952934,
+        "median_signed_power_W": 35.30675025974858,
+        "power_standard_deviation_W": 0.5464099153584787,
+        "route": "A3",
+        "sample_count": 842,
+        "selected_fraction": 1.0,
+        "start_s": 0.0
+      }
+    ]
+  },
+  "hover_flights": [
+    {
+      "duration_s": 20.000000000000007,
+      "end_s": 75.9,
+      "flight": 221,
+      "integrated_signed_energy_Wh": 2.5567982959674502,
+      "mean_current_A": 21.277344774844043,
+      "mean_signed_power_W": 460.3818190428547,
+      "mean_voltage_V": 21.639967904162052,
+      "median_signed_power_W": 461.70173601070564,
+      "motion_diagnostics": {
+        "absolute_vertical_speed_95_m_s": 0.13110130536496445,
+        "altitude_deviation_95_m": 0.27296291887759166,
+        "horizontal_speed_95_m_s": 0.14592051983820625,
+        "selection_score": 1.3110130536496445,
+        "strict_pass": false
+      },
+      "power_standard_deviation_W": 23.833788183504762,
+      "route": "H",
+      "sample_count": 134,
+      "start_s": 55.9,
+      "zero_offset_corrected_energy_Wh": 2.5750155322376447,
+      "zero_offset_corrected_mean_power_W": 463.6609541402299
+    },
+    {
+      "duration_s": 20.0,
+      "end_s": 74.7,
+      "flight": 222,
+      "integrated_signed_energy_Wh": 2.713504984335412,
+      "mean_current_A": 22.074599152180685,
+      "mean_signed_power_W": 488.40588192788397,
+      "mean_voltage_V": 22.12928615399261,
+      "median_signed_power_W": 491.04638212901773,
+      "motion_diagnostics": {
+        "absolute_vertical_speed_95_m_s": 0.11945491332356496,
+        "altitude_deviation_95_m": 0.14971556663511335,
+        "horizontal_speed_95_m_s": 0.167808921049717,
+        "selection_score": 1.1945491332356495,
+        "strict_pass": false
+      },
+      "power_standard_deviation_W": 21.24890899522825,
+      "route": "H",
+      "sample_count": 134,
+      "start_s": 54.7,
+      "zero_offset_corrected_energy_Wh": 2.732134138417574,
+      "zero_offset_corrected_mean_power_W": 491.75916411521376
+    },
+    {
+      "duration_s": 20.0,
+      "end_s": 103.5,
+      "flight": 223,
+      "integrated_signed_energy_Wh": 2.6983648184572653,
+      "mean_current_A": 22.232922582484004,
+      "mean_signed_power_W": 485.7064669965542,
+      "mean_voltage_V": 21.84757480336659,
+      "median_signed_power_W": 485.49805534774714,
+      "motion_diagnostics": {
+        "absolute_vertical_speed_95_m_s": 0.07057451385633935,
+        "altitude_deviation_95_m": 0.2677298545837402,
+        "horizontal_speed_95_m_s": 0.12027076430265507,
+        "selection_score": 1.0709194183349608,
+        "strict_pass": false
+      },
+      "power_standard_deviation_W": 15.204713279878785,
+      "route": "H",
+      "sample_count": 134,
+      "start_s": 83.5,
+      "zero_offset_corrected_energy_Wh": 2.7167572653368595,
+      "zero_offset_corrected_mean_power_W": 489.01706106247553
+    },
+    {
+      "duration_s": 20.0,
+      "end_s": 101.0,
+      "flight": 224,
+      "integrated_signed_energy_Wh": 2.665629004639882,
+      "mean_current_A": 22.42014523406527,
+      "mean_signed_power_W": 480.14074039278876,
+      "mean_voltage_V": 21.418850172811478,
+      "median_signed_power_W": 480.687078218858,
+      "motion_diagnostics": {
+        "absolute_vertical_speed_95_m_s": 0.11804128440910351,
+        "altitude_deviation_95_m": 0.33700296878816544,
+        "horizontal_speed_95_m_s": 0.18274994958063728,
+        "selection_score": 1.3480118751526617,
+        "strict_pass": false
+      },
+      "power_standard_deviation_W": 25.70245169756259,
+      "route": "H",
+      "sample_count": 134,
+      "start_s": 81.0,
+      "zero_offset_corrected_energy_Wh": 2.6836610289987575,
+      "zero_offset_corrected_mean_power_W": 483.38636920601715
+    }
+  ],
+  "protocol": {
+    "current_sign": "processed CSV positive during motor operation; signed values retained",
+    "power_equation": "P_W = battery_voltage_V * battery_current_A",
+    "strict_motion_thresholds_are_diagnostic_not_silently_relaxed": true,
+    "window_selection": "20 s least-motion powered window selected without using electrical power"
+  },
+  "schema": "m100_controlled_data_audit_v1",
+  "source_audit": {
+    "README.txt": {
+      "bytes": 25101,
+      "md5": "af6afbb550286df945c9ecaf4c5f72a4",
+      "verified": true
+    },
+    "flights.zip": {
+      "bytes": 41274360,
+      "md5": "cd1d267fd9b025219f9633b95158eea2",
+      "verified": true
+    },
+    "parameters.csv": {
+      "bytes": 7867,
+      "md5": "7daa897a1af7847b592ccb7a459477ee",
+      "verified": true
+    }
+  }
+}

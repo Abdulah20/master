@@ -1,0 +1,33 @@
+# Python environments and generated caches
+.venv*/
+venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+.coverage.*
+htmlcov/
+*.egg-info/
+
+# Local builds and recovery snapshots
+/build/
+/audit_builds/
+/audit_backups/
+/backups/
+
+# PX4 runtime state; retain flight logs and research results
+**/px4_runtime_live/dataman
+**/px4_runtime_live/parameters*.bson
+**/px4_runtime_live/etc
+**/px4_runtime_live/test_data
+**/px4_runtime_failed_workdir_attempt/etc
+**/px4_runtime_failed_workdir_attempt/test_data
+
+# Local configuration and credentials
+.env
+.env.*
+!.env.example
+*.pem
+*.key

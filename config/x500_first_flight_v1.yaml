@@ -1,0 +1,44 @@
+schema_version: 1
+
+scenario:
+  mission_name: x500_first_flight_v1
+  run_id: x500_first_flight_v1_baseline
+  fidelity: C_NOT_CALIBRATED
+
+mission:
+  # Positive altitude above the takeoff point. Applied by the PX4 mission runner.
+  target_relative_altitude_m: 3.0
+  hover_duration_s: 5.0
+  translation_north_m: 2.0
+  translation_east_m: 0.0
+  translation_speed_m_s: 1.0
+
+operating_conditions:
+  payload:
+    mass_kg: 0.0
+    # Box dimensions and centre pose in the X500 body frame.
+    dimensions_m: [0.10, 0.10, 0.05]
+    position_body_m: [0.0, 0.0, -0.08]
+  wind:
+    # Gazebo world frame: East, North, Up. Zero is the first-flight baseline.
+    velocity_enu_m_s: [0.0, 0.0, 0.0]
+
+logging:
+  sample_rate_hz: 20.0
+  quaternion_order: wxyz
+  euler_sequence: roll_pitch_yaw
+  angle_unit: rad
+  required_attitude_columns:
+    - q_w
+    - q_x
+    - q_y
+    - q_z
+    - roll_rad
+    - pitch_rad
+    - yaw_rad
+
+provenance:
+  px4_root: /home/abdulah/PX4-Autopilot
+  x500_model: /home/abdulah/PX4-Autopilot/Tools/simulation/gz/models/x500/model.sdf
+  x500_base_model: /home/abdulah/PX4-Autopilot/Tools/simulation/gz/models/x500_base/model.sdf
+  energy_model: /home/abdulah/uav-energy-thesis/models/x500_energy/model.sdf

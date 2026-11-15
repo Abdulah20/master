@@ -1,0 +1,54 @@
+{
+  "date": "2026-08-17",
+  "gazebo_sim_version": "8.11.0",
+  "model": "x500_energy",
+  "plugin": "MotorBatteryLoadSystem",
+  "fidelity": "C_NOT_CALIBRATED",
+  "battery": {
+    "plugin": "LinearBatteryPlugin",
+    "name": "x500_energy_battery",
+    "parameter_status": "placeholder_not_calibrated"
+  },
+  "power_model": {
+    "motor_constant": 8.54858e-06,
+    "moment_constant": 0.016,
+    "rotor_velocity_slowdown": 10.0,
+    "propulsion_efficiency": 0.70,
+    "auxiliary_power_w": 10.0,
+    "maximum_power_w": 2000.0
+  },
+  "snapshots": [
+    {
+      "command_rad_s": 0.0,
+      "electrical_load_w": 10.0,
+      "battery_current_a": 0.3971563652722677,
+      "battery_voltage_v": 25.178893836805095
+    },
+    {
+      "command_rad_s": 200.0,
+      "actual_rotor_speed_rad_s": [200.0, 200.0, -200.0, -200.0],
+      "shaft_power_w": 4.376872959999985,
+      "electrical_load_w": 16.252675657142838,
+      "battery_current_a": 0.6457827288952499,
+      "battery_voltage_v": 25.16427911461613
+    },
+    {
+      "command_rad_s": 600.0,
+      "actual_rotor_speed_rad_s": [600.0, 600.0, -600.0, -600.0],
+      "shaft_power_w": 118.17556991999952,
+      "electrical_load_w": 178.82224274285647,
+      "battery_current_a": 7.203106437784123,
+      "battery_voltage_v": 24.821214692660934
+    },
+    {
+      "command_rad_s": 0.0,
+      "phase": "three_seconds_after_high_load",
+      "electrical_load_w": 10.0,
+      "battery_current_a": 0.4398156888169821,
+      "battery_voltage_v": 25.14280459371206
+    }
+  ],
+  "result": "pass",
+  "claim": "Actual rotor motion changes the estimated electrical load and the official Gazebo battery current and voltage. This is model evidence, not physical ground truth."
+}
+

@@ -1,0 +1,53 @@
+{
+  "schema_version": 1,
+  "artifact": {
+    "path": "results/logs/hover_energy_v1_run.json",
+    "sha256": "d4b7f214f144f2351b7c4dc07516183c570a5ccc6bc586d5e0e72afd9b21d2e5"
+  },
+  "status": "legacy_result_source_restored_and_verified",
+  "exact_reproduction": "verified_byte_identical_from_restored_source",
+  "source_input": {
+    "recorded_path": "/home/abdulah/PX4-Autopilot/build/px4_sitl_default/rootfs/log/2026-08-17/00_55_32.ulg",
+    "expected_sha256": "430113e447b75526e10ad7742eef3bf586c85852cd0ca2911cf6055479517f19",
+    "availability_checked_on": "2026-11-12",
+    "availability": "restored_to_recorded_path_and_durable_copy_sha256_verified",
+    "recorded_path_is_volatile": true,
+    "recorded_path_volatility_reason": "PX4 build/rootfs may be recreated when SITL starts or the build tree is cleaned"
+  },
+  "current_reproduction_source": {
+    "path": "data/restored/hover_energy_v1/00_55_32.ulg",
+    "sha256": "430113e447b75526e10ad7742eef3bf586c85852cd0ca2911cf6055479517f19",
+    "size_bytes": 20758921,
+    "role": "durable canonical local input for current reproduction and integration tests"
+  },
+  "restoration": {
+    "archive_path": "/home/abdulah/UAV_Energy_Thesis_Backup_2026-08-23/FULL_03_PX4_Autopilot_COMPLETE_2026-08-23.tar.zst",
+    "archive_sha256": "8691708fc06fdf9e157c0cc2ffe75a2898a04e64bcd28531fe693120ddf5b782",
+    "archive_member": "PX4-Autopilot/build/px4_sitl_default/rootfs/log/2026-08-17/00_55_32.ulg",
+    "initial_restored_on": "2026-11-11",
+    "durable_copy_created_on": "2026-11-12",
+    "method": "single-member extraction to a temporary directory, SHA-256 verification, then installation at both the durable thesis path and the historical recorded path",
+    "restore_script": "scripts/restore_hover_energy_v1_ulog.sh",
+    "restore_script_sha256": "62303e1faddc8ae1da8e8af1fe2a05b754450f07f98bb68daf5ea3c19eb5d5fe"
+  },
+  "configuration_reference": {
+    "current_path": "config/hover_energy_v1.yaml",
+    "current_sha256": "c7349f006f3d9a0c4c4dc5151eda071d5e1c82d457c7608b0895e509028527c7",
+    "relationship_to_legacy_run": "legacy report did not record a config hash, but the current config and restored exact ULog reproduce the preserved JSON byte-for-byte"
+  },
+  "source_tree_revision": {
+    "status": "unavailable_empty_git_directory",
+    "git_metadata_path": ".git",
+    "commit": null
+  },
+  "scientific_result_recomputed": true,
+  "replacement_data_used": false,
+  "reproduction_verification": {
+    "temporary_output": "/tmp/hover_energy_v1_rebuild_20261111.json",
+    "temporary_output_sha256": "d4b7f214f144f2351b7c4dc07516183c570a5ccc6bc586d5e0e72afd9b21d2e5",
+    "preserved_output_sha256": "d4b7f214f144f2351b7c4dc07516183c570a5ccc6bc586d5e0e72afd9b21d2e5",
+    "byte_identical": true,
+    "structured_field_differences": 0
+  },
+  "note": "The exact historical ULog was restored from the verified full PX4 backup. Rebuilding with the current checked configuration reproduced the preserved legacy JSON byte-for-byte; the preserved artifact itself was not overwritten."
+}

@@ -1,0 +1,194 @@
+{
+  "schema": "M100_SIM_REAL_HOVER_COMPARISON_V1",
+  "generated_at_utc": "2026-11-10T18:15:28Z",
+  "purpose": "Diagnostic comparison of a controlled M100 PX4/Gazebo hover run with local real M100 hover measurements",
+  "classification": {
+    "comparison_type": "DIAGNOSTIC_NOT_INDEPENDENT_VALIDATION",
+    "simulation_source": "PX4_SITL_GAZEBO_HARMONIC",
+    "real_source": "MEASURED_MATRICE_100_DC_BATTERY_SIDE",
+    "operational_energy_model": "STAGE1_CALIBRATED",
+    "operational_energy_status": "CALIBRATED_FROM_REAL_M100_DATA",
+    "research_energy_model": "GONG_2023",
+    "research_energy_status": "C_NOT_CALIBRATED",
+    "battery_model_status": "C_NOT_CALIBRATED"
+  },
+  "simulation_run": {
+    "run_id": "m100_20261110T181151Z",
+    "csv_path": "/home/abdulah/Master/Drone/project/outputs/m100_csv/m100_20261110T181151Z.csv",
+    "csv_sha256": "7e879e9a4977121ec7200c19603ae62fe7984c7e2134e903721f5cce76b94545",
+    "csv_bytes": 418921,
+    "csv_columns": 75,
+    "csv_data_rows": 396,
+    "csv_timestamp_span_s": 39.34400000000001,
+    "wall_time_start_utc": "2026-11-10T18:11:51.162231+00:00",
+    "wall_time_last_csv_row_utc": "2026-11-10T18:12:30.662158+00:00",
+    "final_state": "COMPLETE",
+    "landed": true,
+    "armed": false,
+    "recording": false,
+    "px4_connected": true,
+    "energy_warnings": [],
+    "inputs": {
+      "temperature_command_c": 15.0,
+      "temperature_is_physical": false,
+      "wind_speed_command_mps": 0.0,
+      "wind_direction_command_deg": 0.0,
+      "wind_vector_mps": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "payload_kg": 0.0,
+      "total_mass_kg": 3.68,
+      "commanded_speed_mps": 0.0,
+      "commanded_altitude_m": 5.0,
+      "route_length_command_m": 0.0,
+      "hover_duration_command_s": 10.0,
+      "legacy_pid_values_ignored_by_m100_backend": [
+        0.9,
+        0.04,
+        0.45,
+        1.3,
+        0.06,
+        0.35
+      ]
+    },
+    "hover_window": {
+      "sample_count": 100,
+      "timestamp_span_s": 9.844000000000001,
+      "effective_sample_rate_hz": 10.056887444128401,
+      "actual_altitude_mean_m": 4.993919954895973,
+      "actual_altitude_standard_deviation_m": 0.007571879752387422,
+      "actual_altitude_min_m": 4.977536216378212,
+      "actual_altitude_max_m": 5.012540832161903,
+      "mean_absolute_altitude_error_m": 0.007640405893325806,
+      "actual_speed_3d_mean_mps": 0.019150969662502623,
+      "actual_horizontal_speed_mean_mps": 0.017169745837113063,
+      "actual_horizontal_speed_max_mps": 0.03340324674475718,
+      "xy_first_to_last_drift_m": 0.02361284760700355,
+      "maximum_absolute_roll_deg": 0.22980739755591187,
+      "maximum_absolute_pitch_deg": 0.290911230366198,
+      "mechanical_power_mean_W": 349.7856360161363,
+      "mechanical_power_status": "C_NOT_CALIBRATED",
+      "stage1_electrical_power_mean_W": 441.69587759110914,
+      "stage1_electrical_power_standard_deviation_W": 1.0136694383772415,
+      "stage1_electrical_power_cv_pct": 0.22949488320007033,
+      "stage1_energy_trapezoidal_Wh": 1.2078045974378586,
+      "stage1_measurement_energy_final_Wh": 1.2283864513999396,
+      "gong_power_mean_W": 469.01641629082667,
+      "gong_energy_trapezoidal_Wh": 1.2824993308091508,
+      "gong_measurement_energy_final_Wh": 1.3043867670163942,
+      "energy_per_distance_Wh_per_km": null
+    }
+  },
+  "simulation_repeatability_reference": {
+    "csv_path": "/home/abdulah/Master/Drone/project/outputs/m100_csv/m100_20260902T151853Z.csv",
+    "csv_sha256": "d8abdc07ecac832189baf41679641e3ddbfa512b6bb60fa7e2bb7d2a77071de5",
+    "matching_inputs_except_hover_duration_s": true,
+    "hover_duration_s": 5.0,
+    "stage1_power_mean_W": 441.78667527756943,
+    "new_minus_reference_stage1_power_W": -0.09079768646029152,
+    "new_minus_reference_stage1_power_pct": -0.020552382301536005,
+    "stage1_measurement_energy_final_Wh": 0.6135875740577795,
+    "stage1_new_to_reference_energy_ratio": 2.001974132683897,
+    "gong_measurement_energy_final_Wh": 0.6514114669155338,
+    "gong_new_to_reference_energy_ratio": 2.0024006841524167
+  },
+  "real_reference_versioned_v2": {
+    "result_path": "/home/abdulah/uav-energy-thesis/results/logs/m100_controlled_audit_v2.json",
+    "result_sha256": "94ae05cf5f6c80a428bd69ef9488397c8f0f996faf22f512cdcaa854e06f1783",
+    "flight_ids": [
+      221,
+      222,
+      223,
+      224
+    ],
+    "payload_g": 0,
+    "route": "H",
+    "target_altitude_m": 3.0,
+    "selected_window_duration_s_per_flight": 20.0,
+    "flight_mean_signed_power_W": [
+      460.3818190428547,
+      488.40588192788397,
+      485.7064669965542,
+      480.14074039278876
+    ],
+    "mean_of_flight_means_W": 478.6587270900204,
+    "between_flight_sample_standard_deviation_W": 12.661218956819392,
+    "between_flight_cv_pct": 2.645145328027879,
+    "observed_flight_mean_range_W": [
+      460.3818190428547,
+      488.40588192788397
+    ],
+    "strict_motion_pass_count": 0,
+    "flight_count": 4,
+    "use_classification": "EXPLORATORY_DIAGNOSTIC"
+  },
+  "comparison_to_versioned_v2": {
+    "quantity": "aircraft_level_electrical_power",
+    "simulation_stage1_mean_W": 441.69587759110914,
+    "real_mean_W": 478.6587270900204,
+    "bias_W": -36.96284949891128,
+    "relative_bias_pct": -7.722171853759965,
+    "absolute_percent_error_pct": 7.722171853759965,
+    "inside_observed_real_flight_mean_range": false,
+    "distance_below_real_range_lower_bound_W": 18.685941451745578,
+    "real_reference_energy_for_captured_hover_span_Wh": 1.3088656970761559,
+    "simulation_energy_for_captured_hover_span_Wh": 1.2078045974378586,
+    "energy_bias_for_captured_hover_span_Wh": -0.10106109963829724,
+    "energy_relative_bias_pct": -7.721273455638362,
+    "interpretation": "The run passes the simulation execution and repeatability checks, but Stage-1 underestimates this exploratory real hover reference and is outside its observed flight-mean range."
+  },
+  "real_reference_sensitivity_fixed_20_to_100_s": {
+    "raw_flights_path": "/home/abdulah/Master/Dataset /DJI Matrice 100/flights.csv",
+    "raw_flights_sha256": "117843be1846d4db353c8961b9f947ee7e6a30fdf3d78c8f8de92b477869f037",
+    "parameters_path": "/home/abdulah/Master/Dataset /DJI Matrice 100/parameters.csv",
+    "parameters_sha256": "568dffaed11a4d335ef4f8a932b342c836907af2f4aa54da9b4a0e2ffef2108a",
+    "protocol": "Trapezoidal time-weighted signed V*I power over t=[20,100] s for each flight",
+    "flight_mean_signed_power_W": [
+      459.267674,
+      484.241771,
+      481.368798,
+      479.433692
+    ],
+    "mean_of_flight_means_W": 476.07798375000004,
+    "between_flight_sample_standard_deviation_W": 11.37962256903877,
+    "observed_flight_mean_range_W": [
+      459.267674,
+      484.241771
+    ],
+    "simulation_stage1_bias_W": -34.382106158890906,
+    "simulation_stage1_relative_bias_pct": -7.221948364019659,
+    "simulation_stage1_inside_observed_range": false
+  },
+  "secondary_model_context": {
+    "gong_mean_W": 469.01641629082667,
+    "gong_bias_vs_versioned_real_reference_W": -9.642310799193751,
+    "gong_relative_bias_vs_versioned_real_reference_pct": -2.0144437473883854,
+    "gong_must_not_replace_operational_stage1": true,
+    "reason": "Gong is classified C_NOT_CALIBRATED and is research-only even though it is numerically closer in this run."
+  },
+  "quality_checks": {
+    "execution_contract_pass": true,
+    "exact_75_column_header_contract_pass": true,
+    "single_run_id_pass": true,
+    "strictly_increasing_csv_timestamps_pass": true,
+    "finite_numeric_values_pass": true,
+    "nondecreasing_energy_pass": true,
+    "command_values_constant_pass": true,
+    "hover_sample_count_pass": true,
+    "safe_final_state_pass": true,
+    "simulation_repeatability_pass": true,
+    "independent_real_world_validation_pass": false
+  },
+  "limitations": [
+    "The operational Stage-1 model was calibrated from real M100 data, so this is not an independent external validation.",
+    "The simulation target altitude was 5 m while the real flight metadata target was 3 m.",
+    "Real flights contain local airflow and instrumentation effects; zero ambient wind equivalence is not established.",
+    "The real reference is battery-side measured V*I, while simulation Stage-1 is estimated aircraft-level electrical power.",
+    "All four real hover flights are exploratory diagnostics, fail the strict motion screen, and were collected on one day.",
+    "The simulation position and speed fields are PX4 estimator outputs, not recorded Gazebo ground truth.",
+    "Temperature 15 C is a recorded command only and is not a physical simulation input in this backend.",
+    "Dynamic battery voltage, current, state of charge, and endurance remain unavailable."
+  ]
+}

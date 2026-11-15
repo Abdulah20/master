@@ -1,0 +1,95 @@
+{
+  "model": "Hover Energy Model v1",
+  "fidelity": "ideal_induced_power_energy_lower_bound",
+  "scientific_claim": "Ideal induced power/energy lower bound only",
+  "input": {
+    "ulog_path": "/home/abdulah/PX4-Autopilot/build/px4_sitl_default/rootfs/log/2026-08-17/00_55_32.ulg",
+    "ulog_sha256": "430113e447b75526e10ad7742eef3bf586c85852cd0ca2911cf6055479517f19",
+    "config_path": "/home/abdulah/uav-energy-thesis/config/hover_energy_v1.yaml"
+  },
+  "window": {
+    "posctl_start_timestamp_us": 52756000,
+    "auto_land_start_timestamp_us": 87712000,
+    "analysis_start_timestamp_us": 62756000,
+    "analysis_end_timestamp_us": 77712000,
+    "posctl_start_relative_s": 47.06,
+    "auto_land_start_relative_s": 82.016,
+    "analysis_start_relative_s": 57.06,
+    "analysis_end_relative_s": 72.016,
+    "analysis_duration_s": 14.956,
+    "sample_count_including_interpolated_boundaries": 152
+  },
+  "vehicle": {
+    "nominal_mass_kg": 2.0643076923076924,
+    "payload_mass_kg": 0.0,
+    "total_mass_kg": 2.0643076923076924,
+    "gravity_m_s2": 9.8
+  },
+  "thrust": {
+    "required_hover_thrust_N": 20.230215384615388,
+    "mean_command_based_thrust_N": 20.227599072664823,
+    "thrust_balance_error_pct": -0.01293269449100532,
+    "motor_command_source": "actuator_outputs.output[0..3] float values in rad/s",
+    "interpretation": "Internal PX4-Gazebo consistency check; not external thrust validation"
+  },
+  "air_density": {
+    "mean_kg_m3": 1.2244642289845569,
+    "minimum_kg_m3": 1.2244181036949158,
+    "maximum_kg_m3": 1.224510508775711,
+    "usage": "Post-processing only; Gazebo motorConstant is not density-coupled"
+  },
+  "sensitivity_results": [
+    {
+      "label": "diameter_sensitivity_collision",
+      "rotor_diameter_m": 0.2792307692307692,
+      "total_disk_area_m2": 0.2449494215212269,
+      "provenance": "Tools/simulation/gz/models/x500_base/model.sdf collision geometry",
+      "mean_ideal_induced_power_lower_bound_W": 117.48285495153996,
+      "ideal_induced_energy_lower_bound_J": 1757.0735786552316,
+      "ideal_induced_energy_lower_bound_Wh": 0.4880759940708977,
+      "fidelity": "ideal_induced_power_energy_lower_bound"
+    },
+    {
+      "label": "diameter_sensitivity_visual_mesh",
+      "rotor_diameter_m": 0.29276914,
+      "total_disk_area_m2": 0.26927774805853455,
+      "provenance": "Scaled visual mesh extent; not an aerodynamic specification",
+      "mean_ideal_induced_power_lower_bound_W": 112.05015651426032,
+      "ideal_induced_energy_lower_bound_J": 1675.8221408272773,
+      "ideal_induced_energy_lower_bound_Wh": 0.46550615022979924,
+      "fidelity": "ideal_induced_power_energy_lower_bound"
+    }
+  ],
+  "quality": {
+    "accepted": true,
+    "ulog_dropouts": 0,
+    "motion_violation_fractions": {
+      "vertical_speed": 0.0,
+      "horizontal_speed": 0.0,
+      "altitude_deviation": 0.0
+    },
+    "maximum_high_motor_command_duration_s": 0.0,
+    "rtf_validation": "NOT AVAILABLE IN ULOG; previously validated separately"
+  },
+  "unavailable_quantities": [
+    "battery energy",
+    "measured electrical energy",
+    "electrical power",
+    "battery current",
+    "true state of charge"
+  ],
+  "limitations": [
+    "Momentum theory omits profile, interference, motor, ESC, and avionics losses.",
+    "Rotor diameters are temporary sensitivity values, not validated aerodynamic specifications.",
+    "Gazebo thrust uses a constant motorConstant and is not coupled to air density.",
+    "The result must not be used as an ML target representing battery energy.",
+    "A scientific source for momentum theory and figure of merit is required before thesis use."
+  ],
+  "provenance": {
+    "mass": "/home/abdulah/PX4-Autopilot/Tools/simulation/gz/models/x500_base/model.sdf",
+    "propulsion": "/home/abdulah/PX4-Autopilot/Tools/simulation/gz/models/x500/model.sdf",
+    "gravity": "/home/abdulah/PX4-Autopilot/Tools/simulation/gz/worlds/default.sdf",
+    "motor_command_bridge": "/home/abdulah/PX4-Autopilot/src/modules/simulation/gz_bridge/GZMixingInterfaceESC.cpp",
+    "air_density_message": "/home/abdulah/PX4-Autopilot/msg/VehicleAirData.msg"
+  }
+}

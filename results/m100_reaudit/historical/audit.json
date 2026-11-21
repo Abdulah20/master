@@ -1,0 +1,55 @@
+{
+  "source_csv_sha256": "ea24ff674b74940b2f1ffaf12fcee49164eb5180f895ab0bdcf9bda1b060028c",
+  "source_protocol_sha256": "04a087bf939d9b105f33fb5ddeacb993cdf2df31cb3252a86cd73148144c87ea",
+  "source_results_sha256": "87fffb8c9eb317b23e831056de6a1dee0ab711e5835799b005ce97d932046328",
+  "cases": 69,
+  "columns": 18,
+  "source_cells_checked": 1242,
+  "original_rows": 24510,
+  "logical_rows": 84,
+  "excluded_original_attempts": 20,
+  "temperature_c_counts": {
+    "15": 69
+  },
+  "altitude_m_counts": {
+    "100": 68,
+    "200": 1
+  },
+  "wind_cases": 39,
+  "wind_by_command_speed": {
+    "10": 38,
+    "15": 1
+  },
+  "evidence": {
+    "B_M100_SYSTEM_LEVEL_EMPIRICAL_PUBLISHED_MODEL": 6,
+    "LIMITED_PUBLISHED_M100_PHASE_MODEL_EXTRAPOLATION": 18,
+    "LIMITED_EMPIRICAL_PROXY": 6,
+    "C_NOT_CALIBRATED": 39
+  },
+  "quality": {
+    "PASS_ENERGY_VI_PARTIAL": 64,
+    "PASS": 5
+  },
+  "mismatched_window_percent": {
+    "min": 0.11190599893802082,
+    "mean": 2.232652702129742,
+    "max": 4.775503728387346
+  },
+  "equivalent_seconds": {
+    "min": 0.08828418967107624,
+    "mean": 1.0118805660222203,
+    "max": 1.601890962758762
+  },
+  "max_abs_aligned_1Hz_minus_high_rate_Wh": 5.592288585631877e-05,
+  "max_abs_phase_sum_error_Wh": 6.09645667282166e-11,
+  "nominal_energy_values_Wh": [
+    99.9
+  ],
+  "paired_VI_rows": 18909,
+  "missing_VI_rows": 5532,
+  "max_abs_VI_error_W": 2.2737367544323206e-13,
+  "max_abs_speed_error_mps": 0.4279748971993875,
+  "max_abs_height_error_m": 0.08800089359283447,
+  "hover_cases": 6,
+  "calm_max_abs_formula_error_W": 1.1368683772161603e-13
+}

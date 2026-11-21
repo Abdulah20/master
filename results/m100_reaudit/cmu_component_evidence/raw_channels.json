@@ -1,0 +1,683 @@
+{
+  "source": "Rodrigues et al., CMU, https://doi.org/10.1184/R1/12683453",
+  "method": "ZIP directory covers all members. Only named development and ancillary bags are opened, one in memory at a time. Walk the chunks referenced by the bag header/end index. For each chunk, match the count of complete messages per connection to both its time/offset index and CHUNK_INFO table. Extra bytes between indexed areas are required to be zero padding. Decode only /battery. Summaries pool all messages including time on the ground. Median and sign counts use native signed samples, without resampling.",
+  "inputs": {
+    "archive_path": "/home/abdulah/Master/Dataset /DJI Matrice 100/raw_files.zip",
+    "parameters_path": "/home/abdulah/uav-energy-thesis/data/external/m100/parameters.csv",
+    "parameters_sha256": "568dffaed11a4d335ef4f8a932b342c836907af2f4aa54da9b4a0e2ffef2108a",
+    "cohorts_path": "/home/abdulah/uav-energy-thesis/results/m100_reaudit/cmu_calibration/fit.json",
+    "cohorts_sha256": "d3413efef49a278a10f0dc404c6b34e5c6d07e42dd698ad21aae0ea00824377f",
+    "reference_md5_source": "https://api.figshare.com/v2/articles/12683453, version 1, raw_files.zip file ID 26405936"
+  },
+  "inventory": {
+    "zip_bytes": 106101296,
+    "zip_md5": "351de11d5e7db5521606a931ea10ce63",
+    "matches_published_md5": true,
+    "zip_entries": 414,
+    "bag_members": 207,
+    "duplicate_member_names": [],
+    "duplicate_bag_ids": [],
+    "metadata_rows": 209,
+    "metadata_distinct_ids": 209,
+    "metadata_ids_without_bag": [
+      278,
+      279
+    ],
+    "bag_ids_without_metadata": [],
+    "bags_opened": 119,
+    "other_bags_not_opened": 88,
+    "zero_padding_after_chunk_indices_bytes_by_id": {
+      "86": 49,
+      "212": 18944,
+      "213": 49,
+      "215": 775532,
+      "216": 787724
+    }
+  },
+  "groups": {
+    "train": {
+      "opened_ids": [
+        1,
+        3,
+        4,
+        6,
+        8,
+        14,
+        15,
+        16,
+        17,
+        18,
+        23,
+        59,
+        60,
+        78,
+        82,
+        83,
+        84,
+        86,
+        92,
+        93,
+        94,
+        95,
+        96,
+        97,
+        100,
+        101,
+        102,
+        105,
+        106,
+        107,
+        115,
+        116,
+        117,
+        121,
+        122,
+        124,
+        130,
+        134,
+        135,
+        136,
+        138,
+        139,
+        142,
+        143,
+        144,
+        146,
+        148,
+        149,
+        150,
+        151,
+        152,
+        153,
+        156,
+        157,
+        160,
+        164,
+        167,
+        168,
+        169,
+        170,
+        171,
+        172,
+        173,
+        174,
+        175,
+        225,
+        226,
+        228,
+        230,
+        231,
+        234,
+        236,
+        238,
+        239,
+        240
+      ],
+      "requested_ids_without_bag": [],
+      "bags_with_connection": {
+        "/anemometer": 75,
+        "/battery": 75,
+        "/imu/data": 75,
+        "/nav/odom": 75
+      },
+      "topic_messages": {
+        "/anemometer": 91926,
+        "/battery": 137715,
+        "/imu/data": 137510,
+        "/nav/odom": 137340
+      },
+      "bags_with_multiple_finite_values": {
+        "voltage": 75,
+        "current": 75
+      },
+      "voltage_V": {
+        "finite": 137715,
+        "nonfinite_counts": {},
+        "min": 19.563291549682617,
+        "median": 22.23516845703125,
+        "max": 25.807270050048828,
+        "negative": 0,
+        "zero": 0,
+        "positive": 137715
+      },
+      "current_A_unmodified": {
+        "finite": 137715,
+        "nonfinite_counts": {},
+        "min": -0.22264966368675232,
+        "median": 22.439905166625977,
+        "max": 46.72462463378906,
+        "negative": 10157,
+        "zero": 1470,
+        "positive": 126088
+      },
+      "bag_clock_start_dates_UTC": {
+        "2019-04-02": 30,
+        "2019-04-03": 45
+      },
+      "bag_clock_start_dates_America_New_York": {
+        "2019-04-02": 75
+      },
+      "bag_clock_local_date_matching_published_date": 0
+    },
+    "validation": {
+      "opened_ids": [
+        178,
+        179,
+        181,
+        183,
+        184,
+        186,
+        188,
+        189,
+        190,
+        194,
+        195,
+        198,
+        199,
+        200,
+        201,
+        203,
+        204,
+        205,
+        207,
+        208,
+        209,
+        241,
+        242,
+        243,
+        248,
+        250,
+        253,
+        254,
+        255,
+        256,
+        257,
+        261,
+        262,
+        263,
+        264
+      ],
+      "requested_ids_without_bag": [],
+      "bags_with_connection": {
+        "/anemometer": 35,
+        "/battery": 35,
+        "/imu/data": 35,
+        "/nav/odom": 35
+      },
+      "topic_messages": {
+        "/anemometer": 45639,
+        "/battery": 68427,
+        "/imu/data": 68354,
+        "/nav/odom": 68277
+      },
+      "bags_with_multiple_finite_values": {
+        "voltage": 35,
+        "current": 35
+      },
+      "voltage_V": {
+        "finite": 68427,
+        "nonfinite_counts": {},
+        "min": 18.810810089111328,
+        "median": 22.366634368896484,
+        "max": 25.896163940429688,
+        "negative": 0,
+        "zero": 0,
+        "positive": 68427
+      },
+      "current_A_unmodified": {
+        "finite": 68427,
+        "nonfinite_counts": {},
+        "min": -0.3021674156188965,
+        "median": 22.185449600219727,
+        "max": 49.690635681152344,
+        "negative": 11470,
+        "zero": 667,
+        "positive": 56290
+      },
+      "bag_clock_start_dates_UTC": {
+        "2019-04-03": 35
+      },
+      "bag_clock_start_dates_America_New_York": {
+        "2019-04-02": 35
+      },
+      "bag_clock_local_date_matching_published_date": 0
+    },
+    "ancillary_ground": {
+      "opened_ids": [
+        211,
+        212,
+        213,
+        214,
+        215,
+        216,
+        217,
+        218,
+        219
+      ],
+      "requested_ids_without_bag": [],
+      "bags_with_connection": {
+        "/anemometer": 9,
+        "/battery": 9,
+        "/imu/data": 9,
+        "/nav/odom": 9
+      },
+      "topic_messages": {
+        "/anemometer": 6667,
+        "/battery": 9977,
+        "/imu/data": 9958,
+        "/nav/odom": 9941
+      },
+      "bags_with_multiple_finite_values": {
+        "voltage": 9,
+        "current": 9
+      },
+      "voltage_V": {
+        "finite": 9977,
+        "nonfinite_counts": {},
+        "min": 23.065279006958008,
+        "median": 25.13616943359375,
+        "max": 25.675804138183594,
+        "negative": 0,
+        "zero": 0,
+        "positive": 9977
+      },
+      "current_A_unmodified": {
+        "finite": 9977,
+        "nonfinite_counts": {},
+        "min": -0.326022744178772,
+        "median": 0.39758870005607605,
+        "max": 13.883797645568848,
+        "negative": 3840,
+        "zero": 0,
+        "positive": 6137
+      },
+      "bag_clock_start_dates_UTC": {
+        "2019-04-03": 9
+      },
+      "bag_clock_start_dates_America_New_York": {
+        "2019-04-02": 9
+      },
+      "bag_clock_local_date_matching_published_date": 0
+    }
+  },
+  "ancillary_records": {
+    "211": {
+      "route": "A1",
+      "battery_messages": 1345,
+      "voltage_V": {
+        "finite": 1345,
+        "nonfinite_counts": {},
+        "min": 25.585657119750977,
+        "median": 25.63323402404785,
+        "max": 25.675804138183594,
+        "negative": 0,
+        "zero": 0,
+        "positive": 1345
+      },
+      "current_A": {
+        "finite": 1345,
+        "nonfinite_counts": {},
+        "min": -0.326022744178772,
+        "median": -0.16698725521564484,
+        "max": -0.08746951073408127,
+        "negative": 1345,
+        "zero": 0,
+        "positive": 0
+      }
+    },
+    "212": {
+      "route": "A1",
+      "battery_messages": 1227,
+      "voltage_V": {
+        "finite": 1227,
+        "nonfinite_counts": {},
+        "min": 25.4942569732666,
+        "median": 25.52806282043457,
+        "max": 25.559362411499023,
+        "negative": 0,
+        "zero": 0,
+        "positive": 1227
+      },
+      "current_A": {
+        "finite": 1227,
+        "nonfinite_counts": {},
+        "min": -0.22264966368675232,
+        "median": -0.13518016040325165,
+        "max": 0.02385532110929489,
+        "negative": 1226,
+        "zero": 0,
+        "positive": 1
+      }
+    },
+    "213": {
+      "route": "A1",
+      "battery_messages": 611,
+      "voltage_V": {
+        "finite": 611,
+        "nonfinite_counts": {},
+        "min": 25.40536117553711,
+        "median": 25.42539405822754,
+        "max": 25.442922592163086,
+        "negative": 0,
+        "zero": 0,
+        "positive": 611
+      },
+      "current_A": {
+        "finite": 611,
+        "nonfinite_counts": {},
+        "min": -0.2624085247516632,
+        "median": -0.15108370780944824,
+        "max": -0.09542128443717957,
+        "negative": 611,
+        "zero": 0,
+        "positive": 0
+      }
+    },
+    "214": {
+      "route": "A2",
+      "battery_messages": 1378,
+      "voltage_V": {
+        "finite": 1378,
+        "nonfinite_counts": {},
+        "min": 25.064804077148438,
+        "median": 25.233829498291016,
+        "max": 25.35903549194336,
+        "negative": 0,
+        "zero": 0,
+        "positive": 1378
+      },
+      "current_A": {
+        "finite": 1378,
+        "nonfinite_counts": {},
+        "min": -0.21469789743423462,
+        "median": 0.40554046630859375,
+        "max": 0.5168653130531311,
+        "negative": 142,
+        "zero": 0,
+        "positive": 1236
+      }
+    },
+    "215": {
+      "route": "A2",
+      "battery_messages": 611,
+      "voltage_V": {
+        "finite": 611,
+        "nonfinite_counts": {},
+        "min": 24.888263702392578,
+        "median": 25.1436824798584,
+        "max": 25.2363338470459,
+        "negative": 0,
+        "zero": 0,
+        "positive": 611
+      },
+      "current_A": {
+        "finite": 611,
+        "nonfinite_counts": {},
+        "min": -0.19084256887435913,
+        "median": 0.38963693380355835,
+        "max": 8.063098907470703,
+        "negative": 76,
+        "zero": 0,
+        "positive": 535
+      }
+    },
+    "216": {
+      "route": "A2",
+      "battery_messages": 611,
+      "voltage_V": {
+        "finite": 611,
+        "nonfinite_counts": {},
+        "min": 24.87824821472168,
+        "median": 25.028493881225586,
+        "max": 25.11989402770996,
+        "negative": 0,
+        "zero": 0,
+        "positive": 611
+      },
+      "current_A": {
+        "finite": 611,
+        "nonfinite_counts": {},
+        "min": -0.17493902146816254,
+        "median": 0.40554046630859375,
+        "max": 0.5009617805480957,
+        "negative": 93,
+        "zero": 0,
+        "positive": 518
+      }
+    },
+    "217": {
+      "route": "A3",
+      "battery_messages": 1428,
+      "voltage_V": {
+        "finite": 1428,
+        "nonfinite_counts": {},
+        "min": 23.065279006958008,
+        "median": 24.72549819946289,
+        "max": 25.01722526550293,
+        "negative": 0,
+        "zero": 0,
+        "positive": 1428
+      },
+      "current_A": {
+        "finite": 1428,
+        "nonfinite_counts": {},
+        "min": -0.18289080262184143,
+        "median": 1.479029893875122,
+        "max": 13.883797645568848,
+        "negative": 179,
+        "zero": 0,
+        "positive": 1249
+      }
+    },
+    "218": {
+      "route": "A3",
+      "battery_messages": 1453,
+      "voltage_V": {
+        "finite": 1453,
+        "nonfinite_counts": {},
+        "min": 23.76642608642578,
+        "median": 24.57274627685547,
+        "max": 24.85195541381836,
+        "negative": 0,
+        "zero": 0,
+        "positive": 1453
+      },
+      "current_A": {
+        "finite": 1453,
+        "nonfinite_counts": {},
+        "min": -0.15903547406196594,
+        "median": 1.4631264209747314,
+        "max": 6.568165302276611,
+        "negative": 168,
+        "zero": 0,
+        "positive": 1285
+      }
+    },
+    "219": {
+      "route": "A3",
+      "battery_messages": 1313,
+      "voltage_V": {
+        "finite": 1313,
+        "nonfinite_counts": {},
+        "min": 24.322336196899414,
+        "median": 24.394956588745117,
+        "max": 24.471330642700195,
+        "negative": 0,
+        "zero": 0,
+        "positive": 1313
+      },
+      "current_A": {
+        "finite": 1313,
+        "nonfinite_counts": {},
+        "min": 1.3199944496154785,
+        "median": 1.4472228288650513,
+        "max": 1.5505958795547485,
+        "negative": 0,
+        "zero": 0,
+        "positive": 1313
+      }
+    }
+  },
+  "bag_clock_examples": {
+    "1": {
+      "first_indexed_record_UTC": "2019-04-02T23:35:16.234966+00:00",
+      "publisher_local_date": "2019-04-07"
+    },
+    "178": {
+      "first_indexed_record_UTC": "2019-04-03T00:19:59.735596+00:00",
+      "publisher_local_date": "2019-07-10"
+    },
+    "211": {
+      "first_indexed_record_UTC": "2019-04-03T00:21:28.935762+00:00",
+      "publisher_local_date": "2019-07-18"
+    }
+  },
+  "all_opened_connection_signatures": {
+    "/anemometer": [
+      {
+        "message_type": "anemometer/Anemometer",
+        "md5": "22baa219c9d286acdbc33d44de439f38",
+        "publisher": null
+      },
+      {
+        "message_type": "anemometer/Anemometer",
+        "md5": "22baa219c9d286acdbc33d44de439f38",
+        "publisher": "/anemometer"
+      }
+    ],
+    "/battery": [
+      {
+        "message_type": "sensor_msgs/BatteryState",
+        "md5": "476f837fa6771f6e16e3bf4ef96f8770",
+        "publisher": null
+      },
+      {
+        "message_type": "sensor_msgs/BatteryState",
+        "md5": "476f837fa6771f6e16e3bf4ef96f8770",
+        "publisher": "/battery"
+      }
+    ],
+    "/imu/data": [
+      {
+        "message_type": "sensor_msgs/Imu",
+        "md5": "6a62c6daae103f4ff57a132d6f95cec2",
+        "publisher": null
+      },
+      {
+        "message_type": "sensor_msgs/Imu",
+        "md5": "6a62c6daae103f4ff57a132d6f95cec2",
+        "publisher": "/microstrain_3dm_gx5_45_node"
+      }
+    ],
+    "/nav/odom": [
+      {
+        "message_type": "nav_msgs/Odometry",
+        "md5": "cd5e73d190d741a2f92e81eda573aca7",
+        "publisher": null
+      },
+      {
+        "message_type": "nav_msgs/Odometry",
+        "md5": "cd5e73d190d741a2f92e81eda573aca7",
+        "publisher": "/microstrain_3dm_gx5_45_node"
+      }
+    ]
+  },
+  "battery_definition": {
+    "md5": "476f837fa6771f6e16e3bf4ef96f8770",
+    "top_level_fields_in_wire_order": [
+      "Header header",
+      "float32 voltage",
+      "float32 current",
+      "float32 charge",
+      "float32 capacity",
+      "float32 design_capacity",
+      "float32 percentage",
+      "uint8 power_supply_status",
+      "uint8 power_supply_health",
+      "uint8 power_supply_technology",
+      "bool present",
+      "float32[] cell_voltage",
+      "string location",
+      "string serial_number"
+    ],
+    "absent_from_this_schema": [
+      "temperature",
+      "cell_temperature"
+    ]
+  },
+  "other_battery_fields_all_opened_messages": {
+    "charge": [
+      {
+        "value": 0.0,
+        "messages": 216119
+      }
+    ],
+    "capacity": [
+      {
+        "value": 0.0,
+        "messages": 216119
+      }
+    ],
+    "design_capacity": [
+      {
+        "value": 0.0,
+        "messages": 216119
+      }
+    ],
+    "percentage": [
+      {
+        "value": 0.0,
+        "messages": 216119
+      }
+    ],
+    "power_supply_status": [
+      {
+        "value": 0,
+        "messages": 216119
+      }
+    ],
+    "power_supply_health": [
+      {
+        "value": 0,
+        "messages": 216119
+      }
+    ],
+    "power_supply_technology": [
+      {
+        "value": 0,
+        "messages": 216119
+      }
+    ],
+    "present": [
+      {
+        "value": false,
+        "messages": 216119
+      }
+    ],
+    "cell_voltage": [
+      {
+        "value": [],
+        "messages": 216119
+      }
+    ],
+    "location": [
+      {
+        "value": "",
+        "messages": 216119
+      }
+    ],
+    "serial_number": [
+      {
+        "value": "",
+        "messages": 216119
+      }
+    ]
+  },
+  "interpretation": {
+    "source_instrument": "The publisher identifies the Mauch PL-200 and ADC and documents only voltage and current as populated (README.txt lines 134, 147–152). The schema specifies negative current on discharge. The sign counts here describe the bytes as recorded.",
+    "observed_field_values": "In the inspected records, large currents are positive. Charge, capacity, design_capacity and percentage carry literal zeros on every message. Voltage/current vary despite present=false throughout. Unknown status/health/technology and empty cell/identity fields supply no independent SOC, capacity, pack identity or cell labels.",
+    "motion": "/nav/odom represents aircraft odometry, /imu/data aircraft inertial motion, and /anemometer local airflow. None is a per-rotor speed, ESC input/PWM, shaft torque or battery pulse command.",
+    "ground": "The authors describe A1 as no propellers or motor movement, A2 as no propellers with minimum motor movement and A3 as propellers with minimum motor movement. These are system-level ancillary cases. No controlled battery-pulse/rest protocol or measured shaft load is specified (README.txt lines 434–438).",
+    "dates": "Bag start times use the earliest indexed record, with the publisher site time zone used for date comparisons. Use published flight-ID metadata for calendar splits; the absolute bag clock needs an independently established time reference."
+  }
+}

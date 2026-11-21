@@ -1,0 +1,55 @@
+{
+  "dataset": "CMU Rodrigues et al., doi:10.1184/R1/12683453 (CC BY 4.0)",
+  "scope": "Descriptive natural load transitions in archived train flights only. One candidate per flight per event.",
+  "selector": "Within the search radius of the published altitude event, select the sampled centre with the largest current rise at takeoff, or largest fall at landing. Average each signal by time in two adjacent windows around that centre. The voltage does not enter event selection. Preserve signs.",
+  "search_radius_s": 10.0,
+  "window_each_side_s": 2.0,
+  "minimum_signed_current_change_A": 5.0,
+  "maximum_allowed_sampling_gap_s": 0.5,
+  "statistic": "For each qualifying pair: -1000*(V_after-V_before)/(I_after-I_before), mV/A. Summaries use one value per flight in each direction. Percentiles describe the sample, not uncertainty intervals or a controlled pulse experiment.",
+  "interpretation": "Effective pack-output voltage change on these time windows. Includes unresolved dynamics, electrical path and sensing. Neither instantaneous TB47D R0 nor a motor or ESC parameter.",
+  "events": {
+    "takeoff_load_rise": {
+      "flights": 75,
+      "included_flights": 74,
+      "status_counts": {
+        "included": 74,
+        "current_change_below_cut": 1
+      },
+      "opposite_voltage_and_current_changes": 74,
+      "median_delta_current_A": 16.540043375018453,
+      "median_delta_voltage_V": -0.9913111011665485,
+      "apparent_mV_per_A_percentiles": {
+        "p10": 47.65773780831986,
+        "p25": 52.6407472850116,
+        "p50": 59.57462631328042,
+        "p75": 75.38739449372149,
+        "p90": 90.77518738189309
+      }
+    },
+    "landing_load_release": {
+      "flights": 75,
+      "included_flights": 75,
+      "status_counts": {
+        "included": 75
+      },
+      "opposite_voltage_and_current_changes": 75,
+      "median_delta_current_A": -18.005420300960395,
+      "median_delta_voltage_V": 0.9263941347030595,
+      "apparent_mV_per_A_percentiles": {
+        "p10": 44.50033805891793,
+        "p25": 46.90252587921319,
+        "p50": 51.62377001256819,
+        "p75": 59.09848000874594,
+        "p90": 68.86131502160387
+      }
+    }
+  },
+  "sha256": {
+    "flights.zip": "98f65a1ab54a8b618c169fdf49311a53ff1fefed86fdc3f440d6a0166ce49fb1",
+    "flight_manifest.csv": "171d8176bbddab97b25d19ada43c54c67d760a6e7680f0380233d54c08c044f3",
+    "external.py": "69b0f614532a8de290daff37ba43f1170e0e29e1d4096e188f47fcea19a7bdb6",
+    "cmu_load_transitions.py": "6ddbdb4b37e5c5ee5b61019b004220ff45df8c5295cb73cdfc11c2d1580684bf",
+    "load_transitions.csv": "01ac1ae367a8f6bffb4dd1de4e05d51d226e58356b2218a72a7e6729753ffed0"
+  }
+}

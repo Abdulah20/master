@@ -1,0 +1,22 @@
+{
+  "source": "CMU Rodrigues et al., doi:10.1184/R1/12683453 (CC BY 4.0)",
+  "scope": "One static, model-derived pack operating point per recorded phase of each training flight.",
+  "model_for_total_pack_power": "published_phase_preflight",
+  "power_input": "Frozen preflight estimate of phase-average electrical power for the entire aircraft.",
+  "charge_input": "Integral of signed measured current since recording start, sampled nearest the actual phase midpoint. Phase boundaries use the archived altitude record.",
+  "equations": "s=a-k*q, V=(s+sqrt(s^2-4*r*P))/2, I=P/V. Marginal q and I training ranges enforced.",
+  "interpretation": "Conditional on observed charge. These values are estimates at average phase load; they are not instantaneous measurements, flight forecasts from initial SOC, motor currents, nor a dynamic feedback path. No model states are propagated and no accuracy is inferred.",
+  "flights": 75,
+  "rows": 225,
+  "status_counts": {
+    "within_marginal_training_ranges": 225
+  },
+  "sha256": {
+    "fit.json": "d3413efef49a278a10f0dc404c6b34e5c6d07e42dd698ad21aae0ea00824377f",
+    "flight_residuals.csv": "327da9a4e5ece6bd7b006be55ef0183d60764ea6a2966a01b467912e067a560f",
+    "pack_operating_points.csv": "3fb13c9c74fe6a97d6e9c621d5d40b9615073ab083213dc5825737c4157b1316",
+    "flights.zip": "98f65a1ab54a8b618c169fdf49311a53ff1fefed86fdc3f440d6a0166ce49fb1",
+    "external.py": "69b0f614532a8de290daff37ba43f1170e0e29e1d4096e188f47fcea19a7bdb6",
+    "cmu_pack_operating_points.py": "cca03908d1c77669a9215208bdf5bd842bf2bdeeea15ea42e8d97bf194348db6"
+  }
+}

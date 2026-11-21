@@ -1,0 +1,320 @@
+{
+  "schema": "CMU_M100_GROUND_LOADS_V1",
+  "dataset_doi": "https://doi.org/10.1184/R1/12683453.v1",
+  "paper_doi": "https://doi.org/10.1038/s41597-021-00930-x",
+  "input_sha256": {
+    "flights.zip": "98f65a1ab54a8b618c169fdf49311a53ff1fefed86fdc3f440d6a0166ce49fb1",
+    "parameters.csv": "568dffaed11a4d335ef4f8a932b342c836907af2f4aa54da9b4a0e2ffef2108a",
+    "README.txt": "8601dd211d6c297c5411992dc34923bdb98b72cdc287517ed18e479f0e9540fd"
+  },
+  "opened_measurement_members_sha256": {
+    "flights/211.csv": "a1dd5410b408570a2dffbe0603573d73c348278980b6ade4985cee03ce3039ff",
+    "flights/212.csv": "e45b3d3847f0fc6b057852f0a92a32c430df3cb660459592e6064f0501f65f0b",
+    "flights/213.csv": "5e29b222bdf8f30664ffe54ff9e655015dcf52e85426e6c25176c940e919f9c7",
+    "flights/214.csv": "806225d9379cef818c7543b13c60acdb4bb6b0a5c8b16b96ed927641b52ae53c",
+    "flights/215.csv": "2299e5081725a1675ddbb11a49a6580fed6c8a471989b02ba84106c9a98d1083",
+    "flights/216.csv": "5ef1a148511aeecf4290988e99e0fa04e722369343a42263ed57641baaca7450",
+    "flights/217.csv": "e863437263b73604df061ad4a98150065f3ec0aa21bd33d66979326326e456e8",
+    "flights/218.csv": "fff1f9a129d5a58d9d87c6fb56c1029ec95c0743ae454365f368210b80912054",
+    "flights/219.csv": "4840dd610ecb03c6cb5227dcd6bd954f9c256ee7087ed8176223e077de0e1767"
+  },
+  "source_columns": [
+    "time",
+    "battery_voltage",
+    "battery_current"
+  ],
+  "source_definitions": "Publisher README.txt lines 257-262 and parameters.csv records 211-219. All on 2019-07-18, in successive condition blocks.",
+  "analysis": "python3 -B -m tools.m100_reaudit.cmu_ground_loads",
+  "script_sha256": "f4e9431902c1d007412ce97b77fe275388f13d577209ec46c87ae4ff0fc3c2a4",
+  "csv_sha256": "46e0a9c61ddb433dff94ea44f67308b8c3ce94ed58e6a96886f370213d717cb6",
+  "sign_and_units": "Preserve the signed PL-200 pack readings, with positive current under load. The three stopped-motor traces establish a small negative measured baseline. Sensor offset and the true accessory load cannot be separated from these signals.",
+  "segmentation": {
+    "hardware_state": "The publisher provides one label per recording. Signal windows describe changes in measured current, with no independent onset, RPM, torque or thrust channel.",
+    "low_current_upper_A": 0.02385532110929489,
+    "source_of_low_bound": "Highest individual current sample among all three A1 recordings.",
+    "binning": "Bin samples by the integer floor of elapsed seconds and take the median current of each populated bin.",
+    "plateau": "For A2/A3 take the longest contiguous run of one-second bin medians within the relative band around the recording median. The plateau occupies the majority of each such recording.",
+    "relative_band": 0.15,
+    "internal_edge_guard_s": 1.0,
+    "edges": "Exclude one second inside each detected internal boundary of a plateau or a flanking low-current run. Retain original recording endpoints. All remaining time is labelled transition.",
+    "A1": "Use the entire recording as the publisher-designated stopped-motor window."
+  },
+  "integration": "Use adjacent native timestamps. Integrate signed V*I, V and I by the trapezoidal rule. Interpolate each sampled quantity linearly at a window boundary. Skip intervals over 0.5 s. Closed endpoint sample counts may share a boundary sample. The full_recording row overlaps its disjoint state windows.",
+  "aggregation": "One equally weighted mean per recording, with the range between recordings. Integrate the pointwise difference V(t)*I(t) minus time-weighted mean V*I from that same recording's initial low-current window, where available. The power increment equals this integral divided by the plateau duration. No cross-recording zero correction or matched propeller comparison.",
+  "sampling": {
+    "recordings": 9,
+    "samples": 6501,
+    "covered_s": 973.61,
+    "gaps_over_0_5s": 0
+  },
+  "acquisition": {
+    "211": {
+      "samples": 881,
+      "median_dt_s": 0.11000000000000743,
+      "max_dt_s": 0.21000000000000796,
+      "gaps_over_0_5s": 0,
+      "primary_window_s": [
+        0.0,
+        131.9
+      ]
+    },
+    "212": {
+      "samples": 805,
+      "median_dt_s": 0.1100000000000006,
+      "max_dt_s": 0.29999999999999716,
+      "gaps_over_0_5s": 0,
+      "primary_window_s": [
+        0.0,
+        120.3
+      ]
+    },
+    "213": {
+      "samples": 392,
+      "median_dt_s": 0.14000000000000057,
+      "max_dt_s": 0.21000000000000085,
+      "gaps_over_0_5s": 0,
+      "primary_window_s": [
+        0.0,
+        58.61
+      ]
+    },
+    "214": {
+      "samples": 910,
+      "median_dt_s": 0.11999999999999034,
+      "max_dt_s": 0.21999999999999886,
+      "gaps_over_0_5s": 0,
+      "primary_window_s": [
+        16.0,
+        136.21
+      ]
+    },
+    "215": {
+      "samples": 391,
+      "median_dt_s": 0.17999999999999972,
+      "max_dt_s": 0.21999999999999886,
+      "gaps_over_0_5s": 0,
+      "primary_window_s": [
+        9.0,
+        58.59
+      ]
+    },
+    "216": {
+      "samples": 392,
+      "median_dt_s": 0.10999999999999943,
+      "max_dt_s": 0.30000000000000426,
+      "gaps_over_0_5s": 0,
+      "primary_window_s": [
+        10.0,
+        58.69
+      ]
+    },
+    "217": {
+      "samples": 935,
+      "median_dt_s": 0.14999999999999858,
+      "max_dt_s": 0.21999999999999886,
+      "gaps_over_0_5s": 0,
+      "primary_window_s": [
+        19.0,
+        140.1
+      ]
+    },
+    "218": {
+      "samples": 953,
+      "median_dt_s": 0.15499999999999758,
+      "max_dt_s": 0.21000000000000796,
+      "gaps_over_0_5s": 0,
+      "primary_window_s": [
+        16.0,
+        137.0
+      ]
+    },
+    "219": {
+      "samples": 842,
+      "median_dt_s": 0.17999999999999972,
+      "max_dt_s": 0.21999999999999886,
+      "gaps_over_0_5s": 0,
+      "primary_window_s": [
+        0.0,
+        126.41
+      ]
+    }
+  },
+  "by_route": {
+    "A1": {
+      "condition": "no propellers, motors stopped",
+      "recordings": [
+        211,
+        212,
+        213
+      ],
+      "primary": {
+        "mean_pack_voltage_V": {
+          "recordings": 3,
+          "mean": 25.529097948711012,
+          "min": 25.42491160023235,
+          "max": 25.634538961848676
+        },
+        "mean_signed_current_A": {
+          "recordings": 3,
+          "mean": -0.150822753290885,
+          "min": -0.17007120113376417,
+          "max": -0.13185468843316697
+        },
+        "mean_signed_pack_power_W": {
+          "recordings": 3,
+          "mean": -3.8510304957175907,
+          "min": -4.359664114791978,
+          "max": -3.3659320024914154
+        }
+      },
+      "paired_recordings": [],
+      "within_recording_increment": null
+    },
+    "A2": {
+      "condition": "no propellers, minimum motor movement",
+      "recordings": [
+        214,
+        215,
+        216
+      ],
+      "primary": {
+        "mean_pack_voltage_V": {
+          "recordings": 3,
+          "mean": 25.132087252820654,
+          "min": 25.025744393709676,
+          "max": 25.230425539850525
+        },
+        "mean_signed_current_A": {
+          "recordings": 3,
+          "mean": 0.4000731693727501,
+          "min": 0.39129334234450946,
+          "max": 0.4047003767249608
+        },
+        "mean_signed_pack_power_W": {
+          "recordings": 3,
+          "mean": 10.054681414480159,
+          "min": 9.837130492423588,
+          "max": 10.210820924645056
+        }
+      },
+      "paired_recordings": [
+        214,
+        215,
+        216
+      ],
+      "within_recording_increment": {
+        "delta_current_A": {
+          "recordings": 3,
+          "mean": 0.5273383444014705,
+          "min": 0.5155110349963444,
+          "max": 0.5379588528953616
+        },
+        "delta_power_W": {
+          "recordings": 3,
+          "mean": 13.265681637987647,
+          "min": 12.970708544481205,
+          "max": 13.588342373134667
+        }
+      }
+    },
+    "A3": {
+      "condition": "propellers installed, minimum motor movement",
+      "recordings": [
+        217,
+        218,
+        219
+      ],
+      "primary": {
+        "mean_pack_voltage_V": {
+          "recordings": 3,
+          "mean": 24.561226784433035,
+          "min": 24.393919112401132,
+          "max": 24.721831572931922
+        },
+        "mean_signed_current_A": {
+          "recordings": 3,
+          "mean": 1.4664879446100423,
+          "min": 1.4468448051272027,
+          "max": 1.4814794968367606
+        },
+        "mean_signed_pack_power_W": {
+          "recordings": 3,
+          "mean": 36.02069921492221,
+          "min": 35.29430995089199,
+          "max": 36.624879519414115
+        }
+      },
+      "paired_recordings": [
+        217,
+        218
+      ],
+      "within_recording_increment": {
+        "delta_current_A": {
+          "recordings": 2,
+          "mean": 1.5937682969532248,
+          "min": 1.5828258080703699,
+          "max": 1.6047107858360796
+        },
+        "delta_power_W": {
+          "recordings": 2,
+          "mean": 39.3110738549004,
+          "min": 38.916760753725924,
+          "max": 39.70538695607487
+        }
+      }
+    }
+  },
+  "paired_by_recording": {
+    "214": {
+      "delta_current_A": 0.5379588528953616,
+      "delta_power_W": 13.588342373134667,
+      "incremental_energy_during_plateau_Wh": 0.45373739907625515,
+      "initial_low_window_s": [
+        0.0,
+        12.0
+      ],
+      "initial_mean_signed_power_W": -3.3775214484896083
+    },
+    "215": {
+      "delta_current_A": 0.5155110349963444,
+      "delta_power_W": 12.970708544481205,
+      "incremental_energy_during_plateau_Wh": 0.17867151020022862,
+      "initial_low_window_s": [
+        0.0,
+        4.0
+      ],
+      "initial_mean_signed_power_W": -3.1335780520576164
+    },
+    "216": {
+      "delta_current_A": 0.5285451453127056,
+      "delta_power_W": 13.237993996347068,
+      "incremental_energy_during_plateau_Wh": 0.17904386880059409,
+      "initial_low_window_s": [
+        0.0,
+        6.0
+      ],
+      "initial_mean_signed_power_W": -3.121901169975238
+    },
+    "217": {
+      "delta_current_A": 1.6047107858360796,
+      "delta_power_W": 39.70538695607487,
+      "incremental_energy_during_plateau_Wh": 1.3356451001057406,
+      "initial_low_window_s": [
+        0.0,
+        15.0
+      ],
+      "initial_mean_signed_power_W": -3.080507436660738
+    },
+    "218": {
+      "delta_current_A": 1.5828258080703699,
+      "delta_power_W": 38.916760753725924,
+      "incremental_energy_during_plateau_Wh": 1.3080355697780104,
+      "initial_low_window_s": [
+        0.0,
+        11.0
+      ],
+      "initial_mean_signed_power_W": -2.773852579265395
+    }
+  },
+  "interpretation": "These nine ground recordings cover stopped or minimum motor movement. Current and electrical power describe the complete monitored DC path. The sequence changes pack voltage and the records have no independently verified matching rotor speeds, battery identity, or separate ESC, motor-phase or shaft measurements."
+}

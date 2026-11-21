@@ -1,0 +1,239 @@
+diff --git a/ros2_ws/src/drone_nav/drone_nav/m100_experiment_manager.py b/ros2_ws/src/drone_nav/drone_nav/m100_experiment_manager.py
+--- a/ros2_ws/src/drone_nav/drone_nav/m100_experiment_manager.py
++++ b/ros2_ws/src/drone_nav/drone_nav/m100_experiment_manager.py
+@@ -58,7 +58,10 @@
+ )
+ from .m100_atmosphere import (
+     AtmosphereDensityComparison,
++    DryAirState,
++    MAX_ALTITUDE_M_MSL,
+     compare_density_to_15c_reference,
++    dry_air_state,
+     is_reference_temperature_c,
+ )
+ from .m100_published_energy_v2 import (
+@@ -303,6 +306,7 @@
+             "connected": False,
+             "last_message_monotonic": 0.0,
+             "last_heartbeat_monotonic": 0.0,
++            "last_local_position_monotonic": None,
+             "heartbeat_generation": 0,
+             "armed": False,
+             "landed": True,
+@@ -410,6 +414,7 @@
+                 message.landed_state == mavutil.mavlink.MAV_LANDED_STATE_ON_GROUND
+             )
+         elif kind == "LOCAL_POSITION_NED":
++            self._telemetry["last_local_position_monotonic"] = time.monotonic()
+             self._telemetry["local"] = {
+                 key: float(getattr(message, key))
+                 for key in ("x", "y", "z", "vx", "vy", "vz")
+@@ -606,6 +611,8 @@
+         self._active_payload: PayloadModel | None = None
+         self._active_runtime_model: str | None = None
+         self._applied_atmosphere: AtmosphereDensityComparison | None = None
++        self._power_position_stamp: tuple[float | None, float] = (None, 0.0)
++        self._power_air_state: DryAirState | None = None
+         self._generated_temperature_model: GeneratedTemperatureModel | None = None
+         self._applied_density_ratio = 1.0
+         self._apply_seq = 0
+@@ -657,6 +664,26 @@
+             message.clock.sec + message.clock.nanosec * 1e-9
+         )
+ 
++    def _air_state_for_power(self, sample, altitude_agl_m, timestamp_s):
++        """Sample the dry atmosphere at the PX4 height above the captured home."""
++        age_limit = self._energy_config.maximum_valid_gap_s
++        boot_s = sample.get("boot_time_s")
++        arrival_s = sample.get("last_local_position_monotonic")
++        if (not sample["fresh"] or self._home_ned is None or boot_s is None
++                or arrival_s is None or time.monotonic() - arrival_s > age_limit
++                or altitude_agl_m is None or not math.isfinite(altitude_agl_m)):
++            return None
++        last_boot_s, first_seen_s = self._power_position_stamp
++        if boot_s != last_boot_s or timestamp_s < first_seen_s:
++            self._power_position_stamp = (boot_s, timestamp_s)
++        elif timestamp_s - first_seen_s > age_limit:
++            return None
++        # Small negative EKF excursions at the ground use the surface density.
++        # Larger excursions or missing heights leave power unavailable.
++        if not -0.5 <= altitude_agl_m <= MAX_ALTITUDE_M_MSL:
++            return None
++        return dry_air_state(self._config.temperature_c, max(0.0, altitude_agl_m))
++
+     def _on_rotor_joint_state(self, message: JointState) -> None:
+         # Serialize the manager lifecycle flag with the energy-model lifecycle.
+         # This prevents a CSV/status sample from pairing recording=true with an
+@@ -695,6 +722,9 @@
+         if payload is None or atmosphere is None:
+             self._rotor_telemetry_monotonic = 0.0
+             return
++        self._power_air_state = self._air_state_for_power(sample, enu["z"], timestamp_s)
++        power_density = (self._power_air_state.density_kg_m3
++                         if self._power_air_state is not None else None)
+         horizontal_speed = None
+         altitude_asl = None
+         wind_delta = None
+@@ -728,19 +758,19 @@
+             if self._state == "CRUISE" and self._measurement_active else None
+         )
+         transient_estimate = None
+-        if local is not None and sample["fresh"]:
++        if power_density is not None:
+             transient_estimate = self._transient_power.estimate(
+                 phase=energy_phase, timestamp_s=sample.get("boot_time_s"),
+                 velocity_enu_mps=(enu["vx"], enu["vy"], enu["vz"]),
+-                payload_kg=payload.payload_kg, density_kg_m3=atmosphere.case.density_kg_m3,
++                payload_kg=payload.payload_kg, density_kg_m3=power_density,
+             )
+         if calibration.use_limited_hover_mean:
+             transient_estimate = None
+         wind_adjustment_w = None
+-        if self._config is not None and self._config.wind_speed_mps > 0.0 and local is not None and sample["fresh"]:
++        if self._config is not None and self._config.wind_speed_mps > 0.0 and power_density is not None:
+             wind_adjustment_w = self._wind_simulation.power_delta_w(
+                 self._transient_power.fit, payload_kg=payload.payload_kg,
+-                density_kg_m3=atmosphere.case.density_kg_m3,
++                density_kg_m3=power_density,
+                 velocity_enu_mps=(enu["vx"], enu["vy"], enu["vz"]),
+                 wind_enu_mps=self._config.wind_vector_enu_mps,
+             )
+@@ -751,7 +781,7 @@
+             self._distance_m,
+             physical_total_mass_kg=payload.total_mass_kg,
+             payload_mass_kg=payload.payload_kg,
+-            air_density_kg_m3=atmosphere.case.density_kg_m3,
++            air_density_kg_m3=power_density,
+             use_limited_hover_mean=calibration.use_limited_hover_mean,
+             air_relative_speed_mps=(
+                 wind_delta.air_relative_speed_mps if wind_delta is not None else None
+@@ -808,6 +838,9 @@
+             ),
+         )
+         self._rotor_telemetry_monotonic = time.monotonic()
++        observer = getattr(self, "_campaign_sample_observer", None)
++        if observer is not None and self._recording:
++            observer(model_energy, sample, enu, self._measurement_active)
+ 
+     # ------------------------- state and process lifecycle -----------------
+     def _set_state(self, state: str, status: str | None = None) -> None:
+@@ -1396,6 +1429,7 @@
+         if local is None:
+             raise RuntimeError("cannot capture home without local position")
+         self._home_ned = (local["x"], local["y"], local["z"])
++        self._power_position_stamp = (None, 0.0)
+ 
+     def _check_abort(self) -> None:
+         if self._abort.is_set():
+@@ -2344,6 +2378,9 @@
+             "rotor_rpm": model_energy.rotor_rpm if rotor_fresh else [None] * 4,
+             "mechanical_power_w": None,
+             "power_w": model_energy.electrical_power_w if electrical_available else None,
++            "power_input_density_kg_m3": model_energy.air_density_kg_m3 if electrical_available else None,
++            "power_input_altitude_msl_m": (self._power_air_state.altitude_m_msl
++                if electrical_available and self._power_air_state is not None else None),
+             "wind_power_adjustment_w": model_energy.wind_power_adjustment_w,
+             "wind_power_runtime_applied": model_energy.wind_power_adjustment_w is not None,
+             "wind_power_empirically_calibrated": False,
+@@ -2638,6 +2675,15 @@
+             "run_id": self._run_id,
+             "config": config.as_dict(),
+             "atmosphere": asdict(atmosphere),
++            "energy_density_source": {
++                "model": "DRY_HYDROSTATIC_LINEAR_LAPSE_AT_FRESH_PX4_LOCAL_HEIGHT",
++                "world_ground_msl_m": 0.0,
++                "minimum_supported_height_m": -0.5,
++                "subground_handling": "EKF excursions down to -0.5 m use surface density",
++                "max_local_position_hold_sim_and_wall_s": self._energy_config.maximum_valid_gap_s,
++                "missing_height": "unavailable power breaks integration continuity",
++                "gazebo_force_density": "fixed at configured reference altitude",
++            },
+             "stable_cruise_speed_model": (
+                 self._stable_cruise_fit.provenance(speed_adjustment)
+                 if speed_adjustment is not None else None
+diff --git a/ros2_ws/src/drone_nav/drone_nav/m100_published_energy_v2.py b/ros2_ws/src/drone_nav/drone_nav/m100_published_energy_v2.py
+--- a/ros2_ws/src/drone_nav/drone_nav/m100_published_energy_v2.py
++++ b/ros2_ws/src/drone_nav/drone_nav/m100_published_energy_v2.py
+@@ -910,7 +910,7 @@
+         *,
+         physical_total_mass_kg: float,
+         payload_mass_kg: float,
+-        air_density_kg_m3: float,
++        air_density_kg_m3: float | None,
+         use_limited_hover_mean: bool = False,
+         air_relative_speed_mps: float | None = None,
+         stable_cruise_speed_adjustment_w: float | None = None,
+@@ -947,7 +947,7 @@
+         distance_m: float,
+         physical_total_mass_kg: float,
+         payload_mass_kg: float,
+-        air_density_kg_m3: float,
++        air_density_kg_m3: float | None,
+         use_limited_hover_mean: bool,
+         air_relative_speed_mps: float | None,
+         stable_cruise_speed_adjustment_w: float | None,
+@@ -964,7 +964,7 @@
+                 payload_mass_kg,
+             )
+         )
+-        density = _positive(air_density_kg_m3, "air_density_kg_m3")
++        density = _optional_positive(air_density_kg_m3, "air_density_kg_m3")
+         _nonnegative(distance_m, "distance_m")
+         clean_air_speed = (
+             None
+@@ -1005,14 +1005,18 @@
+                 bms=bms,
+             )
+ 
+-        estimate = self.config.estimate_power(
+-            phase_name,
+-            payload_mass,
+-            density,
+-            limited_hover_eligible=use_limited_hover_mean,
+-            stable_cruise_speed_adjustment_w=stable_cruise_speed_adjustment_w,
+-        )
+-        if transient_power_estimate is not None:
++        if density is None:
++            estimate = PowerEstimate(
++                phase=phase_name, coefficient_phase=None, power_w=None,
++                status=UNAVAILABLE_STATUS, warnings=("POWER_DENSITY_POSITION_UNAVAILABLE",),
++            )
++        else:
++            estimate = self.config.estimate_power(
++                phase_name, payload_mass, density,
++                limited_hover_eligible=use_limited_hover_mean,
++                stable_cruise_speed_adjustment_w=stable_cruise_speed_adjustment_w,
++            )
++        if density is not None and transient_power_estimate is not None:
+             if estimate.available or transient_power_estimate.phase != phase_name:
+                 raise ValueError("transient power only supplements the matching unsupported phase")
+             if transient_power_estimate.power_w is None:
+@@ -1249,7 +1253,7 @@
+         physical_mass: float,
+         payload_mass: float,
+         regression_mass: float,
+-        density: float,
++        density: float | None,
+         velocities: list[float | None],
+         omega: list[float | None],
+         rpm: list[float | None],
+diff --git a/ros2_ws/src/drone_nav/test/test_m100_applied_config_telemetry_contract.py b/ros2_ws/src/drone_nav/test/test_m100_applied_config_telemetry_contract.py
+--- a/ros2_ws/src/drone_nav/test/test_m100_applied_config_telemetry_contract.py
++++ b/ros2_ws/src/drone_nav/test/test_m100_applied_config_telemetry_contract.py
+@@ -38,13 +38,14 @@
+     assert 'TEMPERATURE_EFFECT_SCOPE = "ROTOR_DENSITY_FIXED_ALTITUDE_APPROXIMATION"' in source
+ 
+ 
+-def test_temperature_density_ratio_has_one_shared_dynamics_and_energy_source() -> None:
++def test_dynamics_uses_case_reference_and_energy_uses_current_height() -> None:
+     source = MANAGER.read_text(encoding="utf-8")
+ 
+     assert "compare_density_to_15c_reference(" in source
+     assert "density_ratio=atmosphere.density_ratio" in source
+     assert "self._applied_density_ratio = selection.density_ratio" in source
+-    assert "air_density_kg_m3=atmosphere.case.density_kg_m3" in source
++    assert "air_density_kg_m3=power_density" in source
++    assert "self._air_state_for_power(sample" in source
+     assert "self._propulsion.thrust_constant_n_per_rad_s2" in source
+     assert "* self._applied_density_ratio" in source
+     assert "STATIC_THRUST_RESERVE_DENSITY_STATUS" in source

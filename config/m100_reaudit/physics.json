@@ -1,0 +1,61 @@
+{
+  "version": "M100_CMU_PHYSICS_AUDIT_1",
+  "platform": "DJI_M100_CMU_2019_INSTRUMENTED",
+  "mass": {
+    "as_flown_components_kg": {
+      "airframe": 1.831,
+      "battery": 0.600,
+      "anemometer_and_pole": 0.136,
+      "computer_small_sensors_and_wiring": 1.113
+    },
+    "unresolved_component_masses_kg": {
+      "anemometer_alone": null, "pole_alone": null, "computer_alone": null,
+      "small_sensors_alone": null, "wiring_alone": null, "mounts_alone": null
+    },
+    "component_source": "Rodrigues et al. 2021, Acquisition setup, Fig. 2. Only combined assemblies have published weights.",
+    "stock_airframe_without_battery_kg": 1.755,
+    "stock_mass_with_tb47d_kg": 2.355,
+    "stock_source": "DJI Onboard SDK Hardware Introduction, Payload & Flight Time table",
+    "regression_airframe_feature_kg": 3.080,
+    "regression_battery_feature_kg": 0.635,
+    "regression_source": "Rodrigues et al. software v1.0.0 inflightcomponents.py, mass_airdensity. Feature only."
+  },
+  "manufacturer": {
+    "maximum_takeoff_kg": 3.600, "maximum_wind_mps": 10.0,
+    "maximum_speed_gps_unloaded_calm_mps": 17.0, "maximum_speed_atti_unloaded_calm_mps": 22.0,
+    "maximum_ascent_mps": 5.0, "maximum_descent_mps": 4.0,
+    "maximum_service_ceiling_msl_m": 4500.0,
+    "ambient_temperature_range_c": [-10.0, 40.0],
+    "source": "DJI M100 User Manual Appendix, Specifications, and Onboard SDK Aircraft Comparison"
+  },
+  "pilot_mode": "PX4_OFFBOARD_WITH_AUTOMATIC_TAKEOFF_AND_LAND",
+  "energy": {
+    "published_phase_config": "m100_energy_model_v2.yaml",
+    "stable_cruise_config": "m100_stable_cruise_speed_v1.yaml",
+    "transient_config": "m100_transient_power_v1.yaml",
+    "wind_config": "m100_wind_simulation_v1.yaml",
+    "supported_phases": ["TAKEOFF", "CLIMB", "CRUISE", "RETURNING", "LANDING"],
+    "empirical_cruise_speeds_mps": [4, 6, 8, 10, 12],
+    "empirical_payloads_kg": [0, 0.25, 0.5],
+    "empirical_altitudes_agl_m": [25, 50, 75, 100],
+    "source": "Rodrigues et al. 2022, Table 1 and Experimental procedures",
+    "whole_aircraft_electrical": true,
+    "wind_model_class": "C_NOT_CALIBRATED",
+    "transient_transfer_class": "LIMITED_EMPIRICAL_PROXY"
+  },
+  "battery": {
+    "model": "TB47D", "nominal_voltage_v": 22.2, "nominal_capacity_ah": 4.5,
+    "nominal_energy_wh": 99.9, "nominal_pack_mass_kg": 0.600,
+    "measured_usable_energy_wh": null, "measured_cutoff_voltage_v": null,
+    "manufacturer_overdischarge_protection_v": 18.0,
+    "protection_source": "DJI M100 User Manual v1.6, Intelligent Flight Battery Functions, item 8. Load-specific usable capacity and field cutoff were not measured.",
+    "planning_reserve_fraction": 0.10,
+    "reserve_source": "Explicit planning convention. DJI hover-time test lands with 10% battery remaining; usable TB47D capacity for these loads is unknown.",
+    "thermal_capacity_model": null, "pack_temperature_observed": false
+  },
+  "wind": {
+    "world_frame": "ENU", "heading_convention": "degrees counterclockwise from east, wind moves toward heading",
+    "nominal_outbound_course_deg": 0.0, "gust_model": null,
+    "world_ground_msl_m": 0.0
+  }
+}

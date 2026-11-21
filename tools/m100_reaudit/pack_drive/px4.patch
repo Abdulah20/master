@@ -1,0 +1,124 @@
+diff --git a/Tools/simulation/gz/models/m100_cmu_v2/model.sdf b/Tools/simulation/gz/models/m100_cmu_v2/model.sdf
+index 45bc31f8cb411c3dc076934282023cb83b9ef5c3..4cdbd409813703d3c0476e78504d841221cab410 100644
+--- a/Tools/simulation/gz/models/m100_cmu_v2/model.sdf
++++ b/Tools/simulation/gz/models/m100_cmu_v2/model.sdf
+@@ -198,12 +198,30 @@
+       <axis><xyz>0 0 1</xyz><limit><lower>-1e16</lower><upper>1e16</upper></limit></axis>
+     </joint>
+
+-    <!-- M1, M3: CCW; M2, M4: CW according to the DJI M100 manual. -->
++    <!-- Pack-level CMU loaded voltage fit, results/m100_reaudit/cmu_calibration/fit.json.
++         q is modeled net Ah since the start of covered load, not absolute SOC.
++         The E800-family 350 rpm/V no-load endpoint only bounds available speed. -->
++    <plugin filename="libM100PackDrive.so" name="m100::PackDrive">
++      <voltageIntercept>23.77940135767335</voltageIntercept>
++      <currentCoefficient>0.06739413945814177</currentCoefficient>
++      <dischargeCoefficient>0.48810623032113687</dischargeCoefficient>
++      <minCurrent>0.1431319266557693</minCurrent>
++      <maxCurrent>44.87186050415039</maxCurrent>
++      <minDischargedAh>0.0019523813459608292</minDischargedAh>
++      <maxDischargedAh>1.5018077402863415</maxDischargedAh>
++      <referenceVoltage>25</referenceVoltage>
++      <nominalMaxRotVelocity>916.2978572970229</nominalMaxRotVelocity>
++      <maxDemandAge>0.5</maxDemandAge>
++    </plugin>
++
++    <!-- PX4 sends raw speed only to PackDrive. The four motors read its
++         bounded Actuators component before applying their own speed dynamics.
++         M1, M3: CCW; M2, M4: CW according to the DJI M100 manual. -->
+     <plugin filename="gz-sim-multicopter-motor-model-system" name="gz::sim::systems::MulticopterMotorModel">
+       <jointName>rotor_0_joint</jointName><linkName>rotor_0</linkName><turningDirection>ccw</turningDirection>
+       <timeConstantUp>0.001</timeConstantUp><timeConstantDown>0.001</timeConstantDown>
+       <maxRotVelocity>916.2978572970229</maxRotVelocity><motorConstant>2.452825363226109e-05</motorConstant>
+-      <momentConstant>0.010812553326221993</momentConstant><commandSubTopic>command/motor_speed</commandSubTopic>
++      <momentConstant>0.010812553326221993</momentConstant><commandSubTopic>command/pack_limited_motor_speed</commandSubTopic>
+       <motorNumber>0</motorNumber><rotorDragCoefficient>0</rotorDragCoefficient><rollingMomentCoefficient>0</rollingMomentCoefficient>
+       <rotorVelocitySlowdownSim>10</rotorVelocitySlowdownSim><motorType>velocity</motorType>
+     </plugin>
+@@ -211,7 +229,7 @@
+       <jointName>rotor_1_joint</jointName><linkName>rotor_1</linkName><turningDirection>ccw</turningDirection>
+       <timeConstantUp>0.001</timeConstantUp><timeConstantDown>0.001</timeConstantDown>
+       <maxRotVelocity>916.2978572970229</maxRotVelocity><motorConstant>2.452825363226109e-05</motorConstant>
+-      <momentConstant>0.010812553326221993</momentConstant><commandSubTopic>command/motor_speed</commandSubTopic>
++      <momentConstant>0.010812553326221993</momentConstant><commandSubTopic>command/pack_limited_motor_speed</commandSubTopic>
+       <motorNumber>1</motorNumber><rotorDragCoefficient>0</rotorDragCoefficient><rollingMomentCoefficient>0</rollingMomentCoefficient>
+       <rotorVelocitySlowdownSim>10</rotorVelocitySlowdownSim><motorType>velocity</motorType>
+     </plugin>
+@@ -219,7 +237,7 @@
+       <jointName>rotor_2_joint</jointName><linkName>rotor_2</linkName><turningDirection>cw</turningDirection>
+       <timeConstantUp>0.001</timeConstantUp><timeConstantDown>0.001</timeConstantDown>
+       <maxRotVelocity>916.2978572970229</maxRotVelocity><motorConstant>2.452825363226109e-05</motorConstant>
+-      <momentConstant>0.010812553326221993</momentConstant><commandSubTopic>command/motor_speed</commandSubTopic>
++      <momentConstant>0.010812553326221993</momentConstant><commandSubTopic>command/pack_limited_motor_speed</commandSubTopic>
+       <motorNumber>2</motorNumber><rotorDragCoefficient>0</rotorDragCoefficient><rollingMomentCoefficient>0</rollingMomentCoefficient>
+       <rotorVelocitySlowdownSim>10</rotorVelocitySlowdownSim><motorType>velocity</motorType>
+     </plugin>
+@@ -227,7 +245,7 @@
+       <jointName>rotor_3_joint</jointName><linkName>rotor_3</linkName><turningDirection>cw</turningDirection>
+       <timeConstantUp>0.001</timeConstantUp><timeConstantDown>0.001</timeConstantDown>
+       <maxRotVelocity>916.2978572970229</maxRotVelocity><motorConstant>2.452825363226109e-05</motorConstant>
+-      <momentConstant>0.010812553326221993</momentConstant><commandSubTopic>command/motor_speed</commandSubTopic>
++      <momentConstant>0.010812553326221993</momentConstant><commandSubTopic>command/pack_limited_motor_speed</commandSubTopic>
+       <motorNumber>3</motorNumber><rotorDragCoefficient>0</rotorDragCoefficient><rollingMomentCoefficient>0</rollingMomentCoefficient>
+       <rotorVelocitySlowdownSim>10</rotorVelocitySlowdownSim><motorType>velocity</motorType>
+     </plugin>
+diff --git a/Tools/simulation/gz/models/m100_cmu_v2/m100_physical_parameters.yaml b/Tools/simulation/gz/models/m100_cmu_v2/m100_physical_parameters.yaml
+index 0ca262f9ce230a8f91a7fecc2e4ad0181648c949..992e921d3cf7152ecb5696a887aadbf82eaae215 100644
+--- a/Tools/simulation/gz/models/m100_cmu_v2/m100_physical_parameters.yaml
++++ b/Tools/simulation/gz/models/m100_cmu_v2/m100_physical_parameters.yaml
+@@ -350,7 +350,7 @@
+     unit: Gazebo transport subtopic
+     source: PX4 Gazebo motor interface
+     status: F_NUMERICAL_SETTING
+-    notes: Stable software interface.
++    notes: Raw PX4 speed requests feed m100::PackDrive. The stock rotors read the bounded model Actuators component.
+   joint_state_update_rate:
+     value: 20
+     unit: Hz
+@@ -398,11 +398,11 @@
+
+ electrical:
+   runtime_model:
+-    value: M100_V2_ENERGY_RECALIBRATION_REQUIRED
+-    unit: null
+-    source: Physics V2 changes invalidate any rotor-power mapping tied to the retired model
+-    status: E_REQUIRED_UNAVAILABLE
+-    notes: Active V2 must not silently reuse the retired Stage-1 coefficients.
++    value: CMU_PACK_DRIVE_V1
++    unit: null
++    source: Rodrigues CMU flight power and loaded pack voltage regression, results/m100_reaudit/cmu_calibration/fit.json
++    status: D_EXPLICIT_MODEL_IDEALIZATION
++    notes: Whole-aircraft empirical load, run-relative charge and no-load-family rotor-speed ceiling. Individual motor currents and 620D losses are unidentified.
+   stage1_aircraft_level_alpha:
+     value: null
+     unit: dimensionless
+diff --git a/Tools/simulation/gz/models/m100_cmu_v2/visual_asset_manifest.json b/Tools/simulation/gz/models/m100_cmu_v2/visual_asset_manifest.json
+index 81a284c35ecd8f542f488a5eb50a84c50bca2a15..64452f3167da46aacaa994ac04dde1733871d5eb 100644
+--- a/Tools/simulation/gz/models/m100_cmu_v2/visual_asset_manifest.json
++++ b/Tools/simulation/gz/models/m100_cmu_v2/visual_asset_manifest.json
+@@ -47,6 +47,10 @@
+     "joints_sha256": "d594e969278d1de842fdf8c67ea84d347ce9199bbca26ed904c054a8ad24b925",
+     "plugins_sha256": "8f82b21e3b734e971c09311688615362b8e53565876ba2264833e9f1f5e0e43e",
+     "sensors_sha256": "5f7577d6a00a61057335aabdf601d93efa595681557ccff4243e000630af43c1"
++  },
++  "pack_drive_v1_projection": {
++    "model_without_visuals_sha256": "21a8bde4ec834e77f6c3ebe61e504ed14078aea6a78b56b5508da2cf33788e23",
++    "plugins_sha256": "313dce3c186ad41dd487307c6116f45193ba6671a25bea7e38913450dc8b61ee"
+   },
+   "assets": [
+     {
+diff --git a/Tools/simulation/gz/models/m100_cmu_v2/validate_m100_cmu_v2.py b/Tools/simulation/gz/models/m100_cmu_v2/validate_m100_cmu_v2.py
+index 521a3c0c848a8709481b4b1bc66294faa29fbc85..c66511e7c4e4412e9d4a9ec426e58c0475c7717b 100644
+--- a/Tools/simulation/gz/models/m100_cmu_v2/validate_m100_cmu_v2.py
++++ b/Tools/simulation/gz/models/m100_cmu_v2/validate_m100_cmu_v2.py
+@@ -249,7 +249,9 @@
+         }
+         assert references == set()
+
+-    lock = manifest["physics_projection_lock"]
++    drive_projection = manifest["pack_drive_v1_projection"]
++    assert set(drive_projection) == {"model_without_visuals_sha256", "plugins_sha256"}
++    lock = manifest["physics_projection_lock"] | drive_projection
+     checks = {
+         "model_without_visuals_sha256": _single_projection_sha256(
+             root, skip_visuals=True

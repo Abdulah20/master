@@ -71,10 +71,19 @@ def run_cases(which, work, jobs, only=None):
             raise ValueError('unknown case ID in requested subset')
     work = work.resolve()
     work.mkdir(exist_ok=True,parents=True)
-    from .physics import ENERGY_MODULE, runtime_path
-    manager=runtime_path()/ENERGY_MODULE.parent/'m100_experiment_manager.py'
-    hashes={str(p.relative_to(ROOT)) if p.is_relative_to(ROOT) else 'linked_px4_manager':hashlib.sha256(p.read_bytes()).hexdigest()
-            for p in (manager,Path(__file__),ROOT/'tools/m100_reaudit/native.py',ROOT/'tools/m100_reaudit/run_native.sh',ROOT/'tools/m100_reaudit/isolated_native.sh')}
+    from .physics import DEFAULT_RUNTIME, ENERGY_MODULE
+    project = Path(os.environ.get("M100_RUNTIME", DEFAULT_RUNTIME)).expanduser()
+    px4 = Path(os.environ.get("M100_PX4", Path.home() / "PX4-Autopilot")).expanduser()
+    inputs = {
+        "linked_px4_manager": project / ENERGY_MODULE.parent / "m100_experiment_manager.py",
+        "native_pack_drive_library": project / "ros2_ws/install/m100_gazebo_gui/lib/m100_gazebo_gui/libM100PackDrive.so",
+        "m100_cmu_v2/model.sdf": px4 / "Tools/simulation/gz/models/m100_cmu_v2/model.sdf",
+        "gz_env.sh": px4 / "build/px4_sitl_default/rootfs/gz_env.sh",
+    }
+    for script in (Path(__file__), Path(__file__).with_name("native.py"),
+                   Path(__file__).with_name("run_native.sh"), Path(__file__).with_name("isolated_native.sh")):
+        inputs[str(script.relative_to(ROOT))] = script
+    hashes = {name: hashlib.sha256(path.read_bytes()).hexdigest() for name, path in inputs.items()}
     stamp=work/'acquisition_inputs.json'
     if stamp.exists() and json.loads(stamp.read_text())!=hashes:
         raise ValueError('native acquisition source differs from checkpoint. Choose a new working directory.')

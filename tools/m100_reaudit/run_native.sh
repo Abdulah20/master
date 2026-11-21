@@ -14,7 +14,11 @@ export GZ_PARTITION=${GZ_PARTITION:-m100_reaudit}
 export GZ_SIM_RESOURCE_PATH="$(ros2 pkg prefix --share m100_gazebo_assets)/models:$px4/Tools/simulation/gz/models:$px4/Tools/simulation/gz/worlds"
 export GZ_GUI_PLUGIN_PATH="$(ros2 pkg prefix m100_gazebo_gui)/lib/m100_gazebo_gui"
 cd "$root"
-"$(ros2 pkg prefix ros_gz_bridge)/lib/ros_gz_bridge/parameter_bridge" '/clock@rosgraph_msgs/msg/Clock[gz.msgs.Clock' '/m100/rotor_joint_states@sensor_msgs/msg/JointState[gz.msgs.Model' >"$run_dir/bridge.log" 2>&1 &
+"$(ros2 pkg prefix ros_gz_bridge)/lib/ros_gz_bridge/parameter_bridge" \
+  '/clock@rosgraph_msgs/msg/Clock[gz.msgs.Clock' \
+  '/m100/rotor_joint_states@sensor_msgs/msg/JointState[gz.msgs.Model' \
+  '/m100/pack_drive/demand@std_msgs/msg/String]gz.msgs.StringMsg' \
+  '/m100/pack_drive/state@std_msgs/msg/String[gz.msgs.StringMsg' >"$run_dir/bridge.log" 2>&1 &
 bridge_pid=$!
 /usr/bin/python3 -m tools.m100_reaudit.native manager "$run_dir" >"$run_dir/manager.log" 2>&1 &
 manager_pid=$!

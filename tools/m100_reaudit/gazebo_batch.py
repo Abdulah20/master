@@ -24,9 +24,7 @@ ROOT = Path(__file__).resolve().parents[2]
 OUTPUT = ROOT / "results/m100_reaudit/gazebo_batch"
 ENGINE = Path(__file__).with_name("gazebo_batch_engine.cc")
 DEFAULT_CACHE = Path(os.environ.get("XDG_CACHE_HOME", Path.home() / ".cache")) / "m100-research-gazebo"
-_LOCAL_PX4 = Path.home() / "PX4-Autopilot"
-DEFAULT_PX4 = (_LOCAL_PX4 if (_LOCAL_PX4/"Tools/simulation/gz/models/m100_cmu_v2/model.sdf").is_file()
-               else PORTABLE_PX4)
+DEFAULT_PX4 = PORTABLE_PX4  # The historical Lee controller writes its own Actuators component.
 INPUTS = ["payload_kg", "cruise_speed_mps", "wind_speed_mps", "wind_direction_toward_deg_ENU",
           "altitude_m", "temperature_c", "measurement_distance_m", "hover_duration_s"]
 # Fixed before accepting simulations. Same speed/height tolerance as the native audit.
@@ -64,6 +62,9 @@ def add(parent, tag, value=None, **attrs):
 def make_world(assets, payload_kg, step, dest):
     base = assets / "m100_cmu_v2/model.sdf"
     aircraft = ET.parse(base).getroot().find("model")
+    if aircraft.find("plugin[@name='m100::PackDrive']") is not None:
+        raise ValueError("The Lee campaign writes rotor commands directly. For a voltage-coupled flight "
+                         "use the native PX4 manager. For the published Lee baseline select runtime_snapshot/px4.")
     files = [base]
     if payload_kg:
         wrapper = assets / f"m100_cmu_v2_payload_{round(100*payload_kg):03d}/model.sdf"
@@ -680,7 +681,8 @@ def summarize(study, assets, cache,out, jobspec):
         'true_px4_sitl':False,'onboard_sensors_used_by_controller':False,'primary_step_s':BASE_STEP,'fine_step_s':FINE_STEP,
         'readout_interval_s':.2,'guidance_interval_s':.04,'gust_model':None,'random_sensor_noise':False,'seed':0,
         'numerical_reproducibility':'Externally scheduled Gazebo Transport velocity commands may shift phase boundaries by a control tick, check repeatability.csv; no repeated run is an independent training example.',
-        'motor_model_and_collision_shapes':'Preserved from the installed research airframe incl. fixed-joint payload variants',
+        'motor_model_and_collision_shapes':'Preserved from the source research airframe incl. fixed-joint payload variants',
+        'pack_voltage_limits_motor_commands':False,
         'versions':{pkg:subprocess.check_output(['pkg-config','--modversion',pkg],text=True).strip()
                     for pkg in ('gz-sim8','gz-physics7-dartsim-plugin','gz-sim8-multicopter-control-system','sdformat14')},
         'thresholds':{'maximum_window_height_error_m':.5,'maximum_cross_track_m':.75,'speed_tolerance':'max(0.3,0.05*command) m/s',

@@ -9,6 +9,9 @@ px4=${M100_PX4:-/home/abdulah/PX4-Autopilot}/build/px4_sitl_default/rootfs
 # Only copy initial bootstrap files. Preserve the initial parameters and the logs of this worker on retry.
 if [[ ! -f "$run_dir/state/rootfs/gz_env.sh" ]]; then
   cp -a "$px4/gz_env.sh" "$px4/dataman" "$px4/eeprom" "$px4"/parameters*.bson "$run_dir/state/rootfs/"
+elif ! cmp -s "$run_dir/state/rootfs/gz_env.sh" "$px4/gz_env.sh"; then
+  echo "The recorded Gazebo plugin and resource paths differ from this PX4 build. Use a new acquisition directory." >&2
+  exit 1
 fi
 models=$(realpath "${M100_PX4:-/home/abdulah/PX4-Autopilot}/Tools/simulation/gz/models")
 # A non-reference temperature generates a Gazebo model and registers a model-directory alias.

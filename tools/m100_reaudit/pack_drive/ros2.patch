@@ -1,0 +1,640 @@
+diff --git a/start_m100_simulation.sh b/start_m100_simulation.sh
+index 4f6987a94dd1abe556b6a38073a4b31563bf1025..e57d2d18aaaa6a9f7f68a83e96632f741cc6f15f 100755
+--- a/start_m100_simulation.sh
++++ b/start_m100_simulation.sh
+@@ -299,7 +299,7 @@
+         }
+         models="$(timeout 8 gz model --list 2>/dev/null || true)"
+         if grep -Eq \
+-                '^[[:space:]]+- m100_cmu_v2(_payload_(025|050|075|100|125))?_0[[:space:]]*$' \
++                '^[[:space:]]+- m100_cmu_v2(_payload_(025|050|075|100|125)|_temp_[0-9a-f]{24})?_0[[:space:]]*$' \
+                 <<< "$models"; then
+             return 0
+         fi
+@@ -322,13 +322,16 @@
+             /drone_nav/energy_cmd \
+             /drone_nav/cmd \
+             /clock \
+-            /m100/rotor_joint_states; do
++            /m100/rotor_joint_states \
++            /m100/pack_drive/demand \
++            /m100/pack_drive/state; do
+         wait_for_topic_publisher "$topic" "$timeout_s" || return 1
+     done
+     wait_for_manager_status "$mode" "$timeout_s" || return 1
+     wait_for_m100_model "$timeout_s" || return 1
+     wait_for_topic_sample '/clock' "$timeout_s" || return 1
+     wait_for_topic_sample '/m100/rotor_joint_states' "$timeout_s" || return 1
++    wait_for_topic_sample '/m100/pack_drive/state' "$timeout_s" || return 1
+ }
+
+ m100_backend_process_present() {
+diff --git a/ros2_ws/src/drone_nav/drone_nav/m100_contract.py b/ros2_ws/src/drone_nav/drone_nav/m100_contract.py
+index e63ac1ef8de4a4fa6d4ae2e03a4d39065eb99ef6..9dd6f5c235871ac6303cbade311006b1408dc618 100644
+--- a/ros2_ws/src/drone_nav/drone_nav/m100_contract.py
++++ b/ros2_ws/src/drone_nav/drone_nav/m100_contract.py
+@@ -8,6 +8,7 @@
+
+ from dataclasses import asdict, dataclass
+ import math
++import os
+ from pathlib import Path
+
+ from .m100_atmosphere import (
+@@ -16,7 +17,7 @@
+ )
+
+
+-PX4_ROOT = Path("/home/abdulah/PX4-Autopilot")
++PX4_ROOT = Path(os.environ.get("M100_PX4", "/home/abdulah/PX4-Autopilot")).expanduser().resolve()
+ WORLD_NAME = "m100_experiment_park"
+ TEMPERATURE_DENSITY_LIMITATION_WARNING = (
+     "TEMPERATURE_ROTOR_DENSITY_THEORY_NO_M100_HOLDOUT"
+diff --git a/ros2_ws/src/drone_nav/drone_nav/m100_experiment_manager.py b/ros2_ws/src/drone_nav/drone_nav/m100_experiment_manager.py
+index 826b2ec4087e8dc33d30ea46d8b1d713cf718d99..0f34d5a381fd5052f0d748766a3d34355a5d89c2 100644
+--- a/ros2_ws/src/drone_nav/drone_nav/m100_experiment_manager.py
++++ b/ros2_ws/src/drone_nav/drone_nav/m100_experiment_manager.py
+@@ -6,6 +6,8 @@
+
+ from __future__ import annotations
+
++from collections import deque
++from contextlib import ExitStack
+ import csv
+ from dataclasses import asdict, dataclass, replace
+ from datetime import datetime, timezone
+@@ -27,7 +29,7 @@
+ import rclpy
+ from rclpy.executors import ExternalShutdownException
+ from rclpy.node import Node
+-from rclpy.qos import qos_profile_sensor_data
++from rclpy.qos import QoSProfile, ReliabilityPolicy, qos_profile_sensor_data
+ from rosgraph_msgs.msg import Clock
+ from sensor_msgs.msg import JointState
+ from std_msgs.msg import String
+@@ -160,6 +162,17 @@
+ )
+ BMS_LIMITED_HOVER_POLICY = "PUBLISHED_MEAN_IN_ITS_ENVELOPE_OR_CMU_KINEMATIC_SIMULATION_TRANSFER"
+ BMS_UNSUPPORTED_PHASE_POLICY = "NOT_INTEGRATED_AND_CONTINUITY_IS_BROKEN"
++PACK_DRIVE_DEMAND_TOPIC = "/m100/pack_drive/demand"
++PACK_DRIVE_STATE_TOPIC = "/m100/pack_drive/state"
++CMU_FIT_SHA256 = "d3413efef49a278a10f0dc404c6b34e5c6d07e42dd698ad21aae0ea00824377f"
++PACK_DRIVE_NUMBERS = (
++    "voltage_v", "current_a", "discharged_ah", "demand_power_w", "delivered_power_w", "cap_voltage_v",
++    "omega_limit_rad_s", "thrust_limit_fraction", "requested_load_voltage_v", "requested_pack_current_a",
++    "fit_q_ah", "covered_load_time_s", "unaccounted_load_time_s", "unmodelled_idle_time_s", "raw_command_time_s",
++)
++PACK_DRIVE_FLAGS = ("command_limited", "q_at_lower_boundary", "q_domain_exhausted",
++                    "loaded_charge_coverage_complete", "raw_command_fresh", "awaiting_post_reset_zero_command")
++PACK_DRIVE_COMMANDS = ("raw_motor_rad_s", "applied_motor_rad_s")
+ M100_RETURN_SPEED_CAP_MPS = 4.0
+ M100_RETURN_DEFAULT_SPEED_MPS = 2.0
+ M100_RETURN_CAPTURE_RADIUS_M = 0.75
+@@ -340,6 +353,8 @@
+             "last_message_monotonic": 0.0,
+             "last_heartbeat_monotonic": 0.0,
+             "last_local_position_monotonic": None,
++            "last_landed_state_monotonic": None,
++            "landed_state_known": False,
+             "heartbeat_generation": 0,
+             "armed": False,
+             "landed": True,
+@@ -390,6 +405,10 @@
+             connection = self._connection
+             self._connection = None
+             self._telemetry["connected"] = False
++            self._telemetry["last_local_position_monotonic"] = None
++            self._telemetry["last_landed_state_monotonic"] = None
++            self._telemetry["landed_state_known"] = False
++            self._telemetry["local"] = None
+         if connection is not None:
+             try:
+                 connection.close()
+@@ -443,6 +462,11 @@
+             )
+             self._telemetry["mode"] = mavutil.mode_string_v10(message)
+         elif kind == "EXTENDED_SYS_STATE":
++            self._telemetry["last_landed_state_monotonic"] = time.monotonic()
++            self._telemetry["landed_state_known"] = message.landed_state in (
++                mavutil.mavlink.MAV_LANDED_STATE_ON_GROUND, mavutil.mavlink.MAV_LANDED_STATE_IN_AIR,
++                mavutil.mavlink.MAV_LANDED_STATE_TAKEOFF, mavutil.mavlink.MAV_LANDED_STATE_LANDING,
++            )
+             self._telemetry["landed"] = (
+                 message.landed_state == mavutil.mavlink.MAV_LANDED_STATE_ON_GROUND
+             )
+@@ -616,7 +640,7 @@
+         self._wind_config_path = STABLE_CRUISE_ENERGY_CONFIG.with_name("m100_wind_simulation_v1.yaml")
+         self._wind_simulation = WindSimulation.load(self._wind_config_path)
+         self._wind_environment_application = None
+-        self._propulsion = M100PropulsionV2.load()
++        self._propulsion = M100PropulsionV2.load(PX4_MODELS_ROOT / "m100_cmu_v2" / "m100_physical_parameters.yaml")
+         gong_config_path = Path(str(self.get_parameter("gong_energy_config").value))
+         self._runtime_energy = M100RuntimeEnergyV2.load(
+             gong_config_path,
+@@ -625,6 +649,9 @@
+
+         self._nav_pub = self.create_publisher(String, "/drone_nav/status", 10)
+         self._energy_pub = self.create_publisher(String, "/drone_nav/energy", 10)
++        pack_qos = QoSProfile(depth=1, reliability=ReliabilityPolicy.RELIABLE)
++        self._pack_drive_pub = self.create_publisher(String, PACK_DRIVE_DEMAND_TOPIC, pack_qos)
++        self.create_subscription(String, PACK_DRIVE_STATE_TOPIC, self._on_pack_drive_state, pack_qos)
+         self.create_subscription(String, "/drone_nav/experiment_cmd", self._on_apply, 10)
+         self.create_subscription(String, "/drone_nav/cmd", self._on_nav_command, 10)
+         self.create_subscription(String, "/drone_nav/energy_cmd", self._on_energy_command, 10)
+@@ -632,6 +659,14 @@
+             JointState, "/m100/rotor_joint_states", self._on_rotor_joint_state, 20
+         )
+         self._gazebo_sim_time_s: float | None = None
++        self._clock_advanced_at = 0.0
++        self._pack_requests: deque[dict[str, Any]] = deque(maxlen=64)
++        self._pack_signal_times: dict[str, tuple[float, float]] = {}
++        self._pack_epoch_s: float | None = None
++        self._pack_epoch = 0
++        self._pack_state: dict[str, Any] | None = None
++        self._pack_joint_observation: dict[str, Any] | None = None
++        self._pack_state_received_at = 0.0
+         self.create_subscription(
+             Clock, "/clock", self._on_sim_clock, qos_profile_sensor_data
+         )
+@@ -662,6 +697,10 @@
+         self._recording = False
+         self._csv_handle = None
+         self._csv_writer = None
++        self._pack_trace = None
++        self._pack_trace_start_s: float | None = None
++        self._pack_trace_rows = 0
++        self._pack_trace_error: str | None = None
+         self._csv_path: Path | None = None
+         self._run_id = ""
+         self._run_provenance_context: dict[str, Any] | None = None
+@@ -693,9 +732,205 @@
+     def _on_sim_clock(self, message: Clock) -> None:
+         # Use the Gazebo world clock for the dashboard even before a case is
+         # applied. A newly spawned world can legitimately restart at zero.
+-        self._gazebo_sim_time_s = (
+-            message.clock.sec + message.clock.nanosec * 1e-9
+-        )
++        stamp = message.clock.sec + message.clock.nanosec * 1e-9
++        with self._lock:
++            previous = self._gazebo_sim_time_s
++            self._gazebo_sim_time_s = stamp
++            if previous is None or stamp != previous:
++                self._clock_advanced_at = time.monotonic()
++            if previous is not None and stamp < previous:
++                self._reset_pack_drive_epoch()
++
++    def _reset_pack_drive_epoch(self) -> None:
++        self._pack_epoch += 1
++        self._pack_epoch_s = self._gazebo_sim_time_s
++        self._pack_state = None
++        self._pack_joint_observation = None
++        self._pack_state_received_at = 0.0
++        self._pack_requests.clear()
++        self._pack_signal_times.clear()
++        self._power_position_stamp = (None, 0.0)
++        if self._recording:
++            self._pack_trace_start_s = self._pack_epoch_s
++
++    def _pack_command_conditions(self) -> dict[str, Any]:
++        config = self._config
++        if config is None:
++            return {"command_support": "NO_APPLIED_CONFIG"}
++        payload, speed, altitude = config.payload.payload_kg, config.cruise_speed_mps, config.altitude_m
++        inside = 0.0 <= payload <= 0.5 and 4.0 <= speed <= 12.0 and 25.0 <= altitude <= 100.0
++        support = "WITHIN_MARGINAL_TRAINING_RANGES_JOINT_SUPPORT_UNVERIFIED" if inside else "OUTSIDE_TRAINING_COMMAND_RANGES"
++        return {"command_support": support, "payload_kg": payload, "commanded_speed_mps": speed,
++                "commanded_altitude_agl_m": altitude, "temperature_c": config.temperature_c,
++                "wind_speed_mps": config.wind_speed_mps, "power_reference_temperature_c": 15.0,
++                "temperature_support": ("REFERENCE_SETTING" if is_reference_temperature_c(config.temperature_c)
++                                        else "NONREFERENCE_TEMPERATURE_TRANSFER"),
++                "wind_power_applied": False, "application": "AIRCRAFT_PHASE_MEAN_TRANSFER_TO_SIMULATION"}
++
++    def _pack_time_is_current(self, stamp: float, now: float) -> bool:
++        limit = self._energy_config.maximum_valid_gap_s
++        clock = self._gazebo_sim_time_s
++        return (clock is not None and math.isfinite(stamp) and stamp >= 0.0
++                and (self._pack_epoch_s is None or stamp > self._pack_epoch_s)
++                and abs(clock - stamp) <= limit and now - self._clock_advanced_at <= limit)
++
++    def _pack_signal_fresh(self, key: str, received_at: float | None, stamp: float, now: float, max_age: float) -> bool:
++        # A wall-clock timeout alone can hold an old MAVLink value for many simulated seconds at high RTF.
++        if received_at is None or received_at <= 0 or not 0 <= now - received_at <= max_age:
++            return False
++        previous = self._pack_signal_times.get(key)
++        if previous is not None and received_at < previous[0]:
++            return False
++        if previous is None or received_at > previous[0]:
++            self._pack_signal_times[key] = (received_at, stamp)
++        return stamp - self._pack_signal_times[key][1] <= max_age
++
++    def _publish_pack_demand(self, stamp, sample, velocities, phase, calibration) -> None:
++        model = self._active_runtime_model
++        now = time.monotonic()
++        if not model or not self._pack_time_is_current(stamp, now):
++            return
++        if self._pack_requests and stamp <= self._pack_requests[-1]["time_s"]:
++            return
++        joints_valid = all(v is not None and math.isfinite(v) for v in velocities)
++        self._pack_joint_observation = None
++        if joints_valid:
++            scale = self._energy_config.rotor_joint_velocity_scale
++            self._pack_joint_observation = {"topic": "/m100/rotor_joint_states", "time_s": stamp,
++                                            "joint_names": ROTOR_JOINT_NAMES,
++                                            "simulated_rotor_speed_rad_s": [abs(v) * scale for v in velocities]}
++        heartbeat_recent = self._pack_signal_fresh("heartbeat", sample.get("last_heartbeat_monotonic"), stamp, now, 2.0)
++        armed = bool(sample["armed"]) if sample.get("heartbeat_fresh") and heartbeat_recent else None
++        power = None
++        source = "ARMED_STATE_UNKNOWN"
++        if armed is False:
++            # Native disarm is an explicit off state of the drive. Avionics draw is unresolved.
++            power, source = 0.0, "DRIVE_DISARMED"
++        elif armed:
++            source = "FLIGHT_STATE_UNAVAILABLE"
++            landed_recent = self._pack_signal_fresh("landed", sample.get("last_landed_state_monotonic"),
++                                                    stamp, now, self._energy_config.maximum_valid_gap_s)
++            ready = (self._config is not None and self._applied_atmosphere is not None
++                     and self._power_air_state is not None and sample.get("landed_state_known")
++                     and landed_recent and not sample["landed"] and joints_valid)
++            if ready:
++                # Reuse the release equation for the energy-selected phase model at planned altitude.
++                # Live phase transitions supply elapsed time. Preflight duration fits do not drive Gazebo.
++                estimate = self._energy_config.estimate_power(
++                    phase, self._config.payload.payload_kg, self._applied_atmosphere.reference.density_kg_m3,
++                    limited_hover_eligible=calibration.use_limited_hover_mean,
++                )
++                power = estimate.power_w
++                source = ("CMU_LIMITED_HOVER_MEAN" if estimate.coefficient_phase == "limited_hover"
++                          else estimate.model_id if power is not None else "UNSUPPORTED_PHASE")
++        request = {"model": f"{model}_0", "time_s": stamp, "power_w": power, "armed": armed,
++                   "producer": "m100_experiment_manager", "source": source, "phase": phase,
++                   "phase_applicability": calibration.status, **self._pack_command_conditions()}
++        self._pack_drive_pub.publish(String(data=json.dumps(request, allow_nan=False)))
++        self._pack_requests.append(request)
++
++    def _on_pack_drive_state(self, message: String) -> None:
++        try:
++            native = json.loads(message.data)
++            json.dumps(native, allow_nan=False)  # The full native object is also preserved in the trace.
++        except ValueError:
++            return
++        if not isinstance(native, dict) or not isinstance(native.get("status"), str):
++            return
++        with self._lock:
++            model = self._active_runtime_model
++            if not model or native.get("model") != f"{model}_0":
++                return
++            # Only copy finite scalar fields from the native wire schema into the public JSON.
++            state = {}
++            for key in ("time_s", "demand_time_s", *PACK_DRIVE_NUMBERS):
++                value = native.get(key)
++                state[key] = value if type(value) in (int, float) else None
++            for key in ("armed", "demand_fresh", *PACK_DRIVE_FLAGS):
++                value = native.get(key)
++                state[key] = value if type(value) is bool else None
++            for key in PACK_DRIVE_COMMANDS:
++                vector = native.get(key)
++                state[key] = (vector if isinstance(vector, list) and len(vector) == 4
++                              and all(type(v) in (int, float) for v in vector) else None)
++            now = time.monotonic()
++            stamp = state["time_s"]
++            if (stamp is None or not self._pack_time_is_current(stamp, now)
++                    or (self._pack_state is not None and stamp <= self._pack_state["time_s"])):
++                return
++            state.update(model=native["model"], status=native["status"])
++            self._pack_state = state
++            self._pack_state_received_at = now
++            if (self._recording and self._pack_trace is not None and
++                    (self._pack_trace_start_s is None or stamp > self._pack_trace_start_s)):
++                telemetry = self._pack_drive_telemetry()
++                row = {"schema": "M100_NATIVE_PACK_DRIVE_RECORD_V1", "run_id": self._run_id,
++                       "epoch": self._pack_epoch, "time_s": stamp, "native": native,
++                       "acknowledged_request": telemetry["acknowledged_request"],
++                       "conditions": telemetry["conditions"], "latest_joint_observation": telemetry["latest_joint_observation"],
++                       "demand_fresh": telemetry["demand_fresh"]}
++                try:
++                    self._pack_trace.write(json.dumps(row, allow_nan=False, separators=(",", ":")) + "\n")
++                    self._pack_trace.flush()
++                    self._pack_trace_rows += 1
++                except OSError as error:
++                    self._pack_trace_error = str(error)
++                    self.get_logger().error(f"Native pack trace write failed: {error}")
++                    self._close_pack_trace()
++
++    def _pack_drive_telemetry(self) -> dict[str, Any]:
++        now = time.monotonic()
++        model = self._active_runtime_model
++        state = self._pack_state
++        request = self._pack_requests[-1] if self._pack_requests else None
++        joint = self._pack_joint_observation
++        result = {
++            "topic": PACK_DRIVE_STATE_TOPIC, "model": f"{model}_0" if model else None,
++            "status": "WAITING_FOR_NATIVE_STATE" if model else "NO_RUNTIME_MODEL",
++            "native_status": None, "state_fresh": False, "demand_fresh": False, "native_demand_fresh": None, "armed": None,
++            "time_s": None, "state_age_sim_s": None, "state_age_wall_s": None,
++            "demand_time_s": None, "demand_age_sim_s": None, "demand_source": None,
++            "conditions": self._pack_command_conditions(), "acknowledged_request": None,
++            "latest_joint_observation": joint if joint and self._pack_time_is_current(joint["time_s"], now) else None,
++            "last_request": request, "last_request_fresh": bool(request and self._pack_time_is_current(request["time_s"], now)),
++            **dict.fromkeys((*PACK_DRIVE_NUMBERS, *PACK_DRIVE_FLAGS, *PACK_DRIVE_COMMANDS)),
++        }
++        if state is None or state["model"] != result["model"]:
++            return result
++        stamp = state["time_s"]
++        wall_age = now - self._pack_state_received_at
++        result.update(time_s=stamp, state_age_wall_s=wall_age, native_status=state["status"],
++                      state_age_sim_s=self._gazebo_sim_time_s - stamp)
++        limit = self._energy_config.maximum_valid_gap_s
++        if wall_age > limit or not self._pack_time_is_current(stamp, now):
++            result["status"] = "STALE_NATIVE_STATE"
++            return result
++        result.update(state_fresh=True, status=state["status"], demand_time_s=state["demand_time_s"],
++                      native_demand_fresh=state["demand_fresh"], armed=state["armed"])
++        # The plugin still reports its held actuator limit and charge coverage when a load is unknown.
++        for key in ("discharged_ah", "fit_q_ah", "covered_load_time_s", "unaccounted_load_time_s", "unmodelled_idle_time_s",
++                    "cap_voltage_v", "omega_limit_rad_s", "thrust_limit_fraction", "raw_command_time_s", *PACK_DRIVE_FLAGS, *PACK_DRIVE_COMMANDS):
++            result[key] = state[key]
++        demand_stamp = state["demand_time_s"]
++        if demand_stamp is None:
++            return result
++        demand_age = stamp - demand_stamp
++        result["demand_age_sim_s"] = demand_age
++        if (state["demand_fresh"] is not True or not -1e-6 <= demand_age <= limit
++                or not self._pack_time_is_current(demand_stamp, now)):
++            return result
++        acknowledged = next((r for r in reversed(self._pack_requests)
++                             if math.isclose(r["time_s"], demand_stamp, rel_tol=0.0, abs_tol=1e-6)), None)
++        if acknowledged is None:
++            return result
++        sent, echoed = acknowledged["power_w"], state["demand_power_w"]
++        if (acknowledged["armed"] is not state["armed"] or (sent is None) != (echoed is None)
++                or (sent is not None and not math.isclose(sent, echoed, rel_tol=1e-9, abs_tol=1e-7))):
++            return result
++        result.update(demand_fresh=True, demand_source=acknowledged["source"], acknowledged_request=acknowledged)
++        for key in ("voltage_v", "current_a", "demand_power_w", "delivered_power_w", "requested_load_voltage_v", "requested_pack_current_a"):
++            result[key] = state[key]
++        return result
+
+     def _air_state_for_power(self, sample, altitude_agl_m, timestamp_s):
+         """Sample the dry atmosphere at the PX4 height above the captured home."""
+@@ -725,13 +960,6 @@
+             self._process_rotor_joint_state(message)
+
+     def _process_rotor_joint_state(self, message: JointState) -> None:
+-        if self._state in BUSY_CONFIGURATION_STATES:
+-            # The active SDF and density ratio are not a committed pair while
+-            # APPLY is replacing PX4/Gazebo.  Drop these transient samples so
+-            # neither status nor a CSV can expose identity-kT calculations for
+-            # a derived-temperature model (or the reverse).
+-            self._rotor_telemetry_monotonic = 0.0
+-            return
+         by_name = {
+             name: float(message.velocity[index])
+             for index, name in enumerate(message.name)
+@@ -752,10 +980,13 @@
+             self._config.payload if self._config is not None else None
+         )
+         atmosphere = self._applied_atmosphere
+-        if payload is None or atmosphere is None:
++        changing_model = self._state in BUSY_CONFIGURATION_STATES or self._state == "RESETTING"
++        committed = not changing_model and self._config is not None and payload is not None and atmosphere is not None
++        self._power_air_state = self._air_state_for_power(sample, enu["z"], timestamp_s) if committed else None
++        self._publish_pack_demand(timestamp_s, sample, velocities, energy_phase, calibration)
++        if not committed:
+             self._rotor_telemetry_monotonic = 0.0
+             return
+-        self._power_air_state = self._air_state_for_power(sample, enu["z"], timestamp_s)
+         power_density = (self._power_air_state.density_kg_m3
+                          if self._power_air_state is not None else None)
+         horizontal_speed = None
+@@ -1081,8 +1312,10 @@
+             raise RuntimeError("PX4 connected but local position is unavailable")
+         if not self._runtime_model_present(model):
+             raise RuntimeError(f"Gazebo did not report expected model {model}_0")
+-        self._active_payload = payload
+-        self._active_runtime_model = model
++        with self._lock:
++            self._active_payload = payload
++            self._active_runtime_model = model
++            self._reset_pack_drive_epoch()
+         self._capture_home()
+
+     def _remove_runtime_model(self, model: str | None) -> None:
+@@ -1202,8 +1435,10 @@
+             self._mav.close()
+             if remove_runtime_model:
+                 self._remove_runtime_model(runtime_model)
+-                self._active_payload = None
+-                self._active_runtime_model = None
++                with self._lock:
++                    self._active_payload = None
++                    self._active_runtime_model = None
++                    self._reset_pack_drive_epoch()
+             return
+         sample = self._mav.snapshot()
+         if require_landed and (sample["armed"] or not sample["landed"]):
+@@ -1216,8 +1451,10 @@
+             self._px4_log_handle = None
+         if remove_runtime_model:
+             self._remove_runtime_model(runtime_model)
+-            self._active_payload = None
+-            self._active_runtime_model = None
++            with self._lock:
++                self._active_payload = None
++                self._active_runtime_model = None
++                self._reset_pack_drive_epoch()
+         time.sleep(1.0)
+
+     def _gz_environment(self) -> dict[str, str]:
+@@ -2384,6 +2621,7 @@
+             )
+         energy = {
+             "schema": "M100_TELEMETRY_V3",
++            "native_pack_drive": self._pack_drive_telemetry(),
+             "recording": self._recording,
+             "recorded_energy_coverage": model_energy.recorded_energy_coverage,
+             "airborne_energy_coverage": model_energy.airborne_energy_coverage,
+@@ -2595,32 +2833,58 @@
+             self._run_id = f"{prefix}_{stamp}"
+             self._csv_path = self._csv_root / f"{self._run_id}.csv"
+             provenance = self._capture_run_provenance()
+-            self._csv_handle = self._csv_path.open("x", newline="", encoding="utf-8")
+-            self._csv_writer = csv.DictWriter(self._csv_handle, fieldnames=CSV_FIELDS)
+-            self._csv_writer.writeheader()
+-            self._csv_handle.flush()
+-            self._sample_count = 0
+-            self._last_csv_energy_timestamp_s = None
+-            self._cached_energy_csv_rows_skipped = 0
+-            self._reset_csv_sampling()
+-            self._distance_m = 0.0
+-            self._last_position_enu = None
+-            self._energy_model.reset()
+-            self._energy_model.begin_bms_session()
+-            self._runtime_energy.reset()
+-            self._transient_power.reset()
+-            self._energy_assessment = m100_v2_energy_assessment(None, "IDLE")
+-            self._clear_measurement_metrics()
+-            self._run_provenance_context = provenance
+-            self._last_run_provenance_path = None
+-            self._recording = True
++            trace_path = self._csv_path.with_suffix(".pack_drive.jsonl")
++            with ExitStack() as rollback:
++                csv_handle = self._csv_path.open("x", newline="", encoding="utf-8")
++                rollback.callback(self._csv_path.unlink, missing_ok=True)
++                rollback.callback(csv_handle.close)
++                trace = trace_path.open("x", encoding="utf-8")
++                rollback.callback(trace_path.unlink, missing_ok=True)
++                rollback.callback(trace.close)
++                writer = csv.DictWriter(csv_handle, fieldnames=CSV_FIELDS)
++                writer.writeheader()
++                csv_handle.flush()
++
++                self._pack_trace_start_s = self._gazebo_sim_time_s
++                self._pack_trace_rows, self._pack_trace_error = 0, None
++                self._sample_count = 0
++                self._last_csv_energy_timestamp_s = None
++                self._cached_energy_csv_rows_skipped = 0
++                self._reset_csv_sampling()
++                self._distance_m = 0.0
++                self._last_position_enu = None
++                self._energy_model.reset()
++                self._energy_model.begin_bms_session()
++                self._runtime_energy.reset()
++                self._transient_power.reset()
++                self._energy_assessment = m100_v2_energy_assessment(None, "IDLE")
++                self._clear_measurement_metrics()
++                self._csv_handle, self._csv_writer, self._pack_trace = csv_handle, writer, trace
++                self._run_provenance_context = provenance
++                self._last_run_provenance_path = None
++                self._recording = True
++                rollback.pop_all()
+             return self._run_id
++
++    def _close_pack_trace(self) -> None:
++        trace = self._pack_trace
++        if trace is None:
++            return
++        self._pack_trace = None
++        try:
++            with trace:
++                trace.flush()
++                os.fsync(trace.fileno())
++        except OSError as error:
++            self._pack_trace_error = str(error)
++            self.get_logger().error(f"Native pack trace close failed: {error}")
+
+     def _stop_recording(self, *, outcome: str = "MANUAL_STOP") -> Path | None:
+         with self._lock:
+             if self._recording:
+                 self._energy_model.freeze_bms_session()
+                 self._recording = False
++                self._close_pack_trace()
+                 if self._csv_handle:
+                     self._csv_handle.flush()
+                     os.fsync(self._csv_handle.fileno())
+@@ -2633,11 +2897,17 @@
+             ):
+                 if "recording_end" not in self._run_provenance_context:
+                     sample = self._mav.snapshot()
++                    trace_path = self._csv_path.with_suffix(".pack_drive.jsonl")
++                    self._run_provenance_context["native_pack_drive"]["trace"] = {
++                        "filename": trace_path.name, "rows": self._pack_trace_rows, "io_error": self._pack_trace_error,
++                        "sha256": self._sha256_path(trace_path) if trace_path.is_file() else None,
++                    }
+                     self._run_provenance_context["recording_end"] = {
+                         "outcome": outcome,
+                         "flight_state": self._state,
+                         "landed": sample["landed"] if sample["fresh"] else None,
+                         "armed": sample["armed"] if sample["fresh"] else None,
++                        "native_pack_drive": self._pack_drive_telemetry(),
+                     }
+                 self._last_run_provenance_path = self._finalize_run_provenance(
+                     self._csv_path,
+@@ -2705,6 +2975,12 @@
+                 "m100_energy_v2_config": self._energy_config_path,
+             }.items()
+         }
++        package_root = Path(get_package_share_directory("m100_gazebo_gui")).parents[1]
++        for name, path in {
++            "gazebo_m100_pack_drive_plugin": package_root / "lib/m100_gazebo_gui/libM100PackDrive.so",
++            "m100_canonical_base_sdf": PX4_MODELS_ROOT / "m100_cmu_v2/model.sdf",
++        }.items():
++            sources[name] = {"path": str(path), "sha256": self._sha256_path(path) if path.is_file() else None}
+         speed_adjustment = self._stable_cruise_fit.adjustment_w(config)
+         return {
+             "schema": "M100_RUN_PROVENANCE_V2",
+@@ -2712,6 +2988,21 @@
+             "run_id": self._run_id,
+             "config": config.as_dict(),
+             "atmosphere": asdict(atmosphere),
++            "native_pack_drive": {
++                "demand_topic": PACK_DRIVE_DEMAND_TOPIC, "state_topic": PACK_DRIVE_STATE_TOPIC,
++                "power_model_id": self._energy_config.model_id,
++                "cmu_development_fit_sha256": CMU_FIT_SHA256,
++                "conditions": self._pack_command_conditions(),
++                "cmu_training_ranges": {"payload_kg": [0.0, 0.5], "commanded_speed_mps": [4.0, 12.0],
++                                        "commanded_altitude_agl_m": [25.0, 100.0]},
++                "demand_definition": "CMU whole-aircraft phase mean, 15 C density at commanded altitude, published regression mass. The narrow field hover mean requires its own eligibility gate. Unsupported airborne phases have no demand estimate.",
++                "elapsed_time_source": "Measured Gazebo joint timestamps; CMU preflight duration predictions are offline only.",
++                "csv_schema": CSV_SCHEMA, "native_series_in_csv": False,
++                "trace_schema": "M100_NATIVE_PACK_DRIVE_RECORD_V1",
++                "trace_clock": "Native Gazebo state timestamps; one fresh received sample per timestamp per entity epoch. Joint observations have their own joint-message stamp. Reliable latest-value subscriptions may skip updates.",
++                "motor_signals": "raw_motor_rad_s and applied_motor_rad_s are requested speeds. latest_joint_observation contains simulated rotor speed magnitudes from joint velocities multiplied by the configured numerical slowdown.",
++                "state_at_recording_start": self._pack_drive_telemetry(),
++            },
+             "energy_density_source": {
+                 "model": "DRY_HYDROSTATIC_LINEAR_LAPSE_AT_FRESH_PX4_LOCAL_HEIGHT",
+                 "world_ground_msl_m": 0.0,
+diff --git a/ros2_ws/src/drone_nav/launch/m100_experiment.launch.py b/ros2_ws/src/drone_nav/launch/m100_experiment.launch.py
+index ecd7efd97bbc7fab63573fffac39138b3cf9c546..66b3bb662c4258ec015f2a709c40594048dff1ce 100644
+--- a/ros2_ws/src/drone_nav/launch/m100_experiment.launch.py
++++ b/ros2_ws/src/drone_nav/launch/m100_experiment.launch.py
+@@ -14,7 +14,7 @@
+ def generate_launch_description():
+     assets_share = get_package_share_directory("m100_gazebo_assets")
+     gui_prefix = get_package_prefix("m100_gazebo_gui")
+-    px4_root = "/home/abdulah/PX4-Autopilot"
++    px4_root = os.path.abspath(os.path.expanduser(os.environ.get("M100_PX4", "/home/abdulah/PX4-Autopilot")))
+     partition = LaunchConfiguration("gz_partition")
+
+     return LaunchDescription([
+@@ -64,6 +64,8 @@
+             arguments=[
+                 "/clock@rosgraph_msgs/msg/Clock[gz.msgs.Clock",
+                 "/m100/rotor_joint_states@sensor_msgs/msg/JointState[gz.msgs.Model",
++                "/m100/pack_drive/demand@std_msgs/msg/String]gz.msgs.StringMsg",
++                "/m100/pack_drive/state@std_msgs/msg/String[gz.msgs.StringMsg",
+                 "/drone_nav/status@std_msgs/msg/String]gz.msgs.StringMsg",
+                 "/drone_nav/energy@std_msgs/msg/String]gz.msgs.StringMsg",
+                 "/drone_nav/experiment_cmd@std_msgs/msg/String[gz.msgs.StringMsg",
+diff --git a/ros2_ws/src/m100_gazebo_gui/CMakeLists.txt b/ros2_ws/src/m100_gazebo_gui/CMakeLists.txt
+index b9d93e06fc0d05695111010eaf16a66341dee720..b585d8684236b6738e50e9d1b0aecc992bf9202f 100644
+--- a/ros2_ws/src/m100_gazebo_gui/CMakeLists.txt
++++ b/ros2_ws/src/m100_gazebo_gui/CMakeLists.txt
+@@ -63,6 +63,12 @@
+   gz-transport::gz-transport gz-msgs::gz-msgs)
+ install(TARGETS M100AerodynamicDrag LIBRARY DESTINATION lib/${PROJECT_NAME})
+
++add_library(M100PackDrive SHARED propulsion/M100PackDrive.cc)
++target_compile_features(M100PackDrive PRIVATE cxx_std_17)
++target_link_libraries(M100PackDrive PRIVATE gz-sim::gz-sim gz-plugin::gz-plugin
++  gz-transport::gz-transport gz-msgs::gz-msgs Qt5::Core)
++install(TARGETS M100PackDrive LIBRARY DESTINATION lib/${PROJECT_NAME})
++
+ install(FILES gui/uav_telemetry.config
+   DESTINATION share/${PROJECT_NAME}/gui
+ )
+diff --git a/ros2_ws/src/drone_nav/test/test_m100_cmu_v2_runtime_purity.py b/ros2_ws/src/drone_nav/test/test_m100_cmu_v2_runtime_purity.py
+index d99cc5d3059d2bc5b518a96cb49760b41401c14c..95ae070d6e6837b7eddcabed55f58bbc6262958e 100644
+--- a/ros2_ws/src/drone_nav/test/test_m100_cmu_v2_runtime_purity.py
++++ b/ros2_ws/src/drone_nav/test/test_m100_cmu_v2_runtime_purity.py
+@@ -416,7 +416,9 @@
+         }
+         assert references == set()
+
+-    lock = manifest["physics_projection_lock"]
++    drive_projection = manifest["pack_drive_v1_projection"]
++    assert set(drive_projection) == {"model_without_visuals_sha256", "plugins_sha256"}
++    lock = manifest["physics_projection_lock"] | drive_projection
+     checks = {
+         "model_without_visuals_sha256": _projection_sha256(
+             _tree_projection(root, frozenset({"visual"}))

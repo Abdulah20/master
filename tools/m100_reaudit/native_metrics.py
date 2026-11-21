@@ -9,6 +9,7 @@ import lzma
 import math
 from pathlib import Path
 import shutil
+import tempfile
 
 from .physics import Model
 
@@ -197,6 +198,33 @@ def verify(samples, receipt, provenance, model):
                  nominal_remaining_wh=budget.nominal_remaining_wh, budget_status=budget.status, **amounts),spans)
 
 
+def archive_pack_drive(directory, out, cid, rid, provenance):
+    """Preserve the native rotor and pack samples recorded alongside new flight CSVs."""
+    if "native_pack_drive" not in provenance:
+        return {}
+    receipt = provenance["native_pack_drive"]["trace"]
+    name = f"{rid}.pack_drive.jsonl"
+    if receipt["filename"] != name:
+        raise ValueError(f"{rid}: pack trace filename differs from recording receipt")
+    archived = out / "pack_drive" / f"{cid}-{rid}.jsonl.gz"
+    archived.parent.mkdir(exist_ok=True)
+    checksum = hashlib.sha256()
+    with tempfile.NamedTemporaryFile(dir=archived.parent, delete=False) as temporary:
+        temporary_path = Path(temporary.name)
+    try:
+        with (directory / name).open("rb") as source, temporary_path.open("wb") as output:
+            with gzip.GzipFile(filename="", mode="wb", fileobj=output, compresslevel=7, mtime=0) as encoded:
+                while chunk := source.read(1024 * 1024):
+                    checksum.update(chunk)
+                    encoded.write(chunk)
+        if checksum.hexdigest() != receipt["sha256"]:
+            raise ValueError(f"{rid}: pack trace SHA-256 differs from recording receipt")
+        temporary_path.replace(archived)
+    finally:
+        temporary_path.unlink(missing_ok=True)
+    return {"pack_drive_path": str(archived.relative_to(out)), "pack_drive_jsonl_sha256": receipt["sha256"]}
+
+
 def package(run_dirs, out):
     model=Model.load(); out.mkdir(parents=True,exist_ok=True)
     (out/'traces').mkdir(exist_ok=True); (out/'provenance').mkdir(exist_ok=True)
@@ -235,7 +263,8 @@ def package(run_dirs, out):
             sources.append(dict(case_id=cid,run_id=rid,trace_path=str(packed.relative_to(out)),
                                 trace_xz_sha256=digest(packed),trace_csv_sha256=plain_sha,raw_input_gz_sha256=digest(trace),
                                 provenance_path=str(receipt.relative_to(out)),provenance_sha256=digest(receipt),
-                                telemetry_path=str(csv_archive.relative_to(out)),original_csv_sha256=doc['csv']['sha256']))
+                                telemetry_path=str(csv_archive.relative_to(out)),original_csv_sha256=doc['csv']['sha256'],
+                                **archive_pack_drive(directory, out, cid, rid, doc)))
     if not records or len({(r['case_id'],r['run_id']) for r in records}) != len(records):
         raise ValueError('expected unique native flight records')
     table(out/'runs.csv',records); table(out/'phases.csv',segments); table(out/'attempts.csv',attempts); table(out/'sources.csv',sources)
@@ -292,7 +321,13 @@ def verify_saved(out):
         with gzip.open(out/source['telemetry_path'], 'rb') as raw:
             if hashlib.file_digest(raw,'sha256').hexdigest() != source['original_csv_sha256']:
                 raise ValueError(f'{k} original CSV hash differs')
-        record, spans = verify(read_trace(trace), attempts[k], json.loads(provenance.read_text()), model)
+        doc = json.loads(provenance.read_text())
+        if "native_pack_drive" in doc:
+            expected = doc["native_pack_drive"]["trace"]["sha256"]
+            with gzip.open(out / source["pack_drive_path"], "rb") as raw:
+                if hashlib.file_digest(raw, "sha256").hexdigest() != expected or source["pack_drive_jsonl_sha256"] != expected:
+                    raise ValueError(f"{k} pack drive recording hash differs")
+        record, spans = verify(read_trace(trace), attempts[k], doc, model)
         assert_same(runs[k],record)
         for old, new in zip(phases[k],spans,strict=True):
             assert_same(old,new)

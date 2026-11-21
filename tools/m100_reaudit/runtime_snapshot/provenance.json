@@ -1,0 +1,212 @@
+{
+  "schema": "M100_PORTABLE_SOURCE_1",
+  "scope": "Project-authored runtime source, phase-energy configs, SDF geometry and fixed original comparison inputs. This directory is sufficient for the headless Gazebo campaign with system engine dependencies and the external evaluator with the repository public CMU input archive.",
+  "snapshot_date_local": "2026-11-21",
+  "source_roots": {
+    "runtime": "Prepared drone research project checkout or installed source",
+    "px4": "Prepared PX4 SITL checkout with M100-specific untracked assets"
+  },
+  "source_revisions": {
+    "runtime_git_head": "5dfd23040586f8cfa40490b0ca1e274e3924a95d",
+    "px4_git_head": "5b3487bb31a1e069e89ba88c4feee7cdc5dd3ae2",
+    "warning": "The heads do not include all local M100 components. Use the file digests for the actual versions."
+  },
+  "original_study": {
+    "name": "m100_operating_conditions_20261119",
+    "source_sha256": {
+      "M100_69_experiments_summary.csv": "ea24ff674b74940b2f1ffaf12fcee49164eb5180f895ab0bdcf9bda1b060028c",
+      "M100_69_experiments_summary.csv.export.json": "b43112110ffca9a7a75bc5c924efb1bf0af0cf4ffe63aa5a63abc643fcd563a3",
+      "protocol.json": "04a087bf939d9b105f33fb5ddeacb993cdf2df31cb3252a86cd73148144c87ea",
+      "results.json": "87fffb8c9eb317b23e831056de6a1dee0ab711e5835799b005ce97d932046328",
+      "environment_snapshot.json": "0576f6beecd094420fbbb30cd9adbcb095caa4a957d7f0fa1506834979420d82",
+      "frozen_source_sha256.json": "7e815eb7850e26b6d5456d9c139d9fef0b28e932e9fb9c91e8ebbf83462d7d38"
+    },
+    "identical_files": [
+      "M100_69_experiments_summary.csv",
+      "protocol.json"
+    ],
+    "projection": "results.json retains all 18 metrics, case ID, selected flag and original flight digest for each of the 69 selected cases. Its sidecar preserves all original source entries, data definitions and the full-source results/export hashes, and binds the reduced results file separately. Equivalence of every metrics value to the original CSV is checked by historical.read_study.",
+    "outside_snapshot": [
+      "raw observer streams",
+      "per-flight original CSVs and provenance",
+      "archived rejected-attempt records",
+      "full historical results.json"
+    ]
+  },
+  "geometry": {
+    "base_model": "m100_cmu_v2",
+    "payload_sdf_names": [
+      "m100_cmu_v2_payload_025",
+      "m100_cmu_v2_payload_050",
+      "m100_cmu_v2_payload_075",
+      "m100_cmu_v2_payload_100",
+      "m100_cmu_v2_payload_125"
+    ],
+    "xml": "Byte-identical project-authored SDF. The batch world builder removes visual and sensor elements and unused plugins before the server opens the generated world.",
+    "external_visual_files_bundled": false,
+    "copied_mesh_bytes": 0
+  },
+  "native_installation": {
+    "os": "Ubuntu 24.04 x86_64",
+    "ros": "jazzy",
+    "measured_software_snapshot_source": "Original environment_snapshot.json, case_037, 2026-11-19; hashes of relevant installed vendor libraries verified on 2026-11-21",
+    "environment": [
+      "Sourced ROS Jazzy",
+      "Built drone_nav, m100_gazebo_assets and m100_gazebo_gui with compiled aerodynamic plugin",
+      "ros_gz_bridge",
+      "pymavlink",
+      "PX4 build/px4_sitl_default binary and initialized rootfs",
+      "Six M100 airframes 4030 through 4035, park world and required assets",
+      "Runner and physics_settings from the linked project"
+    ],
+    "ros_packages": {
+      "ros-jazzy-gz-sim-vendor": "0.0.10-1noble.20260604.111001",
+      "ros-jazzy-gz-physics-vendor": "0.0.7-1noble.20260604.105412",
+      "ros-jazzy-ros-gz-bridge": "1.0.22-1noble.20260615.142443",
+      "ros-jazzy-rclpy": "7.1.11-1noble.20260615.133206"
+    },
+    "versions": {
+      "gz_sim": "8.11.0",
+      "gz_physics_dartsim": "7.6.0",
+      "dart": "6.13.2",
+      "pymavlink": "2.4.50"
+    },
+    "recorded_vendor_library_sha256": {
+      "libdart-collision-bullet.so.6.13.2": "0ca5fa82b2d37e86e6aa4fcd38ba43d4b51f82b4cae2dff4c53b569b86e51a33",
+      "libdart-collision-ode.so.6.13.2": "b50d9d8174333d857ec04bdca0699db7921101bccef05ce2c5010bd265b9deb6",
+      "libdart-external-odelcpsolver.so.6.13.2": "7c7698c181c18a30c491cb1945cd4a9d4f4e03fa4c0c6b767ad2358b3e382816",
+      "libdart.so.6.13.2": "cb4f008188d1ea13cba9b43470c9d46cf819e8df0e4fdc818fa1e4f81b396426",
+      "libgz-physics7-dartsim-plugin.so.7.6.0": "9f4ae6736fc6d4751b937ca7c14b056baf423553e20530f6d10d3ec8fd28bdd9",
+      "libgz-physics7.so.7.6.0": "d1c405733ca8bfe7eb739b7d8b607945c0a8e4d6c783963682dea07fa7adea9c",
+      "libgz-sim8-air-pressure-system.so.8.11.0": "8d5d7b7abd176fa7325da8d05dc6a573f6b0a96b92e973841fe1cd234bae5b5e",
+      "libgz-sim8-air-speed-system.so.8.11.0": "b3fc567ca6e162b693cbccd46f17c8d5d49b06ca3a29b36884c633dcf53935c9",
+      "libgz-sim8-apply-link-wrench-system.so.8.11.0": "91c65f437e9969eebad3f26288d007e6df5721fff750a5e31a5e84bdf48c8f86",
+      "libgz-sim8-contact-system.so.8.11.0": "94f9604f7e89d58bcf047a07cf7b188c6b330c2186fa16d4d21a8c4747aa2f9e",
+      "libgz-sim8-imu-system.so.8.11.0": "455cd8bf9b976fb77300f16ff573af8efa2d58c8fdea0cae7f436e3458d12d32",
+      "libgz-sim8-joint-state-publisher-system.so.8.11.0": "a0981fa8f63d974d2d7cf49b44cf9cc077495f8676a713e358fda6fdf99640b6",
+      "libgz-sim8-magnetometer-system.so.8.11.0": "a10c4a0288b7093bbf41b5472c09e49ca78af0b16af3c6bbace29c79d90aa6d8",
+      "libgz-sim8-multicopter-motor-model-system.so.8.11.0": "080ebbea7934c07b19c3e422fc85e4534f86b1545f835234a5980a6a4b66a470",
+      "libgz-sim8-navsat-system.so.8.11.0": "054cca40fa17776ba6e3facd03e2151a7fa87b837698ea910ccf26e9cce64c03",
+      "libgz-sim8-physics-system.so.8.11.0": "c359e1cc8ddd768a926048a0dbf86e8186419b27a625a8073127bb83c89c2f5a",
+      "libgz-sim8-scene-broadcaster-system.so.8.11.0": "f500db9a0ba9eca65ff1546ded933193138be137ede398a1f78a424e28617849",
+      "libgz-sim8-sensors-system.so.8.11.0": "b4203ea8d53edc45f7b92b8218643726f2a569e0acf4c503dbe0325fec0e7ee9",
+      "libgz-sim8-user-commands-system.so.8.11.0": "45cf4d18b359e86544b8373f74199b4144be608ee77e039c3964101b6a423e62",
+      "libgz-sim8-wind-effects-system.so.8.11.0": "2db759eb772d7c158c861d62ba9c0d8187e412f3006a9bbbffa4c614409799b8",
+      "libgz-sim8-gui.so.8.11.0": "5717b3258c756eb62430da40848393ed15bcf1cb34616dda101222e7851fe0f9",
+      "libgz-sim8-gz.so.8.11.0": "844cebdc1ab57b88612ee5ea24bad8283017a4abd167b6d85f4772183010e0de",
+      "libgz-sim8-rendering.so.8.11.0": "c7c6662022626985fdbc5019c73fa476d4c7052092719345aa1fbfc03d2db8b4",
+      "libgz-sim8.so.8.11.0": "9591ddcf64580afd11b73ff242400aa00523bd5c466a1fc7ac45bf1d093b042e"
+    },
+    "vendor_critical_current_sha256_verified": [
+      "libdart.so.6.13.2",
+      "libgz-physics7-dartsim-plugin.so.7.6.0",
+      "libgz-physics7.so.7.6.0",
+      "libgz-sim8-multicopter-motor-model-system.so.8.11.0",
+      "libgz-sim8-physics-system.so.8.11.0",
+      "libgz-sim8.so.8.11.0"
+    ],
+    "current_runtime_artifact_sha256": {
+      "ros2_ws/src/drone_nav/test/test_m100_applied_config_telemetry_contract.py": "e6c6a8b5bc3aad6b5a6488a10fdcecb7553fe4755087fea177a83ef4bad0c627",
+      "ros2_ws/src/drone_nav/drone_nav/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "ros2_ws/src/drone_nav/drone_nav/gong_power_model.py": "6f7d32249066a19d4149b1f4991e6670e41fb777e9000966be3dabd3ee202473",
+      "ros2_ws/src/drone_nav/drone_nav/m100_atmosphere.py": "c55d89c71f27915f7c825dad31e2fa8590b2315b1172fa0ca7e9d92439aae77f",
+      "ros2_ws/src/drone_nav/drone_nav/m100_bms.py": "c0653a422130699760d7e65df5e391576c40b0da1bbac94d903b362358456dae",
+      "ros2_ws/src/drone_nav/drone_nav/m100_contract.py": "6b964bb37e05f38f54a165d787a664496214e69a91a8eece285443fb17043ad2",
+      "ros2_ws/src/drone_nav/drone_nav/m100_experiment_manager.py": "b5de6ec30656a9e9013c5546943f19161878c8ce4b13c60c2f357000083dfcb6",
+      "ros2_ws/src/drone_nav/drone_nav/m100_propulsion_v2.py": "5b04109c0c6bc39e4c56594a45a58db9bb3df4216f62f1afe2bd778c3762109b",
+      "ros2_ws/src/drone_nav/drone_nav/m100_published_energy_v2.py": "e9dd6e7c2caeee7c721b4fc4a457774279a0dfe19140e8c437c6bdb668ed222a",
+      "ros2_ws/src/drone_nav/drone_nav/m100_runtime_energy_v2.py": "6db4ebbc6793f11d01a1c3ab7211ac2a3ee95a36ba78ffeb7566b9b869d795fb",
+      "ros2_ws/src/drone_nav/drone_nav/m100_stable_cruise_speed.py": "186a9ef028af76516b4d1e35e45342de70fa5ce47163a1fc872e2bc0e7e21087",
+      "ros2_ws/src/drone_nav/drone_nav/m100_temperature_sdf.py": "60631a795f369666d2743a5e343c204ca540f39bf48cb854de866c2bd169cb10",
+      "ros2_ws/src/drone_nav/drone_nav/m100_thevenin.py": "ff3668c9432666c0131d81b83a96bf5127a108e7fefb2769637af6250c9fcef6",
+      "ros2_ws/src/drone_nav/drone_nav/m100_transient_power.py": "2a91d3a3cd558412a91bfb9367b9e6de44536d7fc4ee993387d564159042f486",
+      "ros2_ws/src/drone_nav/drone_nav/m100_wind_simulation.py": "c301fe28d05368cecb721b059dc6d84d57fec13d8ce197e5e144e1c9e3fbd9e9",
+      "ros2_ws/src/drone_nav/config/m100_energy_model_v2.yaml": "725b2a54d333bc3ed40a9919d990cda48ee28d158cde87749a8ff08cda585458",
+      "ros2_ws/src/drone_nav/config/m100_stable_cruise_speed_v1.yaml": "a702c1f1a4b2498e29554b10c0e10ff1f9d6541333fe82fc0b1b36736ce0f2c7",
+      "ros2_ws/src/drone_nav/config/m100_transient_power_v1.yaml": "6b3c1b6a52e484849368dc568e90128596ffdf937b8e06f808aba87740b46fa1",
+      "ros2_ws/src/drone_nav/config/m100_wind_simulation_v1.yaml": "f164c5948b85ff8b20e1cb7309c1e243fad42dcdce9047dc2517d2f5aabf089c",
+      "ros2_ws/src/drone_nav/config/m100_gong_power_model.yaml": "f62409ed5d6ebb4e2f8d844b0e5bef1a2fe44c432d34de970986dd5a71c002d3",
+      "analysis/m100_high_speed_stability/run_one_stability_case.py": "4e750f69c2bfaa1f34838118550132df284c81e056e03687f7ee3e019f65b2af",
+      "analysis/m100_high_speed_stability/physics_settings.py": "f7f8c919f4dcf86855a23126969e4b818c4dd77bd175b82c0d67aaa51117f246",
+      "analysis/m100_operating_conditions/run_suite.py": "86cd9e3a488ad4cf8870fbc281b90c8940ff1baa58ca6db089bfa5966178fbf7",
+      "analysis/m100_operating_conditions/export_unique_csv.mjs": "97240625322452d0dc0c029261e814882485fabd1ad12d881e0f284f79793022",
+      "ros2_ws/src/m100_gazebo_gui/aerodynamics/M100AerodynamicDrag.cc": "857d7ee91ee77601d595d91dc1a9dd139c555430d964dba93b573a53ca5e3614",
+      "ros2_ws/install/m100_gazebo_gui/lib/m100_gazebo_gui/libM100AerodynamicDrag.so": "6d96c4ea405b3ca39e91ba97696e120c5efd385dc5cd6f55211486430cfe9688"
+    },
+    "current_px4_artifact_sha256": {
+      "Tools/simulation/gz/models/m100_cmu_v2/model.sdf": "63d50538ec859472832c2b95db36c6ffd2b29da23286cce4ae8e9ba67b02ad54",
+      "Tools/simulation/gz/models/m100_cmu_v2_payload_025/model.sdf": "85cab7073d3329088b9b0f721389b7e96d68fce048510e65617ce7ecf55819a9",
+      "Tools/simulation/gz/models/m100_cmu_v2_payload_050/model.sdf": "4bbac163154fff2ba9a797519767f7ab95b4a916a5030ca7988dc52f773e23c8",
+      "Tools/simulation/gz/models/m100_cmu_v2_payload_075/model.sdf": "7f0bff6c39719657a7bb310ab6be3a659d658b302de324d886d5b88e55eedf2f",
+      "Tools/simulation/gz/models/m100_cmu_v2_payload_100/model.sdf": "40ed6ecbc91ca1d6b1022200d2e08fbc2ff6e0f216256df67e88cc51aade53ee",
+      "Tools/simulation/gz/models/m100_cmu_v2_payload_125/model.sdf": "134c12e27d3f31d1032b8387eea694e32e6fdabc95ec8e6cfc448b2ef2ab4409",
+      "Tools/simulation/gz/models/m100_cmu_v2/m100_physical_parameters.yaml": "b6ca7af4c5bcfb35aa07132bb3fe0756741a47660e966912423bdf19f1c48641",
+      "Tools/simulation/gz/models/m100_cmu_v2/validate_m100_cmu_v2.py": "90e971ca2f80ffc28b21cdafc1acb8d5807a03ec440358029d1b18fc60273762",
+      "Tools/simulation/gz/worlds/m100_experiment_park.sdf": "9c415bc3304adac31d9fd0e5eee793197c3f4da6a3c2adf4681265eb62014ca9",
+      "src/modules/simulation/gz_bridge/server.config": "7e9adbefbe0cbad812e0d637f95f8b31fffe80530297444b8da12d93a85d105d",
+      "build/px4_sitl_default/bin/px4": "e6c43fbf7d99c2ffe0de226916fce7eb163d4f925a71178ba854cf83491b258e",
+      "ROMFS/px4fmu_common/init.d-posix/airframes/4030_gz_m100_cmu_v2": "46dc2da42584ac1b2deaf561225540806bcfb0e6d80519e11af4630adf03cbaa",
+      "ROMFS/px4fmu_common/init.d-posix/airframes/4031_gz_m100_cmu_v2_payload_025": "7b8c3acb126cce316ffdc0029dd06bf7128e0389b0b8e52ea2b51ffe5cd2e40e",
+      "ROMFS/px4fmu_common/init.d-posix/airframes/4032_gz_m100_cmu_v2_payload_050": "cac668debc724d2e0142c7a6fb746fc0eb29883c62e575948c389d7dbade4fb6",
+      "ROMFS/px4fmu_common/init.d-posix/airframes/4033_gz_m100_cmu_v2_payload_075": "355b3d398b304fe58f5f261b7dd65b48ae288359b81440081f830dfefeaf1acc",
+      "ROMFS/px4fmu_common/init.d-posix/airframes/4034_gz_m100_cmu_v2_payload_100": "889f8262141482a6c5912deb348d4c36427350d692409816d3478ea7b0e0d99c",
+      "ROMFS/px4fmu_common/init.d-posix/airframes/4035_gz_m100_cmu_v2_payload_125": "25e630336d7f0535d7518343632931d866faaef3e06b76adf7121d0a6dcb8cde"
+    },
+    "historical_px4_binary_sha256": "e6c43fbf7d99c2ffe0de226916fce7eb163d4f925a71178ba854cf83491b258e",
+    "ros_gz_bridge_binary_sha256": "0b33905dc1791d927ca6b6f685f299a88681c0b68fadb88057636d3a15bae4fe"
+  },
+  "standalone_batch": {
+    "dependencies": [
+      "pkg-config",
+      "g++ C++17",
+      "gz-sim8 development headers and plugins",
+      "gz-transport13",
+      "gz-msgs10",
+      "gz-physics7 DART plugin",
+      "sdformat14",
+      "Python 3.11+",
+      "numpy",
+      "pandas",
+      "PyYAML"
+    ],
+    "versions": {
+      "gz-sim8": "8.14.0",
+      "gz-transport13": "13.5.0",
+      "gz-msgs10": "10.3.2",
+      "gz-physics7-dartsim-plugin": "7.8.0",
+      "gz-sim8-multicopter-control-system": "8.14.0",
+      "sdformat14": "14.9.0"
+    },
+    "test_host_packages": {
+      "g++": "4:13.2.0-7ubuntu1",
+      "libgz-sim8-dev": "8.14.0-1~noble",
+      "libgz-sim8-plugins": "8.14.0-1~noble",
+      "libgz-transport13-dev": "13.5.0-1~noble",
+      "libgz-msgs10-dev": "10.3.2-1~noble",
+      "libgz-physics7-dartsim": "7.8.0-1~noble",
+      "libsdformat14-dev": "14.9.0-1~noble"
+    },
+    "system_library_sha256": {
+      "libgz-sim8.so.8.14.0": "0d246d9ca914b0b9fdbcaa4e8b68aa2d25c913e3551b2894be17ddee9687f95f",
+      "libgz-physics7.so.7.8.0": "6b1dc93504ed958ef8c006d967e5e12eea24ebfe778af4ec25007bdba7ca290e",
+      "libdart.so.6.13.2": "f74f4ec9820aee785ef94fb7bedafa7e4c832f209675a8ca1d35019c72b48e06",
+      "libgz-transport13.so.13.5.0": "2b6de4e791e5d71ffe0560c486a91d4ed7bb6a5f63431d91ec781b85f431cbf6",
+      "libgz-msgs10.so.10.3.2": "462f4a52e58a2d2fc9511951bea3ee8d907311008df07e7835cd3eb288a8a4bd",
+      "libsdformat14.so.14.9.0": "c30ada44484ec14e8c595a857f446713196db0a8a16c6b42c3dc785658f4463e",
+      "libgz-physics7-dartsim-plugin.so.7.8.0": "1ee9350aa09d5a5eb43a5075c9c61d2cdcb85113d2ff1e0f32136847edf1688e",
+      "libgz-sim8-multicopter-motor-model-system.so.8.14.0": "b4cb84afd747703bdb8cb6c4589f0de80413dc189b0433c6b11395529bce0e55",
+      "libgz-sim8-multicopter-control-system.so.8.14.0": "335b43a15373d40ed516e9042bf576d7606c7cbd0492a8ce4581754c3fa8584c",
+      "libgz-sim8-physics-system.so.8.14.0": "7c49d8ca47f847bc8fa1f276a0428c4b1cea8d07870faacde7844f30e7ea427c"
+    }
+  },
+  "public_field_evaluator": {
+    "source_dataset_doi": "10.1184/R1/12683453",
+    "source_archive_in_repository": true,
+    "dependency_paths_sha256": {
+      "data/external/m100/flights.zip": "98f65a1ab54a8b618c169fdf49311a53ff1fefed86fdc3f440d6a0166ce49fb1",
+      "data/external/m100/parameters.csv": "568dffaed11a4d335ef4f8a932b342c836907af2f4aa54da9b4a0e2ffef2108a",
+      "data/external/m100/README.txt": "8601dd211d6c297c5411992dc34923bdb98b72cdc287517ed18e479f0e9540fd",
+      "results/m100_reaudit/external/published_context.csv": "b2ce6705326edb6174e5191901195e21d0c73cd161d28b9f1c0759d9bcee0ea8"
+    }
+  }
+}

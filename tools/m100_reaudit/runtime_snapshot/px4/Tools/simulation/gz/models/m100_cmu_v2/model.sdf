@@ -1,0 +1,242 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<sdf version="1.9">
+  <model name="m100_cmu_v2">
+    <!--
+      M100-only physics model for the instrumented CMU/Rodrigues aircraft.
+
+      Direct sources:
+        * 3.680 kg zero-external-payload as-flown mass: Rodrigues et al.
+        * 0.650 m diagonal wheelbase and M1..M4 directions: DJI M100 manual.
+        * DJI 3510 / 1345s / E SERIES 620D identities: DJI M100 specification.
+        * stock-M100 inertia reference: KARI/IMAV 2018.
+
+      Explicit approximations:
+        * symmetric-X motor positions are derived from the 0.650 m wheelbase;
+        * the published stock-M100 inertia is scaled by 3.680 / 2.355 and
+          partitioned between the body and four 19 g propeller proxies;
+        * collision primitives are contact geometry and never an aerodynamic
+          reference area;
+        * the official DJI CAD derivative and the PX4 Classic community
+          Matrice 100 propeller meshes are visual-only; their mass, inertia,
+          collision and propulsion values are not imported;
+        * motor response is a 1 ms numerical direct-actuator approximation;
+        * Q/T is an ideal-hover actuator-disc lower-bound proxy;
+        * rotor drag, rolling moment, body drag, inflow and advance ratio are
+          disabled until M100-specific data are available.
+
+      This file deliberately has no include, URI, mesh, or numeric parameter
+      from the retired legacy airframe.  The only mesh URIs are
+      allowlisted Matrice 100 visual assets stored inside this model directory.
+    -->
+    <pose>0 0 0.24 0 0 0</pose>
+    <self_collide>false</self_collide>
+    <static>false</static>
+
+    <link name="base_link">
+      <inertial>
+        <!-- 3.604 kg + 4 * 0.019 kg = 3.680 kg. -->
+        <mass>3.604</mass>
+        <inertia>
+          <ixx>0.08185910161855627</ixx>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyy>0.08575005703256901</iyy>
+          <iyz>0</iyz>
+          <izz>0.15796799347065818</izz>
+        </inertia>
+      </inertial>
+      <gravity>true</gravity>
+
+      <!--
+        Visual-only derivative of DJI's official M100_Airframe__CAD.STEP.
+        The local binary STL is already in metres and the SDF Z-up body frame;
+        its motor axes agree with the 650 mm V2 rotor layout.  The dark material
+        is a simulator appearance choice, not a CAD material property.  See
+        visual_asset_manifest.json for hashes, transform and claim boundaries.
+      -->
+      <visual name="matrice_100_airframe_visual">
+        <geometry>
+          <mesh>
+            <uri>model://m100_cmu_v2/meshes/M100_Airframe_DJI_official_visual.stl</uri>
+            <scale>1 1 1</scale>
+          </mesh>
+        </geometry>
+        <material>
+          <ambient>0.025 0.030 0.035 1</ambient>
+          <diffuse>0.060 0.070 0.080 1</diffuse>
+          <specular>0.18 0.18 0.19 1</specular>
+        </material>
+      </visual>
+      <collision name="central_body_collision">
+        <geometry><box><size>0.25 0.20 0.10</size></box></geometry>
+      </collision>
+
+      <!-- Simplified landing contact geometry; not an aerodynamic surface. -->
+      <collision name="landing_rail_left_collision">
+        <pose>0 0.16 -0.215 0 0 0</pose>
+        <geometry><box><size>0.36 0.018 0.018</size></box></geometry>
+      </collision>
+      <collision name="landing_rail_right_collision">
+        <pose>0 -0.16 -0.215 0 0 0</pose>
+        <geometry><box><size>0.36 0.018 0.018</size></box></geometry>
+      </collision>
+      <collision name="landing_strut_fl_collision">
+        <pose>0.12 0.14 -0.12 0.12 0 0</pose>
+        <geometry><box><size>0.018 0.018 0.20</size></box></geometry>
+      </collision>
+      <collision name="landing_strut_fr_collision">
+        <pose>0.12 -0.14 -0.12 -0.12 0 0</pose>
+        <geometry><box><size>0.018 0.018 0.20</size></box></geometry>
+      </collision>
+      <collision name="landing_strut_rl_collision">
+        <pose>-0.12 0.14 -0.12 0.12 0 0</pose>
+        <geometry><box><size>0.018 0.018 0.20</size></box></geometry>
+      </collision>
+      <collision name="landing_strut_rr_collision">
+        <pose>-0.12 -0.14 -0.12 -0.12 0 0</pose>
+        <geometry><box><size>0.018 0.018 0.20</size></box></geometry>
+      </collision>
+
+      <!--
+        Generic PX4 SITL measurement-noise proxies.  These values are shared by
+        several unrelated PX4 Gazebo vehicles (including rovers and omniquad),
+        so they are not retired-airframe parameters and are not claimed as DJI M100
+        sensor calibration.  Non-zero IMU variance is required by PX4's sensor
+        health voter; a perfectly constant ideal IMU is classified as stuck.
+      -->
+      <sensor name="air_pressure_sensor" type="air_pressure">
+        <always_on>1</always_on><update_rate>50</update_rate>
+        <air_pressure>
+          <pressure>
+            <noise type="gaussian"><mean>0</mean><stddev>3</stddev></noise>
+          </pressure>
+        </air_pressure>
+      </sensor>
+      <sensor name="magnetometer_sensor" type="magnetometer">
+        <always_on>1</always_on><update_rate>100</update_rate>
+        <magnetometer>
+          <x><noise type="gaussian"><mean>0</mean><stddev>0.0001</stddev></noise></x>
+          <y><noise type="gaussian"><mean>0</mean><stddev>0.0001</stddev></noise></y>
+          <z><noise type="gaussian"><mean>0</mean><stddev>0.0001</stddev></noise></z>
+        </magnetometer>
+      </sensor>
+      <sensor name="imu_sensor" type="imu">
+        <always_on>1</always_on><update_rate>250</update_rate>
+        <imu>
+          <angular_velocity>
+            <x><noise type="gaussian"><mean>0</mean><stddev>0.0008726646</stddev></noise></x>
+            <y><noise type="gaussian"><mean>0</mean><stddev>0.0008726646</stddev></noise></y>
+            <z><noise type="gaussian"><mean>0</mean><stddev>0.0008726646</stddev></noise></z>
+          </angular_velocity>
+          <linear_acceleration>
+            <x><noise type="gaussian"><mean>0</mean><stddev>0.00637</stddev></noise></x>
+            <y><noise type="gaussian"><mean>0</mean><stddev>0.00637</stddev></noise></y>
+            <z><noise type="gaussian"><mean>0</mean><stddev>0.00686</stddev></noise></z>
+          </linear_acceleration>
+        </imu>
+      </sensor>
+      <sensor name="navsat_sensor" type="navsat">
+        <always_on>1</always_on><update_rate>30</update_rate>
+      </sensor>
+    </link>
+
+    <!-- Runtime order [M1, M3, M2, M4] preserves ROS motor indices. -->
+    <link name="rotor_0">
+      <pose>0.22980970388562794 -0.22980970388562794 0.06 0 0 0</pose>
+      <inertial><mass>0.019</mass><inertia>
+        <ixx>0.00008631703166666666</ixx><ixy>0</ixy><ixz>0</ixz>
+        <iyy>0.00008631703166666666</iyy><iyz>0</iyz>
+        <izz>0.00017263406333333333</izz>
+      </inertia></inertial>
+      <visual name="propeller_visual"><geometry><mesh><uri>model://m100_cmu_v2/meshes/dji_13455_prop_ccw.dae</uri><scale>1 1 1</scale></mesh></geometry><material><ambient>0.08 0.08 0.08 1</ambient><diffuse>0.12 0.12 0.12 1</diffuse></material></visual>
+      <collision name="propeller_collision"><geometry><box><size>0.3302 0.020 0.003</size></box></geometry></collision>
+    </link>
+    <joint name="rotor_0_joint" type="revolute">
+      <parent>base_link</parent><child>rotor_0</child>
+      <axis><xyz>0 0 1</xyz><limit><lower>-1e16</lower><upper>1e16</upper></limit></axis>
+    </joint>
+    <link name="rotor_1">
+      <pose>-0.22980970388562794 0.22980970388562794 0.06 0 0 0</pose>
+      <inertial><mass>0.019</mass><inertia>
+        <ixx>0.00008631703166666666</ixx><ixy>0</ixy><ixz>0</ixz>
+        <iyy>0.00008631703166666666</iyy><iyz>0</iyz>
+        <izz>0.00017263406333333333</izz>
+      </inertia></inertial>
+      <visual name="propeller_visual"><geometry><mesh><uri>model://m100_cmu_v2/meshes/dji_13455_prop_ccw.dae</uri><scale>1 1 1</scale></mesh></geometry><material><ambient>0.08 0.08 0.08 1</ambient><diffuse>0.12 0.12 0.12 1</diffuse></material></visual>
+      <collision name="propeller_collision"><geometry><box><size>0.3302 0.020 0.003</size></box></geometry></collision>
+    </link>
+    <joint name="rotor_1_joint" type="revolute">
+      <parent>base_link</parent><child>rotor_1</child>
+      <axis><xyz>0 0 1</xyz><limit><lower>-1e16</lower><upper>1e16</upper></limit></axis>
+    </joint>
+    <link name="rotor_2">
+      <pose>0.22980970388562794 0.22980970388562794 0.06 0 0 0</pose>
+      <inertial><mass>0.019</mass><inertia>
+        <ixx>0.00008631703166666666</ixx><ixy>0</ixy><ixz>0</ixz>
+        <iyy>0.00008631703166666666</iyy><iyz>0</iyz>
+        <izz>0.00017263406333333333</izz>
+      </inertia></inertial>
+      <visual name="propeller_visual"><geometry><mesh><uri>model://m100_cmu_v2/meshes/dji_13455_prop_cw.dae</uri><scale>1 1 1</scale></mesh></geometry><material><ambient>0.12 0.12 0.12 1</ambient><diffuse>0.18 0.18 0.18 1</diffuse></material></visual>
+      <collision name="propeller_collision"><geometry><box><size>0.3302 0.020 0.003</size></box></geometry></collision>
+    </link>
+    <joint name="rotor_2_joint" type="revolute">
+      <parent>base_link</parent><child>rotor_2</child>
+      <axis><xyz>0 0 1</xyz><limit><lower>-1e16</lower><upper>1e16</upper></limit></axis>
+    </joint>
+    <link name="rotor_3">
+      <pose>-0.22980970388562794 -0.22980970388562794 0.06 0 0 0</pose>
+      <inertial><mass>0.019</mass><inertia>
+        <ixx>0.00008631703166666666</ixx><ixy>0</ixy><ixz>0</ixz>
+        <iyy>0.00008631703166666666</iyy><iyz>0</iyz>
+        <izz>0.00017263406333333333</izz>
+      </inertia></inertial>
+      <visual name="propeller_visual"><geometry><mesh><uri>model://m100_cmu_v2/meshes/dji_13455_prop_cw.dae</uri><scale>1 1 1</scale></mesh></geometry><material><ambient>0.12 0.12 0.12 1</ambient><diffuse>0.18 0.18 0.18 1</diffuse></material></visual>
+      <collision name="propeller_collision"><geometry><box><size>0.3302 0.020 0.003</size></box></geometry></collision>
+    </link>
+    <joint name="rotor_3_joint" type="revolute">
+      <parent>base_link</parent><child>rotor_3</child>
+      <axis><xyz>0 0 1</xyz><limit><lower>-1e16</lower><upper>1e16</upper></limit></axis>
+    </joint>
+
+    <!-- M1, M3: CCW; M2, M4: CW according to the DJI M100 manual. -->
+    <plugin filename="gz-sim-multicopter-motor-model-system" name="gz::sim::systems::MulticopterMotorModel">
+      <jointName>rotor_0_joint</jointName><linkName>rotor_0</linkName><turningDirection>ccw</turningDirection>
+      <timeConstantUp>0.001</timeConstantUp><timeConstantDown>0.001</timeConstantDown>
+      <maxRotVelocity>916.2978572970229</maxRotVelocity><motorConstant>2.452825363226109e-05</motorConstant>
+      <momentConstant>0.010812553326221993</momentConstant><commandSubTopic>command/motor_speed</commandSubTopic>
+      <motorNumber>0</motorNumber><rotorDragCoefficient>0</rotorDragCoefficient><rollingMomentCoefficient>0</rollingMomentCoefficient>
+      <rotorVelocitySlowdownSim>10</rotorVelocitySlowdownSim><motorType>velocity</motorType>
+    </plugin>
+    <plugin filename="gz-sim-multicopter-motor-model-system" name="gz::sim::systems::MulticopterMotorModel">
+      <jointName>rotor_1_joint</jointName><linkName>rotor_1</linkName><turningDirection>ccw</turningDirection>
+      <timeConstantUp>0.001</timeConstantUp><timeConstantDown>0.001</timeConstantDown>
+      <maxRotVelocity>916.2978572970229</maxRotVelocity><motorConstant>2.452825363226109e-05</motorConstant>
+      <momentConstant>0.010812553326221993</momentConstant><commandSubTopic>command/motor_speed</commandSubTopic>
+      <motorNumber>1</motorNumber><rotorDragCoefficient>0</rotorDragCoefficient><rollingMomentCoefficient>0</rollingMomentCoefficient>
+      <rotorVelocitySlowdownSim>10</rotorVelocitySlowdownSim><motorType>velocity</motorType>
+    </plugin>
+    <plugin filename="gz-sim-multicopter-motor-model-system" name="gz::sim::systems::MulticopterMotorModel">
+      <jointName>rotor_2_joint</jointName><linkName>rotor_2</linkName><turningDirection>cw</turningDirection>
+      <timeConstantUp>0.001</timeConstantUp><timeConstantDown>0.001</timeConstantDown>
+      <maxRotVelocity>916.2978572970229</maxRotVelocity><motorConstant>2.452825363226109e-05</motorConstant>
+      <momentConstant>0.010812553326221993</momentConstant><commandSubTopic>command/motor_speed</commandSubTopic>
+      <motorNumber>2</motorNumber><rotorDragCoefficient>0</rotorDragCoefficient><rollingMomentCoefficient>0</rollingMomentCoefficient>
+      <rotorVelocitySlowdownSim>10</rotorVelocitySlowdownSim><motorType>velocity</motorType>
+    </plugin>
+    <plugin filename="gz-sim-multicopter-motor-model-system" name="gz::sim::systems::MulticopterMotorModel">
+      <jointName>rotor_3_joint</jointName><linkName>rotor_3</linkName><turningDirection>cw</turningDirection>
+      <timeConstantUp>0.001</timeConstantUp><timeConstantDown>0.001</timeConstantDown>
+      <maxRotVelocity>916.2978572970229</maxRotVelocity><motorConstant>2.452825363226109e-05</motorConstant>
+      <momentConstant>0.010812553326221993</momentConstant><commandSubTopic>command/motor_speed</commandSubTopic>
+      <motorNumber>3</motorNumber><rotorDragCoefficient>0</rotorDragCoefficient><rollingMomentCoefficient>0</rollingMomentCoefficient>
+      <rotorVelocitySlowdownSim>10</rotorVelocitySlowdownSim><motorType>velocity</motorType>
+    </plugin>
+
+    <plugin filename="gz-sim-joint-state-publisher-system" name="gz::sim::systems::JointStatePublisher">
+      <topic>/m100/rotor_joint_states</topic><update_rate>20</update_rate>
+      <joint_name>rotor_0_joint</joint_name><joint_name>rotor_1_joint</joint_name>
+      <joint_name>rotor_2_joint</joint_name><joint_name>rotor_3_joint</joint_name>
+    </plugin>
+    <plugin filename="MotorFailurePlugin" name="gz::sim::systems::MotorFailureSystem"/>
+  </model>
+</sdf>

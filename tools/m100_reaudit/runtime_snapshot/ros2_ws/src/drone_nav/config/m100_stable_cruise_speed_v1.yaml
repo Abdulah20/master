@@ -1,0 +1,10 @@
+schema: M100_STABLE_CRUISE_SPEED_CALIBRATION_V1
+model_id: M100_STABLE_CRUISE_SPEED_CMU_V1
+reference_speed_mps: 6.0
+offset_W: -18.369385003709404
+slope_W_per_mps: -4.357496259094581
+eligible_commanded_speeds_mps: [4.0, 6.0, 8.0]
+min_nominal_outbound_duration_s: 20.0
+evidence_artifact: outputs/m100_cruise_speed_validation_v1/evaluation.json
+evidence_sha256: 4ee30d9f70a6870dc57ed58433c69a4f4e985728651909b3842f9c976786e6f7
+dataset_doi: 10.1184/R1/12683453

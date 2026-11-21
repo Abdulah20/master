@@ -1,0 +1,443 @@
+schema: M100_CMU_PHYSICAL_PARAMETERS_V2
+aircraft: DJI_MATRICE_100_CMU_2019_INSTRUMENTED
+model_version: 2
+allowed_statuses:
+  - A_PRIMARY_EXACT_THIS_CONFIGURATION
+  - B_PRIMARY_DERIVED_THIS_CONFIGURATION
+  - C_M100_REFERENCE_OTHER_CONFIGURATION
+  - D_EXPLICIT_MODEL_IDEALIZATION
+  - E_REQUIRED_UNAVAILABLE
+  - F_NUMERICAL_SETTING
+  - G_SAFETY_POLICY
+
+sources:
+  dji_m100_manual:
+    citation: DJI Matrice 100 User Manual v1.6
+    url: https://dl.djicdn.com/downloads/dev/Matrice/en/M100_User_Manual_v1.6_en_160324.pdf
+  dji_m100_specification:
+    citation: DJI Matrice 100 official specifications
+    url: https://www.dji.com/matrice100/info
+  rodrigues_2021:
+    citation: Rodrigues et al., Data collected with package delivery quadcopter drone, Scientific Data 8, 2021
+    doi: 10.1038/s41597-021-00930-x
+  kari_m100_inertia:
+    citation: KARI/CNU DJI M100 wind-tunnel and inertia study, IMAV 2018
+    url: https://www.imavs.org/papers/2018/46.pdf
+
+source_conflicts:
+  takeoff_mass:
+    manufacturer_maximum_kg: 3.600
+    rodrigues_as_flown_zero_payload_kg: 3.680
+    disposition: Use the published as-flown CMU configuration for dataset comparison; do not claim compliance with the stock manufacturer envelope.
+
+mass_properties:
+  model_initial_pose:
+    value: [0.0, 0.0, 0.24, 0.0, 0.0, 0.0]
+    unit: m and rad in world frame
+    source: Contact-clearance choice for the simplified landing gear
+    status: D_EXPLICIT_MODEL_IDEALIZATION
+    notes: Initial world pose only; it is not a measured center of gravity.
+  instrumented_aircraft_mass:
+    value: 3.680
+    unit: kg
+    source: rodrigues_2021; 1.831 airframe + 0.600 battery + 0.136 anemometer/pole + 1.113 computer/sensors/wiring
+    status: A_PRIMARY_EXACT_THIS_CONFIGURATION
+    notes: Published zero-external-payload as-flown mass.
+  base_link_mass:
+    value: 3.604
+    unit: kg
+    source: 3.680 kg minus four 0.019 kg propeller-link proxies
+    status: B_PRIMARY_DERIVED_THIS_CONFIGURATION
+    notes: Lumped rigid-body mass; the four propeller proxies close the total mass exactly.
+  rotor_mass_each:
+    value: 0.019
+    unit: kg
+    source: DJI 1345 commercial-family published mass used only as a same-family rigid-body proxy
+    status: C_M100_REFERENCE_OTHER_CONFIGURATION
+    notes: The customized M100 1345s rotating assembly mass was not independently measured.
+  published_stock_inertia_diagonal:
+    value: [0.05535, 0.05784, 0.10667]
+    unit: kg*m^2
+    source: kari_m100_inertia
+    status: C_M100_REFERENCE_OTHER_CONFIGURATION
+    notes: Published stock-M100 reference, not the 3.680 kg CMU configuration.
+  modeled_total_inertia_diagonal:
+    value: [0.08649171974522293, 0.09038267515923568, 0.16668602972399152]
+    unit: kg*m^2
+    source: Published stock inertia scaled by 3.680/2.355
+    status: D_EXPLICIT_MODEL_IDEALIZATION
+    notes: Mass-scaled reference pending configuration-specific CoG and pendulum/CAD identification.
+  base_link_inertia_diagonal:
+    value: [0.08185910161855627, 0.08575005703256901, 0.15796799347065818]
+    unit: kg*m^2
+    source: Modeled total inertia minus four propeller-link parallel-axis contributions at the V2 rotor positions
+    status: D_EXPLICIT_MODEL_IDEALIZATION
+    notes: Chosen so the assembled zero-payload model equals modeled_total_inertia_diagonal.
+  rotor_inertia_diagonal_each:
+    value: [0.00008631703166666666, 0.00008631703166666666, 0.00017263406333333333]
+    unit: kg*m^2
+    source: Uniform thin-disc proxy with mass 0.019 kg and diameter 0.3302 m
+    status: D_EXPLICIT_MODEL_IDEALIZATION
+    notes: Rigid-body proxy only; not a blade aerodynamic model.
+  center_of_mass_offset:
+    value: [0.0, 0.0, 0.0]
+    unit: m in base_link
+    source: Symmetric-model assumption because the instrumented-aircraft CoG was not published
+    status: D_EXPLICIT_MODEL_IDEALIZATION
+    notes: Must be replaced after measuring the as-flown CMU configuration.
+  collision_geometry:
+    value: simplified_primitives_contact_only
+    unit: null
+    source: V2 model implementation
+    status: D_EXPLICIT_MODEL_IDEALIZATION
+    notes: Never used as aerodynamic reference area.
+
+geometry:
+  diagonal_motor_wheelbase:
+    value: 0.650
+    unit: m
+    source: dji_m100_specification
+    status: A_PRIMARY_EXACT_THIS_CONFIGURATION
+    notes: Official diagonal motor-to-motor wheelbase.
+  symmetric_x_coordinate:
+    value: 0.22980970388562794
+    unit: m
+    source: 0.650/(2*sqrt(2))
+    status: B_PRIMARY_DERIVED_THIS_CONFIGURATION
+    notes: Assumes symmetric X geometry about the modeled CoG.
+  rotor_plane_height:
+    value: 0.06
+    unit: m relative to modeled CoG
+    source: Explicit V2 geometry choice; configuration-specific height unavailable
+    status: D_EXPLICIT_MODEL_IDEALIZATION
+    notes: Affects rigid-body inertia partition, not thrust magnitude.
+  arm_tilt:
+    value: 0.0
+    unit: deg
+    source: DJI supports 0 and 3 degree arm mounts; 0 degree selected for an unambiguous vertical-thrust baseline
+    status: D_EXPLICIT_MODEL_IDEALIZATION
+    notes: The CMU aircraft arm-mount choice was not published.
+  payload_box_size:
+    value: [0.220, 0.138, 0.044]
+    unit: m
+    source: rodrigues_2021
+    status: A_PRIMARY_EXACT_THIS_CONFIGURATION
+    notes: Published external payload-box dimensions.
+
+propulsion:
+  motor_model_identity:
+    value: DJI 3510
+    unit: null
+    source: dji_m100_specification
+    status: A_PRIMARY_EXACT_THIS_CONFIGURATION
+    notes: Identity only; no efficiency map is implied.
+  propeller_model_identity:
+    value: DJI 1345s
+    unit: null
+    source: dji_m100_specification
+    status: A_PRIMARY_EXACT_THIS_CONFIGURATION
+    notes: Identity only.
+  esc_model_identity:
+    value: DJI E SERIES 620D
+    unit: null
+    source: dji_m100_specification
+    status: A_PRIMARY_EXACT_THIS_CONFIGURATION
+    notes: Identity only; the commercial E800 ESC is not substituted.
+  propeller_diameter:
+    value: 0.3302
+    unit: m
+    source: DJI 1345 designation, 13 inches
+    status: A_PRIMARY_EXACT_THIS_CONFIGURATION
+    notes: Nominal geometry, not an aerodynamic map.
+  propeller_geometric_pitch:
+    value: 0.1143
+    unit: m/revolution
+    source: DJI 1345 designation, 4.5 inches
+    status: A_PRIMARY_EXACT_THIS_CONFIGURATION
+    notes: Nominal geometric pitch only.
+  max_rot_velocity:
+    value: 916.2978572970229
+    unit: rad/s
+    source: Commercial E800 350 rpm/V times 25 V no-load endpoint
+    status: C_M100_REFERENCE_OTHER_CONFIGURATION
+    notes: Loaded maximum is unavailable; this is a same-family single-point upper-bound proxy.
+  motor_constant:
+    value: 2.452825363226109e-05
+    unit: N/(rad/s)^2
+    source: Commercial E800 2.100 kgf endpoint divided by the squared no-load endpoint
+    status: C_M100_REFERENCE_OTHER_CONFIGURATION
+    notes: Static single-point thrust proxy, not a curve versus RPM or inflow.
+  moment_constant:
+    value: 0.010812553326221993
+    unit: m
+    source: Ideal-hover actuator-disc Q/T = induced_velocity/omega at 3.680 kg, rho=1.225 kg/m^3 and the V2 static thrust proxy
+    status: D_EXPLICIT_MODEL_IDEALIZATION
+    notes: Lower-bound yaw-torque proxy; not motor electrical Kt and not a measured DJI 1345s CQ/CT ratio.
+  verified_thrust_map:
+    value: null
+    unit: N versus RPM and inflow
+    source: Not present in the audited exact-model public sources
+    status: E_REQUIRED_UNAVAILABLE
+    notes: Required for a validated propulsion map.
+  verified_torque_map:
+    value: null
+    unit: N*m versus RPM and inflow
+    source: Not present in the audited exact-model public sources
+    status: E_REQUIRED_UNAVAILABLE
+    notes: Required to replace the ideal-hover Q/T proxy.
+  motor_esc_efficiency_map:
+    value: null
+    unit: fraction versus operating point
+    source: Not present in the audited exact-model public sources
+    status: E_REQUIRED_UNAVAILABLE
+    notes: Required for component-level electrical-power prediction.
+
+rotor_aerodynamics:
+  rotor_positions_sdf_flu:
+    value:
+      rotor_0_m1: [0.22980970388562794, -0.22980970388562794, 0.06]
+      rotor_1_m3: [-0.22980970388562794, 0.22980970388562794, 0.06]
+      rotor_2_m2: [0.22980970388562794, 0.22980970388562794, 0.06]
+      rotor_3_m4: [-0.22980970388562794, -0.22980970388562794, 0.06]
+    unit: m in Gazebo FLU
+    source: dji_m100_manual plus symmetric-X derivation
+    status: B_PRIMARY_DERIVED_THIS_CONFIGURATION
+    notes: Ordering preserves the established ROS motor-index contract.
+  rotor_directions:
+    value: [ccw, ccw, cw, cw]
+    unit: null
+    source: DJI M1/M3 CCW and M2/M4 CW; runtime order M1,M3,M2,M4
+    status: A_PRIMARY_EXACT_THIS_CONFIGURATION
+    notes: Used consistently by Gazebo and PX4 allocation.
+  rotor_drag_coefficient:
+    value: 0.0
+    unit: Gazebo coefficient
+    source: Explicit fail-closed disabling because no DJI 1345s forward-flight coefficient map is available
+    status: D_EXPLICIT_MODEL_IDEALIZATION
+    notes: Zero means the effect is not modeled, not that physical drag is zero.
+  rolling_moment_coefficient:
+    value: 0.0
+    unit: Gazebo coefficient
+    source: Explicit fail-closed disabling because no M100 coefficient is available
+    status: D_EXPLICIT_MODEL_IDEALIZATION
+    notes: Zero means the effect is not modeled.
+  axial_inflow_enabled:
+    value: false
+    unit: boolean
+    source: No exact-propeller advance-ratio or inflow map is available
+    status: D_EXPLICIT_MODEL_IDEALIZATION
+    notes: V2 thrust remains a static T=k*omega^2 proxy.
+  advance_ratio_model:
+    value: null
+    unit: null
+    source: Exact DJI 1345s data unavailable
+    status: E_REQUIRED_UNAVAILABLE
+    notes: Required for scientifically valid speed and wind power response.
+
+motor_dynamics:
+  time_constant_up:
+    value: 0.001
+    unit: s
+    source: Numerical direct-actuator approximation
+    status: F_NUMERICAL_SETTING
+    notes: Not claimed as a measured DJI 3510/620D transient.
+  time_constant_down:
+    value: 0.001
+    unit: s
+    source: Numerical direct-actuator approximation
+    status: F_NUMERICAL_SETTING
+    notes: Not claimed as a measured DJI 3510/620D transient.
+  rotor_velocity_slowdown_sim:
+    value: 10.0
+    unit: dimensionless
+    source: Gazebo numerical anti-aliasing choice, reversed by the rotor telemetry model
+    status: F_NUMERICAL_SETTING
+    notes: Numerical solver setting, not an aircraft parameter.
+
+body_aerodynamics:
+  body_drag_enabled:
+    value: false
+    unit: boolean
+    source: Disabled until an instrumented-M100 force database or validated CdA is available
+    status: D_EXPLICIT_MODEL_IDEALIZATION
+    notes: Speed and wind energy effects are outside the V2 validated claims.
+  drag_model:
+    value: null
+    unit: null
+    source: Published KARI lookup table is not available as reproducible numeric data
+    status: E_REQUIRED_UNAVAILABLE
+    notes: Collision primitives must never be reused as aerodynamic surfaces.
+  relative_air_velocity_input:
+    value: null
+    unit: m/s vector
+    source: Reserved for a validated body/rotor aerodynamic model
+    status: E_REQUIRED_UNAVAILABLE
+    notes: Commanded wind remains excluded from operational power.
+
+control_allocation:
+  px4_rotor_count:
+    value: 4
+    unit: rotors
+    source: dji_m100_specification
+    status: A_PRIMARY_EXACT_THIS_CONFIGURATION
+    notes: Quadrotor architecture.
+  px4_rotor_positions_frd:
+    value:
+      rotor_0_m1: [0.22980970388562794, 0.22980970388562794]
+      rotor_1_m3: [-0.22980970388562794, -0.22980970388562794]
+      rotor_2_m2: [0.22980970388562794, -0.22980970388562794]
+      rotor_3_m4: [-0.22980970388562794, 0.22980970388562794]
+    unit: m in PX4 FRD
+    source: Exact FLU-to-FRD transform of rotor_positions_sdf_flu
+    status: B_PRIMARY_DERIVED_THIS_CONFIGURATION
+    notes: Positions are relative to the modeled central CoG.
+  px4_rotor_yaw_moment_factors:
+    value: [0.010812553326221993, 0.010812553326221993, -0.010812553326221993, -0.010812553326221993]
+    unit: m
+    source: Same Q/T proxy and direction signs as the Gazebo plugins
+    status: D_EXPLICIT_MODEL_IDEALIZATION
+    notes: Magnitudes are consistent across PX4 and Gazebo.
+  gazebo_actuator_minimum:
+    value: 0.0
+    unit: rad/s command endpoint
+    source: Fail-closed choice because an idle-RPM/ESC map is unavailable
+    status: F_NUMERICAL_SETTING
+    notes: Allows zero command while disarmed; not a measured idle speed.
+  gazebo_actuator_maximum:
+    value: 916.2978572970229
+    unit: rad/s command endpoint
+    source: propulsion.max_rot_velocity
+    status: C_M100_REFERENCE_OTHER_CONFIGURATION
+    notes: Same single-point upper-bound proxy as the Gazebo motor model.
+  hover_thrust_default:
+    value: 0.6618876325292973
+    unit: normalized rotor-speed command
+    source: sqrt((3.680*9.80665/4)/motor_constant)/max_rot_velocity
+    status: B_PRIMARY_DERIVED_THIS_CONFIGURATION
+    notes: V2 zero-payload model prediction; must be checked in hover.
+  data_link_loss_action:
+    value: 2
+    unit: PX4 NAV_DLL_ACT enum
+    source: Project safety policy
+    status: G_SAFETY_POLICY
+    notes: Not a physical parameter.
+
+sensors_and_runtime_interfaces:
+  px4_sitl_sensors:
+    value:
+      air_pressure_hz: 50
+      magnetometer_hz: 100
+      imu_hz: 250
+      navsat_hz: 30
+      barometer_pressure_stddev_pa: 3.0
+      magnetometer_axis_stddev_t: 0.0001
+      gyroscope_axis_stddev_rad_s: 0.0008726646
+      accelerometer_xy_stddev_m_s2: 0.00637
+      accelerometer_z_stddev_m_s2: 0.00686
+      aircraft_specific_noise: false
+    unit: Hz plus SI measurement-noise standard deviations
+    source: Generic PX4 Gazebo SITL sensor proxies used across unrelated vehicle types
+    status: D_EXPLICIT_MODEL_IDEALIZATION
+    notes: Non-zero variance prevents PX4 stuck-sensor rejection; no M100 sensor-noise or lever-arm fidelity is claimed and no retired-airframe parameter is used.
+  motor_joint_mapping:
+    value: [rotor_0_joint, rotor_1_joint, rotor_2_joint, rotor_3_joint]
+    unit: joint identifiers
+    source: V2 SDF and ROS 2 joint-state contract
+    status: F_NUMERICAL_SETTING
+    notes: Stable software interface.
+  motor_command_topic:
+    value: command/motor_speed
+    unit: Gazebo transport subtopic
+    source: PX4 Gazebo motor interface
+    status: F_NUMERICAL_SETTING
+    notes: Stable software interface.
+  joint_state_update_rate:
+    value: 20
+    unit: Hz
+    source: Project telemetry contract
+    status: F_NUMERICAL_SETTING
+    notes: Rotor telemetry logging rate.
+
+battery:
+  chemistry:
+    value: LiPo
+    unit: null
+    source: DJI TB47D specification
+    status: A_PRIMARY_EXACT_THIS_CONFIGURATION
+    notes: Six cells in series.
+  series_cells:
+    value: 6
+    unit: cells
+    source: DJI TB47D specification
+    status: A_PRIMARY_EXACT_THIS_CONFIGURATION
+    notes: Nameplate property.
+  nominal_voltage:
+    value: 22.2
+    unit: V
+    source: DJI TB47D specification
+    status: A_PRIMARY_EXACT_THIS_CONFIGURATION
+    notes: Nameplate value, not dynamic terminal voltage.
+  nominal_capacity:
+    value: 4.5
+    unit: Ah
+    source: DJI TB47D specification
+    status: A_PRIMARY_EXACT_THIS_CONFIGURATION
+    notes: Nameplate value.
+  nominal_energy:
+    value: 99.9
+    unit: Wh
+    source: 22.2 V * 4.5 Ah
+    status: B_PRIMARY_DERIVED_THIS_CONFIGURATION
+    notes: Nameplate energy.
+  battery_mass:
+    value: 0.600
+    unit: kg
+    source: DJI TB47D specification and rodrigues_2021 mass budget
+    status: A_PRIMARY_EXACT_THIS_CONFIGURATION
+    notes: Included in the 3.680 kg baseline mass.
+
+electrical:
+  runtime_model:
+    value: M100_V2_ENERGY_RECALIBRATION_REQUIRED
+    unit: null
+    source: Physics V2 changes invalidate any rotor-power mapping tied to the retired model
+    status: E_REQUIRED_UNAVAILABLE
+    notes: Active V2 must not silently reuse the retired Stage-1 coefficients.
+  stage1_aircraft_level_alpha:
+    value: null
+    unit: dimensionless
+    source: A new fit on V2 simulation cases is required
+    status: E_REQUIRED_UNAVAILABLE
+    notes: Retired-model alpha is preserved only in historical artifacts.
+  stage1_hover_aircraft_level_alpha:
+    value: null
+    unit: dimensionless
+    source: A new fit on V2 hover cases is required
+    status: E_REQUIRED_UNAVAILABLE
+    notes: Retired post-hoc hover multiplier is not transferred.
+  stage1_auxiliary_power:
+    value: null
+    unit: W
+    source: A new V2 electrical model must define its intercept explicitly
+    status: E_REQUIRED_UNAVAILABLE
+    notes: No fabricated zero is used in V2.
+
+runtime_traceability:
+  gazebo_model:
+    value: m100_cmu_v2
+    unit: model identifier
+    source: Tools/simulation/gz/models/m100_cmu_v2/model.sdf
+    status: F_NUMERICAL_SETTING
+    notes: Self-contained M100-only runtime model.
+  px4_airframe:
+    value: 4030_gz_m100_cmu_v2
+    unit: PX4 autostart identifier
+    source: ROMFS/px4fmu_common/init.d-posix/airframes/4030_gz_m100_cmu_v2
+    status: F_NUMERICAL_SETTING
+    notes: M100-specific allocation and actuator endpoints.
+  operational_claim:
+    value: geometry_mass_control_smoke_pending
+    unit: null
+    source: V2 migration gate
+    status: D_EXPLICIT_MODEL_IDEALIZATION
+    notes: No energy, speed-aerodynamics, wind-power, or component-map claim is enabled before V2 validation.

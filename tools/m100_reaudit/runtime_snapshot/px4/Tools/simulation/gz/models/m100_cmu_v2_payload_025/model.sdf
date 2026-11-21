@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<sdf version="1.9"><model name="m100_cmu_v2_payload_025">
+  <include merge="true"><uri>model://m100_cmu_v2</uri></include>
+  <link name="external_payload"><pose relative_to="base_link">0 0 -0.11 0 0 0</pose>
+    <inertial><mass>0.25</mass><inertia><ixx>0.0004370833333333333</ixx><ixy>0</ixy><ixz>0</ixz><iyy>0.0010486666666666667</iyy><iyz>0</iyz><izz>0.0014050833333333333</izz></inertia></inertial>
+    <collision name="external_payload_collision"><geometry><box><size>0.220 0.138 0.044</size></box></geometry></collision>
+    <visual name="external_payload_visual"><geometry><box><size>0.220 0.138 0.044</size></box></geometry><material><diffuse>0.18 0.18 0.18 1</diffuse></material></visual>
+  </link><joint name="external_payload_joint" type="fixed"><parent>base_link</parent><child>external_payload</child></joint>
+</model></sdf>

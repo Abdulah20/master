@@ -1,0 +1,19 @@
+schema: M100_CMU_TRANSIENT_POWER_V1
+model_id: M100_CMU_TRANSIENT_POWER_V1
+evidence_artifact: outputs/m100_mission_energy_validation_v1/evaluation.json
+evidence_sha256: 2e79a1de0723e9e793ecc2e9fb70239350fa07015dead8012c46dd1303b683de
+dataset_doi: 10.1184/R1/12683453
+fit_flights: 110
+evaluation_flights: 60
+scope: Simulation transfer to stabilization, return braking, and hover.
+classification: LIMITED_EMPIRICAL_PROXY
+claim: Continuous kinematic electrical-power regression evaluated on separate flights of the same CMU campaign. Long stops and commanded ambient wind remain extrapolations.
+coefficients:
+  offset: -11.5115237685645
+  mass_over_density_feature: 72.23957047628086
+  ascent_work_W: 0.8863929395013254
+  descent_work_W: 0.09615579812300472
+  mass_feature_times_horizontal_speed_squared: -0.15646293417159632
+  horizontal_speed_cubed: 0.036004098443793424
+  horizontal_acceleration_work_W: 0.3797696965536418
+  horizontal_braking_work_W: 0.11590386250966499

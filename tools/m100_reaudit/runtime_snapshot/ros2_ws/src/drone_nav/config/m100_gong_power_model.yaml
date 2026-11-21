@@ -1,0 +1,95 @@
+schema: M100_GONG_POWER_MODEL_CONFIG_V1
+model_name: GONG_EFFECTIVE_FORWARD_FLIGHT_M100_V1
+source:
+  citation: H. Gong, B. Huang, B. Jia, and H. Dai, Modeling Power Consumptions for Multirotor UAVs, IEEE TAES 59(6), 2023, 7409-7422
+  doi: 10.1109/TAES.2023.3288846
+
+scientific_state:
+  selection: FURTHER_MODEL_DEVELOPMENT_REQUIRED
+  classification: C_NOT_CALIBRATED
+  reason: theta_T and theta_d reached the strict numerical lower bound in the fit; all four effective parameters are not identifiable from the available stable-flight data
+  runtime_enabled: false
+  runtime_selected_model: RODRIGUES_PATTERNS_M100_PHASE_POWER_V1
+  parallel_research_reporting_enabled: true
+  retired_model_preserved_only_in_historical_artifacts: true
+
+geometry:
+  base_aircraft_mass_kg: 3.680
+  mass_rule: total_mass_kg = 3.680 + payload_kg
+  rotor_count: 4
+  rotor_radius_m: 0.1651
+  rotor_disc_area_m2_each: 0.08563356366882195
+  gravity_mps2: 9.80665
+  sources:
+    mass: audited Rodrigues instrumented DJI Matrice 100 configuration
+    rotor: verified DJI 1345s 13-inch identity; geometry only, not an aerodynamic curve
+
+atmosphere:
+  model: U.S. Standard Atmosphere 1976 lower-troposphere relation
+  altitude_input: actual altitude above mean sea level
+  source: NASA-TM-X-74335
+  flight_specific_density_fit: false
+
+speed_input:
+  ground_field: actual horizontal ENU velocity from PX4 local position
+  wind_field: commanded Gazebo world ENU wind vector
+  equation: V_air_enu = V_ground_enu - V_wind_enu
+  interpretation: Gong receives the magnitude of the vector air-relative velocity; the active published M100 aircraft-level power remains unchanged
+  ambient_wind_used: true
+  airspeed_claimed: commanded-wind-relative model input, not measured airspeed
+
+wind_energy_delta:
+  enabled: false
+  equation: delta_P_wind = P_Gong(abs(V_ground - V_wind)) - P_Gong(abs(V_ground))
+  application: research-only diagnostic during active nonzero-wind CRUISE; never added to operational power
+  zero_wind_invariant: delta_P_wind = 0 exactly
+  operational_power_equation: P_electrical = P_Rodrigues_M100_phase; delta_P_wind is not applied
+  status: RESEARCH_ONLY_WIND_AIRSPEED_DELTA_RUNTIME_REJECTED
+  warning: WIND_TRANSFER_REJECTED_CAUSAL_DIRECTIONAL_EFFECT_NOT_IDENTIFIED
+  decision_artifact: outputs/m100_wind_transfer_v4/analysis_summary.json
+  decision_artifact_sha256: 3e22648fd154cda6d2a15ad0e86f45ba53b6434a43a1c0f41f43f93473aed9dd
+  decision: REJECT_RUNTIME_WIND_TRANSFER_CAUSAL_DIRECTIONAL_EFFECT_NOT_IDENTIFIED
+  claim_limit: the published M100 airflow data lack controlled ambient-wind intervention and an independent wind reference; after speed adjustment the directional term worsened held-out MAE and RMSE, so no causal wind-energy correction is claimed
+
+parameters:
+  theta_p: 7.570337403620223
+  theta_T: 1.0e-12
+  theta_i: 0.6431150454896112
+  theta_d: 1.0e-12
+  strict_positive_floor: 1.0e-12
+  frozen_after_calibration: true
+  effective_aircraft_level_only: true
+  raw_CT_claimed: false
+  raw_delta_claimed: false
+  raw_k_claimed: false
+  raw_S_FP_claimed: false
+  raw_Cd_claimed: false
+  motor_efficiency_claimed: false
+
+calibration:
+  objective: unweighted least squares of eligible calibration-flight stable-segment mean electrical power
+  optimizer: deterministic exhaustive active-set bounded least squares in [theta_p, theta_p*theta_T, theta_i, theta_d]
+  target_equation: P_real_W = battery_voltage_V * battery_current_A
+  energy_equation: E_Wh = integral(P_W dt_s) / 3600
+  calibration_pool_flights: 114
+  calibration_used_flights: 86
+  validation_pool_flights: 59
+  validation_used_flights: 44
+  selector_changed: false
+  validation_used_for_fit: false
+  theta_p_bootstrap_95pct: [7.007192204514322, 8.17800400458199]
+  theta_T_bootstrap_95pct: [1.0e-12, 1.0e-12]
+  theta_i_bootstrap_95pct: [0.5107083719478285, 0.7742854269661416]
+  theta_d_bootstrap_95pct: [1.0e-12, 1.0e-12]
+  theta_T_boundary_fraction: 1.0
+  theta_d_boundary_fraction: 1.0
+
+integration:
+  maximum_valid_gap_s: 0.5
+  method: trapezoidal
+
+lineage:
+  model_selection_report: /home/abdulah/Master/Drone/project/docs/M100_PHYSICS_MODEL_SELECTION.md
+  calibration_report: /home/abdulah/Master/Drone/project/docs/M100_GONG_CALIBRATION_REPORT.md
+  implementation_report: /home/abdulah/Master/Drone/project/docs/M100_GONG_MODEL_IMPLEMENTATION.md
+  summary: /home/abdulah/Master/Drone/project/outputs/m100_gong_model/m100_gong_summary.json

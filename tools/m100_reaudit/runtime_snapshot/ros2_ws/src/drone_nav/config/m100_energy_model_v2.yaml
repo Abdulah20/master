@@ -1,0 +1,150 @@
+schema: M100_PUBLISHED_ENERGY_CONFIG_V2
+
+model:
+  id: RODRIGUES_PATTERNS_M100_PHASE_POWER_V1
+  fidelity: PUBLISHED_EMPIRICAL_M100_AIRCRAFT_PHASE_MODEL
+  equation: P_W = b1 * published_regression_mass_kg^1.5 / sqrt(air_density_kg_m3) + b0
+  source:
+    title: Drone flight data reveal energy and greenhouse gas emissions savings for very small package delivery
+    authors: Rodrigues et al.
+    journal: Patterns
+    year: 2022
+    doi: 10.1016/j.patter.2022.100569
+    training_flights: 120
+    test_flights: 68
+    published_mean_absolute_relative_error_percent: 2.1
+    local_reproduction:
+      status: PASS_NEAR_EXACT_PUBLISHED_ROUNDING
+      training_flights: 120
+      holdout_flights: 68
+      holdout_used_for_fit: false
+      full_precision_refit_holdout_mean_absolute_relative_error_percent: 2.0698539594489147
+      runtime_published_rounded_coefficients_holdout_mean_absolute_relative_error_percent: 2.0662458588801145
+      verifier: analysis/m100_rodrigues_official_reproduction_v1/verify_official_reproduction_v1.py
+      verifier_sha256: 56af0fd22e6ffc6a4485802feaf8e4a680749f111e82390576167ae24b6b0773
+      report: analysis/m100_rodrigues_official_reproduction_v1/reproduction_report_v1.json
+      report_sha256: 5d7548f8f26bef0a390529096aa35b4fe00d44a6c037833065769ed929c6d611
+      limitation: The full-precision refit reproduces the published one-decimal coefficients, while runtime intentionally uses those published rounded coefficients; the original 2022 full-precision coefficients, METAR responses, and software environment were not frozen byte-for-byte.
+  mass_basis:
+    status: PUBLISHED_REGRESSION_MASS_3P715_KG_PLUS_PAYLOAD
+    published_regression_equation: published_regression_mass_kg = 3.715 + payload_mass_kg
+    airframe_component_kg: 3.08
+    battery_component_kg: 0.635
+    published_regression_baseline_kg: 3.715
+    physical_runtime_equation: physical_total_mass_kg = 3.680 + payload_mass_kg
+    physical_runtime_baseline_kg: 3.680
+    roles:
+      published_regression_mass_kg: sole mass input to the published phase-power equation
+      physical_total_mass_kg: simulator dynamics, thrust reserve, and research diagnostics only
+    source:
+      title: drone_energy_consumption v1.0.0 official software archive
+      doi: 10.5281/zenodo.6726991
+      release: v1.0.0
+      archive_sha256: 28ef18d85d58d0a14d8ca49c676d559a6b0f50fffe95744a6ecf82d7ec0675ff
+      archive_root_commit: 3d27ac92ba5db36a2fe3fc1449bbb5c422e10ca6
+      path: inflightcomponents.py
+      function: mass_airdensity
+      code_expression: payload / 1000 + 3.08 + 0.635
+      payload_unit_in_source: g
+  coefficients:
+    takeoff:
+      b1: 80.4
+      b0: 13.8
+    cruise:
+      b1: 68.9
+      b0: 16.8
+    landing:
+      b1: 71.5
+      b0: -24.3
+  phase_mapping:
+    TAKEOFF: takeoff
+    CLIMB: takeoff
+    CRUISE: cruise
+    RETURNING: cruise
+    LANDING: landing
+  unsupported_phases: [IDLE, ARMING, STABILIZING, HOVER]
+  limited_hover:
+    enabled: true
+    direct_power_W: 474.39385048536934
+    status: LIMITED_EMPIRICAL_PROXY
+    source: Mean real-aircraft power of published M100 flights 221 and 222
+    independence: Values were previously exposed; this is not an independent validation
+    eligibility_requires_explicit_runtime_gate: true
+    eligibility:
+      phase: HOVER
+      payload_kg: 0.0
+      commanded_wind_mps: 0.0
+      commanded_speed_mps: 0.0
+      altitude_m: [3.0, 5.0]
+      duration_s: [10.0, 20.0]
+  applicability:
+    output: aircraft electrical power
+    propulsion_component_outputs_available: false
+    explicit_speed_input: false
+    explicit_wind_input: false
+    wind_power_runtime_applied: false
+    physical_total_mass_payload_and_air_density_inputs_required: true
+    published_regression_mass_computed_internally_from_payload: true
+  warnings:
+    - AIRCRAFT_PHASE_MODEL_NOT_COMPONENT_PROPULSION_PHYSICS
+    - PHASE_AVERAGE_POWER_NOT_INSTANTANEOUS_PROPULSION_DYNAMICS
+    - SPEED_AND_WIND_NOT_EXPLICIT_MODEL_INPUTS
+    - ROTOR_SPEED_NOT_USED_TO_ESTIMATE_POWER
+    - UNSUPPORTED_PHASES_ARE_NOT_INTEGRATED_INTO_ENERGY_OR_BMS
+    - PUBLISHED_REGRESSION_MASS_BASIS_DIFFERS_FROM_PHYSICAL_RUNTIME_MASS
+
+diagnostics:
+  rotor_joint_velocity_scale: 10.0
+  rotor_joint_velocity_scale_source: Gazebo numerical slowdown used only to display rotor speed
+  rotor_speed_affects_power: false
+
+integration:
+  method: guarded trapezoidal integration
+  maximum_valid_gap_s: 0.5
+  nonpositive_timestamp_delta: reject segment and retain accumulated energy
+  telemetry_gap: reject segment and retain accumulated energy
+  unavailable_power: break integration continuity
+  phase_transition_allocation: split trapezoid halves between previous and current phases
+
+battery:
+  model: DJI TB47D
+  nominal_voltage_V: 22.2
+  capacity_Ah: 4.5
+  nominal_energy_Wh: 99.9
+  source: DJI TB47D published nameplate specification
+  claim_limit: Nameplate capacity is not physical pack SOC, temperature, aging, or electrochemistry
+
+runtime_bms:
+  mode: TB47D_BMS_ENERGY_BUDGET_V3
+  enabled: true
+  initial_relative_soc_percent: 100.0
+  minimum_endurance_power_W: 1.0
+  endurance_power_time_constant_s: 10.0
+  low_soc_warning_percent: 20.0
+  critical_soc_percent: 10.0
+  measured_telemetry_enabled: false
+  measured_power_tolerance_fraction: 0.10
+  status: LIMITED_M100_TERMINAL_VOLTAGE_TRANSFER_PACK_ID_UNRESOLVED
+  power_input: RODRIGUES_PATTERNS_M100_PHASE_POWER_V1
+  claim: Run-relative energy bookkeeping and a published-campaign terminal-voltage transfer proxy; not a physical TB47D measurement or electrochemical model
+  terminal_voltage_proxy:
+    enabled: true
+    model_id: M100_PUBLISHED_PACK_TERMINAL_VOLTAGE_PROXY_V1
+    intercept_V: 23.562932940176374
+    resistance_ohm: 0.05452686676165826
+    depletion_slope_V_per_Ah: 0.5541461536900888
+    minimum_current_A: 0.0
+    maximum_current_A: 41.360778100698205
+    minimum_power_W: 300.0
+    maximum_power_W: 877.5016111854869
+    maximum_throughput_Ah: 1.4594429042874992
+    validation_MAE_V: 0.7315731292992945
+    validation_RMSE_V: 0.8718139336333016
+    validation_P95_abs_error_V: 1.571586387631866
+    validation_P95_abs_error_A: 1.7959216043387023
+    calibration_flights: 114
+    validation_flights: 59
+    validation_used_for_fit: false
+    source_artifact: outputs/m100_bms_terminal_voltage_v3/calibration_summary.json
+    source_artifact_sha256: 0a2fed20204a1bf8e39d96706acf95d47eed34a70f786ca6ab0874dfb0fb7656
+    pack_identity_status: UNRESOLVED_PUBLISHED_M100_CAMPAIGN

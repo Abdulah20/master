@@ -15,10 +15,20 @@ import sys
 ROOT = Path(__file__).resolve().parents[2]
 CONFIG = ROOT / "config/m100_reaudit/physics.json"
 DEFAULT_RUNTIME = Path.home() / "Master/Drone/project"
+PORTABLE_RUNTIME = Path(__file__).resolve().with_name("runtime_snapshot")
+PORTABLE_PX4 = PORTABLE_RUNTIME / "px4"
+PORTABLE_STUDY = PORTABLE_RUNTIME / "original_study"
+ENERGY_MODULE = Path("ros2_ws/src/drone_nav/drone_nav/m100_published_energy_v2.py")
 
 
 def runtime_path(root=None):
-    return Path(root or os.environ.get("M100_RUNTIME_ROOT") or DEFAULT_RUNTIME).expanduser().resolve()
+    """Honor an explicit checkout, then use the linked runtime or the bundled source."""
+    configured = root if root is not None else os.environ.get("M100_RUNTIME_ROOT")
+    if configured is not None:
+        return Path(configured).expanduser().resolve()
+    if (DEFAULT_RUNTIME / ENERGY_MODULE).is_file():
+        return DEFAULT_RUNTIME.resolve()
+    return PORTABLE_RUNTIME
 
 
 def _finite(value, label):

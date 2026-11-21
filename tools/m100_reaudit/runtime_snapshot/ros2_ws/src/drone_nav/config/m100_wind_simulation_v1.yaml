@@ -1,0 +1,18 @@
+schema: M100_WIND_SIMULATION_V1
+classification: C_NOT_CALIBRATED
+source:
+  author: Evan Kawamura
+  year: 2020
+  title: Integrated Targeting, Guidance, Navigation, and Control for Unmanned Aerial Vehicles
+  section: 3.4.1
+  url: https://www.academia.edu/103420569/Integrated_Targeting_Guidance_Navigation_and_Control_for_Unmanned_Aerial_Vehicles
+  aircraft_configuration: M100 with TB48D, Raspberry Pi, 3.133 kg
+horizontal_body_drag:
+  drag_coefficient: 0.5576
+  reference_area_m2: 0.0407
+  equation: F_horizontal_N = -0.5 * rho * Cd * A * norm(v_air_horizontal) * v_air_horizontal
+  assumptions: Fixed frontal area applied isotropically in the horizontal plane; transfer from the published M100 configuration to the instrumented CMU airframe.
+electrical_power:
+  equation: delta_P_W = P_CMU_motion(norm(v_ground - commanded_wind)) - P_CMU_motion(norm(v_ground))
+  classification: C_NOT_CALIBRATED
+  assumptions: Theoretical substitution of commanded relative airspeed into a ground-speed regression; ambient wind transfer has no empirical calibration.

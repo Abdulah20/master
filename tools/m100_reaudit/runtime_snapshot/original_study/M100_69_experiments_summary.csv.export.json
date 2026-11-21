@@ -1,0 +1,391 @@
+{
+  "schema": "M100_PORTABLE_ACCEPTED_RESULTS_VIEW_V1",
+  "rows": 69,
+  "columns": [
+    "payload_kg",
+    "cruise_speed_mps",
+    "wind_speed_mps",
+    "wind_direction_toward_deg_ENU",
+    "altitude_m",
+    "temperature_c",
+    "measurement_energy_Wh",
+    "sampled_mean_power_W",
+    "energy_per_distance_Wh_per_km",
+    "supported_phase_mission_energy_Wh",
+    "ideal_steady_endurance_min",
+    "ideal_steady_range_km",
+    "nominal_energy_remaining_percent",
+    "measurement_distance_m",
+    "sampled_measurement_span_s",
+    "data_quality",
+    "energy_evidence_status",
+    "run_id"
+  ],
+  "row_definition": "One selected accepted simulation flight per unique configuration",
+  "order": "Protocol case_001 through case_069; shared logical comparisons deduplicated",
+  "encoding": "UTF-8 with BOM",
+  "delimiter": ",",
+  "line_endings": "CRLF",
+  "missing_values": "Preserved as empty fields; no interpolation or replacement",
+  "results_sha256": "3bef8c5f6e2684cb0d0a36cf13ce55092bb553972416c5f6bbd05fda64d11f5d",
+  "protocol_sha256": "04a087bf939d9b105f33fb5ddeacb993cdf2df31cb3252a86cd73148144c87ea",
+  "csv_sha256": "ea24ff674b74940b2f1ffaf12fcee49164eb5180f895ab0bdcf9bda1b060028c",
+  "bytes": 17232,
+  "sources": [
+    {
+      "case_id": "case_001",
+      "run_id": "m100_20261119T031610Z",
+      "source_sha256": "6b58ff0c2cfa759fcb50455ef15f7376fb586b649be0683fecab5f0e6afd9a37"
+    },
+    {
+      "case_id": "case_002",
+      "run_id": "m100_20261119T032443Z",
+      "source_sha256": "a29826f2da7db5a32403a1c90b68c987d1b4c66ac0e0148130c92600790a26a3"
+    },
+    {
+      "case_id": "case_003",
+      "run_id": "m100_20261119T034246Z",
+      "source_sha256": "0478a703ce953b893e35d7eb2aa835878511f86c0a9c11a21f09b932132b4418"
+    },
+    {
+      "case_id": "case_004",
+      "run_id": "m100_20261118T221337Z",
+      "source_sha256": "9f313bc118d44d47165c7c1a3d51ad670efb1013042e49ddce4b4ebe1022f782"
+    },
+    {
+      "case_id": "case_005",
+      "run_id": "m100_20261118T222017Z",
+      "source_sha256": "00ff65f528f7cb4afb661dd1658651c5984e8f441a552f9843b9001c4f08fd97"
+    },
+    {
+      "case_id": "case_006",
+      "run_id": "m100_20261118T222648Z",
+      "source_sha256": "15638cce64fb130cf44ea566318e60dc547791e5907813599ef88bc5a0ebea34"
+    },
+    {
+      "case_id": "case_007",
+      "run_id": "m100_20261118T224206Z",
+      "source_sha256": "da40f0497190f8f7b86c933548972913a9daa5d3b19cd4c15d93123f021a2391"
+    },
+    {
+      "case_id": "case_008",
+      "run_id": "m100_20261118T224549Z",
+      "source_sha256": "57041c5a7b9eca585bcec169772f6204a7834787edfa3ab56555ad3bb5b9b83d"
+    },
+    {
+      "case_id": "case_009",
+      "run_id": "m100_20261118T225259Z",
+      "source_sha256": "23776cc9e2e15c45f11f9cab407ceb2fb023d9871609a07f329f8122c6a5659a"
+    },
+    {
+      "case_id": "case_010",
+      "run_id": "m100_20261118T230943Z",
+      "source_sha256": "119b50783488460ef1b6530eb3611c7a44fae73db0a6bed864965aaef404e4e1"
+    },
+    {
+      "case_id": "case_011",
+      "run_id": "m100_20261118T231635Z",
+      "source_sha256": "e1061fba6133d0a72a6a380f68a05c1bb2d1e68d1d22921f524a1613a856957d"
+    },
+    {
+      "case_id": "case_012",
+      "run_id": "m100_20261118T232005Z",
+      "source_sha256": "74114147b7071ca24204373334281d60933b24b32e05ea4e3efe61be4586f3a6"
+    },
+    {
+      "case_id": "case_013",
+      "run_id": "m100_20261118T232710Z",
+      "source_sha256": "4912176f702d274b26d6ae29da9560f46758bc3c0ea4ea85558613cc7008b2a2"
+    },
+    {
+      "case_id": "case_014",
+      "run_id": "m100_20261118T233341Z",
+      "source_sha256": "494e70dd975648a538f421d09a7dbed2a450157358f66e38569dcceb68d48567"
+    },
+    {
+      "case_id": "case_015",
+      "run_id": "m100_20261118T234034Z",
+      "source_sha256": "70440b9c8fe64b93d1e45886af37b60531719efce871a118fd864fef49c9f82e"
+    },
+    {
+      "case_id": "case_016",
+      "run_id": "m100_20261118T234404Z",
+      "source_sha256": "1fce0c1e1263696bf7326cad4fd3256288fa85b7b1ffc7a16b48c67423330468"
+    },
+    {
+      "case_id": "case_017",
+      "run_id": "m100_20261118T235111Z",
+      "source_sha256": "b59ee8b152feba22b6c2b318cf5abd41ae494a96e652edc8a970e439ce922439"
+    },
+    {
+      "case_id": "case_018",
+      "run_id": "m100_20261118T235738Z",
+      "source_sha256": "dcb7797435ded3f952064ba3352e96ab7edd9baddd9acdaec14d7acb5f129f71"
+    },
+    {
+      "case_id": "case_019",
+      "run_id": "m100_20261119T000428Z",
+      "source_sha256": "ce103f6b2d82dbc822a92342dbaa21536426dab5080b6d72713142335998b68b"
+    },
+    {
+      "case_id": "case_020",
+      "run_id": "m100_20261119T000758Z",
+      "source_sha256": "9eff7035e428c9f5664b156945963383d8db7e050feafa453e628cbbdf1e17d7"
+    },
+    {
+      "case_id": "case_021",
+      "run_id": "m100_20261119T001504Z",
+      "source_sha256": "73df3fb324e8cc039dfcd76a5a93bf4bf183f7b2e69f66553c7921e4632d41f2"
+    },
+    {
+      "case_id": "case_022",
+      "run_id": "m100_20261119T002135Z",
+      "source_sha256": "e20577f142c70ad61962207851b03c3df468d02766a94b1de58f144675c98c18"
+    },
+    {
+      "case_id": "case_023",
+      "run_id": "m100_20261119T002828Z",
+      "source_sha256": "9a3e35f08c36e41e6a7f8358a409b44542a7f0c0a840533803bc1a0eb9ce6c7e"
+    },
+    {
+      "case_id": "case_024",
+      "run_id": "m100_20261119T003200Z",
+      "source_sha256": "ebdf21a60627034ba0162d4d396ac38ba2f13121487042fed243e84dcec77aff"
+    },
+    {
+      "case_id": "case_025",
+      "run_id": "m100_20261119T003913Z",
+      "source_sha256": "95c5af75adcc1c313d54fde5c805f210628b9e92897c76b3134ba7d642aedb79"
+    },
+    {
+      "case_id": "case_026",
+      "run_id": "m100_20261119T004550Z",
+      "source_sha256": "ca6440c6194d515684746b97ad42688f84461556bf02e698ed3edab056f16f81"
+    },
+    {
+      "case_id": "case_027",
+      "run_id": "m100_20261119T005240Z",
+      "source_sha256": "ed8db7c06a267df04d6493a1c6ba28ec6167a022a2e5f22591031bcfdc800b7e"
+    },
+    {
+      "case_id": "case_028",
+      "run_id": "m100_20261119T005610Z",
+      "source_sha256": "40ff4d4e721079886e7c33ce553100adcf9846f57963ac91f5e77d903e62f900"
+    },
+    {
+      "case_id": "case_029",
+      "run_id": "m100_20261119T010405Z",
+      "source_sha256": "05c6b6efdd67e256cba4992f64e6c24beb8ee44814942dc1c23dda2b0437b303"
+    },
+    {
+      "case_id": "case_030",
+      "run_id": "m100_20261119T011056Z",
+      "source_sha256": "4bae9e43f644a2218a7aea9a6baca32c58a04fddcd583bebd4f3ed18a174b045"
+    },
+    {
+      "case_id": "case_031",
+      "run_id": "m100_20261119T011755Z",
+      "source_sha256": "b96320ea147270d88bbb5f623d7899cdda0f6f45b81e4e5b3ab810f94a7fdd68"
+    },
+    {
+      "case_id": "case_032",
+      "run_id": "m100_20261119T034912Z",
+      "source_sha256": "920dff98b16ad0161148394727236f33179eeb9a42ffb9e49b5c72c325ad43fe"
+    },
+    {
+      "case_id": "case_033",
+      "run_id": "m100_20261119T013902Z",
+      "source_sha256": "fa58b9fc8d492238b430a01e0da56bae2b76c119ac4ac9d9fb2c9e9168b4566c"
+    },
+    {
+      "case_id": "case_034",
+      "run_id": "m100_20261119T014526Z",
+      "source_sha256": "de29f886731c94a11bae6f0586e7260b404fe2eb0259915bf4121254e733b6fe"
+    },
+    {
+      "case_id": "case_035",
+      "run_id": "m100_20261119T015153Z",
+      "source_sha256": "c06fc4506f1890bcc67874a824d03912dbd1c82b1a8ed6d893f5deaa1bbe0b7b"
+    },
+    {
+      "case_id": "case_036",
+      "run_id": "m100_20261119T015817Z",
+      "source_sha256": "b0c9a71f687814b418a50e195d43591a43a870682bed9cb697884d954340b5c7"
+    },
+    {
+      "case_id": "case_037",
+      "run_id": "m100_20261119T020448Z",
+      "source_sha256": "dbeb76c88b1fe1a025861cfa05c349ee15a2b29e2da72d147a4c428dae5d0605"
+    },
+    {
+      "case_id": "case_038",
+      "run_id": "m100_20261119T021114Z",
+      "source_sha256": "9045a934e1b4fb7016fdc4b2a887256c17ef923545c7a6e2d8b67524673946d7"
+    },
+    {
+      "case_id": "case_039",
+      "run_id": "m100_20261119T021744Z",
+      "source_sha256": "796dd2938f27108304551e0469496c3b52e6922b2e0f4aac175c68e06276eccd"
+    },
+    {
+      "case_id": "case_040",
+      "run_id": "m100_20261119T022408Z",
+      "source_sha256": "82fc2ec6ecb47855e1affe09e2d45eb9943d955a6d14a5df8489e3c2efe1e0bd"
+    },
+    {
+      "case_id": "case_041",
+      "run_id": "m100_20261119T023038Z",
+      "source_sha256": "28b849b0d7374d88135428683127b198393e877e66e19b4ce35903aeaf088877"
+    },
+    {
+      "case_id": "case_042",
+      "run_id": "m100_20261119T023702Z",
+      "source_sha256": "a195ee5da69a66f1e47b192df45f39726d2ce87ee116bd7bef9ced2a98ddb3c2"
+    },
+    {
+      "case_id": "case_043",
+      "run_id": "m100_20261119T024329Z",
+      "source_sha256": "539eacdafa105605bdde580c5143efdbd01890b594bc7330bda88b3da8d7e931"
+    },
+    {
+      "case_id": "case_044",
+      "run_id": "m100_20261119T040001Z",
+      "source_sha256": "05807b35159a188128151e2c855659fe2899f674aaaa4c9def395db500369e7c"
+    },
+    {
+      "case_id": "case_045",
+      "run_id": "m100_20261119T040625Z",
+      "source_sha256": "f6974e3990bfa27ac10b5147e4939a0bdf6ec1978b07c3f9ef7212b1ff7f978f"
+    },
+    {
+      "case_id": "case_046",
+      "run_id": "m100_20261119T041247Z",
+      "source_sha256": "7d5b45aa923153475c5c8f770020e302d52115af5345ecfe7de60457ec2e3333"
+    },
+    {
+      "case_id": "case_047",
+      "run_id": "m100_20261119T041912Z",
+      "source_sha256": "bd3f5e8c077c9dd618689d89436359bf9ae012d6ed0a451738137ca4b0127ffc"
+    },
+    {
+      "case_id": "case_048",
+      "run_id": "m100_20261119T042532Z",
+      "source_sha256": "e03e081220b24eba106c4152f8622b486961de070ae2c63a1899e66d16526a05"
+    },
+    {
+      "case_id": "case_049",
+      "run_id": "m100_20261119T043153Z",
+      "source_sha256": "89500a60ac85d496f1d547fd17519ec61e8eaeccde81c83efccc2ab7c5bbb186"
+    },
+    {
+      "case_id": "case_050",
+      "run_id": "m100_20261119T043813Z",
+      "source_sha256": "5a14a7c8fc01d93d2be29328015ee4533da55aab36315e4ae2d472184efd4288"
+    },
+    {
+      "case_id": "case_051",
+      "run_id": "m100_20261119T044429Z",
+      "source_sha256": "af317f0cf8ff11a8faddeed85c6644a157624fb50cd6c64097cdfa723ae4f19a"
+    },
+    {
+      "case_id": "case_052",
+      "run_id": "m100_20261119T045049Z",
+      "source_sha256": "0a9098d32e11a21d1d0d22f89924a1fa0f1141a34de5d6ed927a33e5afe69268"
+    },
+    {
+      "case_id": "case_053",
+      "run_id": "m100_20261119T104806Z",
+      "source_sha256": "dbf51b54c5f64d2b74a134ff0d4c9dd45f5cffc41c9c2b7bcf9aaa4c2ff3a891"
+    },
+    {
+      "case_id": "case_054",
+      "run_id": "m100_20261119T105436Z",
+      "source_sha256": "e71ab2a58736e337910b25e1a137edace8069cd0c9f2ea297598ced83920db7c"
+    },
+    {
+      "case_id": "case_055",
+      "run_id": "m100_20261119T114339Z",
+      "source_sha256": "6dacea6411b366224447bfeeb27236b1df3b7f52752ff34bb8893117b17fbea9"
+    },
+    {
+      "case_id": "case_056",
+      "run_id": "m100_20261119T115224Z",
+      "source_sha256": "e4ba8d487773a0780822a324c6488ad795947cf398cb16c8b0b43b0b54489be8"
+    },
+    {
+      "case_id": "case_057",
+      "run_id": "m100_20261119T120925Z",
+      "source_sha256": "d94110016a8869e848a797789bc5a9d83d4bb901cdb54de6580aab7cbf319306"
+    },
+    {
+      "case_id": "case_058",
+      "run_id": "m100_20261119T121549Z",
+      "source_sha256": "d324d9ff37f963632dc5bafdd5ce41975e40f3e589eda1f5f622e958c4266733"
+    },
+    {
+      "case_id": "case_059",
+      "run_id": "m100_20261119T122213Z",
+      "source_sha256": "8d4ade3690ce7b770a53b0e0ea88dad9fa7c33e7208ea6e67574725f619ff058"
+    },
+    {
+      "case_id": "case_060",
+      "run_id": "m100_20261119T123504Z",
+      "source_sha256": "21896be04671c269af139139341795313bcfcf99f26a006a7f67283e29bb1d3e"
+    },
+    {
+      "case_id": "case_061",
+      "run_id": "m100_20261119T124128Z",
+      "source_sha256": "acae75f5d689197ae2cb4db5ee2ceeb26880452c204a28355d063aaaedd1205b"
+    },
+    {
+      "case_id": "case_062",
+      "run_id": "m100_20261119T125419Z",
+      "source_sha256": "beced6248c1255b1b8840eb47b60908190fa44d297b6c4d95b80e201f0ea7165"
+    },
+    {
+      "case_id": "case_063",
+      "run_id": "m100_20261119T130042Z",
+      "source_sha256": "8ee83326508b8cd390c9e1ce407e6cd1682703652d10230404a95fb72889d28d"
+    },
+    {
+      "case_id": "case_064",
+      "run_id": "m100_20261119T130706Z",
+      "source_sha256": "f7ebbe604cc04787837461f210293fdf19ca82abc1ae873d3dc158be4bade68a"
+    },
+    {
+      "case_id": "case_065",
+      "run_id": "m100_20261119T132000Z",
+      "source_sha256": "43939701fced301720a30261381d1fa069b35a62614db559abe23eb61afc8459"
+    },
+    {
+      "case_id": "case_066",
+      "run_id": "m100_20261119T132626Z",
+      "source_sha256": "e1581132b2a7701d8116a97f6236a2d9053d2c778fd4aeabc1dbdd63150f84dc"
+    },
+    {
+      "case_id": "case_067",
+      "run_id": "m100_20261119T133248Z",
+      "source_sha256": "85b8cc2ce66c58a628b0c7fe918870dd83808253eb7e3fab85f3657aac1984ff"
+    },
+    {
+      "case_id": "case_068",
+      "run_id": "m100_20261119T133912Z",
+      "source_sha256": "4e22eaa1100100a96d1a1e87289d6967a2317022778052d8b6c7e4bf7812a8a3"
+    },
+    {
+      "case_id": "case_069",
+      "run_id": "m100_20261119T134536Z",
+      "source_sha256": "981bceed487367b426910ba3bb8361a5a1a0b64312606c91487f878808a27137"
+    }
+  ],
+  "scientific_scope": "SIMULATION_MODEL_ESTIMATES; wind correction C_NOT_CALIBRATED; base cruise power has no general speed term; endurance/range/energy remaining are ideal nominal-budget proxies",
+  "original_schema": "M100_UNIQUE_EXPERIMENTS_CSV_V1",
+  "original_results_sha256": "87fffb8c9eb317b23e831056de6a1dee0ab711e5835799b005ce97d932046328",
+  "original_export_sha256": "b43112110ffca9a7a75bc5c924efb1bf0af0cf4ffe63aa5a63abc643fcd563a3",
+  "portable_results_fields": [
+    "case_id",
+    "accepted",
+    "metrics",
+    "source_sha256"
+  ]
+}

@@ -1,0 +1,28 @@
+[
+  {
+    "case_id": "case_001",
+    "payload_kg": 0,
+    "cruise_speed_mps": 10,
+    "wind_speed_mps": 0,
+    "wind_direction_toward_deg_ENU": 0,
+    "altitude_m": 100,
+    "temperature_c": 15,
+    "measurement_distance_m": 500,
+    "hover_duration_s": 60,
+    "energy_evidence_status": "B_M100_SYSTEM_LEVEL_EMPIRICAL_PUBLISHED_MODEL",
+    "physics_step_s": 0.004
+  },
+  {
+    "case_id": "case_007",
+    "payload_kg": 0,
+    "cruise_speed_mps": 0,
+    "wind_speed_mps": 0,
+    "wind_direction_toward_deg_ENU": 0,
+    "altitude_m": 100,
+    "temperature_c": 15,
+    "measurement_distance_m": 500,
+    "hover_duration_s": 60,
+    "energy_evidence_status": "LIMITED_EMPIRICAL_PROXY",
+    "physics_step_s": 0.004
+  }
+]

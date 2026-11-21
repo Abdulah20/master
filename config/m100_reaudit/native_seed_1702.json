@@ -1,0 +1,28 @@
+[
+  {
+    "case_id": "seed_1702_hover",
+    "payload_kg": 0,
+    "cruise_speed_mps": 0,
+    "wind_speed_mps": 0,
+    "wind_direction_toward_deg_ENU": 0,
+    "altitude_m": 4,
+    "temperature_c": 15,
+    "measurement_distance_m": 0,
+    "hover_duration_s": 12,
+    "physics_step_s": 0.004,
+    "seed": 1702
+  },
+  {
+    "case_id": "seed_1702_cruise",
+    "payload_kg": 0,
+    "cruise_speed_mps": 6,
+    "wind_speed_mps": 0,
+    "wind_direction_toward_deg_ENU": 0,
+    "altitude_m": 25,
+    "temperature_c": 15,
+    "measurement_distance_m": 100,
+    "hover_duration_s": 12,
+    "physics_step_s": 0.004,
+    "seed": 1702
+  }
+]

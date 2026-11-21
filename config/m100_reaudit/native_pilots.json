@@ -1,0 +1,98 @@
+[
+  {
+    "case_id": "pilot_hover",
+    "payload_kg": 0,
+    "cruise_speed_mps": 0,
+    "wind_speed_mps": 0,
+    "wind_direction_toward_deg_ENU": 0,
+    "altitude_m": 4,
+    "temperature_c": 15,
+    "measurement_distance_m": 0,
+    "hover_duration_s": 12,
+    "physics_step_s": 0.004
+  },
+  {
+    "case_id": "pilot_calm",
+    "payload_kg": 0,
+    "cruise_speed_mps": 6,
+    "wind_speed_mps": 0,
+    "wind_direction_toward_deg_ENU": 0,
+    "altitude_m": 25,
+    "temperature_c": 15,
+    "measurement_distance_m": 100,
+    "hover_duration_s": 12,
+    "physics_step_s": 0.004
+  },
+  {
+    "case_id": "pilot_head",
+    "payload_kg": 0,
+    "cruise_speed_mps": 6,
+    "wind_speed_mps": 3,
+    "wind_direction_toward_deg_ENU": 180,
+    "altitude_m": 25,
+    "temperature_c": 15,
+    "measurement_distance_m": 100,
+    "hover_duration_s": 12,
+    "physics_step_s": 0.004
+  },
+  {
+    "case_id": "pilot_tail",
+    "payload_kg": 0,
+    "cruise_speed_mps": 6,
+    "wind_speed_mps": 3,
+    "wind_direction_toward_deg_ENU": 0,
+    "altitude_m": 25,
+    "temperature_c": 15,
+    "measurement_distance_m": 100,
+    "hover_duration_s": 12,
+    "physics_step_s": 0.004
+  },
+  {
+    "case_id": "pilot_cross",
+    "payload_kg": 0,
+    "cruise_speed_mps": 6,
+    "wind_speed_mps": 3,
+    "wind_direction_toward_deg_ENU": 90,
+    "altitude_m": 25,
+    "temperature_c": 15,
+    "measurement_distance_m": 100,
+    "hover_duration_s": 12,
+    "physics_step_s": 0.004
+  },
+  {
+    "case_id": "pilot_calm_fine",
+    "payload_kg": 0,
+    "cruise_speed_mps": 6,
+    "wind_speed_mps": 0,
+    "wind_direction_toward_deg_ENU": 0,
+    "altitude_m": 25,
+    "temperature_c": 15,
+    "measurement_distance_m": 100,
+    "hover_duration_s": 12,
+    "physics_step_s": 0.002
+  },
+  {
+    "case_id": "pilot_hover_fine",
+    "payload_kg": 0,
+    "cruise_speed_mps": 0,
+    "wind_speed_mps": 0,
+    "wind_direction_toward_deg_ENU": 0,
+    "altitude_m": 4,
+    "temperature_c": 15,
+    "measurement_distance_m": 0,
+    "hover_duration_s": 12,
+    "physics_step_s": 0.002
+  },
+  {
+    "case_id": "pilot_warm",
+    "payload_kg": 0,
+    "cruise_speed_mps": 6,
+    "wind_speed_mps": 0,
+    "wind_direction_toward_deg_ENU": 0,
+    "altitude_m": 25,
+    "temperature_c": 35,
+    "measurement_distance_m": 100,
+    "hover_duration_s": 12,
+    "physics_step_s": 0.004
+  }
+]

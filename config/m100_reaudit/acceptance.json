@@ -1,0 +1,13 @@
+{
+  "max_integrated_gap_s": 0.5,
+  "native_energy_abs_tolerance_wh": 1e-06,
+  "native_voltage_current_abs_tolerance_w": 1e-07,
+  "measurement_altitude_tolerance_m": 0.5,
+  "measurement_velocity_floor_tolerance_mps": 0.3,
+  "measurement_velocity_relative_tolerance": 0.05,
+  "basis": "Integrator uses double-precision native stamps and excludes gaps over 0.5 s. Absolute residual limits cover summation roundoff on unrounded samples. Velocity and altitude use the existing controller acceptance envelope. Report the actual route between observed endpoints and the explicitly gated commanded distance separately.",
+  "native_hover_duration_tolerance_s": 0.25,
+  "native_route_shortfall_tolerance_m": 0.05,
+  "timing_basis": "Hover endpoints allow two 0.1 s controller polling periods plus 0.05 s PX4 position reporting. The manager closes the cruise gate after the requested displacement; 0.05 m accommodates endpoint quantization. Excess distance is recorded. At 20 Hz a local position report can fall on either side of each callback-window edge. Allow two report periods when comparing two independently captured displacements.",
+  "native_endpoint_allowance_s": 0.1
+}

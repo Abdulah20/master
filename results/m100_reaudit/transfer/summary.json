@@ -1,0 +1,133 @@
+{
+  "model": "OLS with intercept on one prespecified M100 regression-mass/density feature",
+  "target_simulator": "Mean estimated electrical power over the stable outbound CRUISE measurement window",
+  "target_field": "Mean measured pack voltage times current over the whole recorded level-flight cruise phase",
+  "reference_temperature_C": 15.0,
+  "air_state": "Dry atmosphere, 15 C at ground datum 0 m MSL, height input = commanded AGL; applied to both domains.",
+  "simulated_wind_mps": 0,
+  "field_wind": "unknown; no field wind, on-aircraft airflow or measured weather used",
+  "regression_baseline_mass_kg": 3.715,
+  "fitted": {
+    "intercept_W": 3.5036487309131297,
+    "mass_density_slope_W": 70.29132266398707,
+    "design_rank": 2
+  },
+  "slope_feature": "(3.715 kg + payload_kg)^1.5 / sqrt(rho_15C_at_commanded_height_kg_m3)",
+  "preflight_inputs_used": [
+    "payload_kg",
+    "commanded_altitude_agl_m"
+  ],
+  "commanded_speed_role": "selects cruise and diagnoses coverage; no independent fitted speed term",
+  "simulator_accepted_primary_cases": 175,
+  "simulator_existing_train_cases": 95,
+  "training_cruise_cases": 27,
+  "training_distinct_commands": 27,
+  "training_distinct_payload_speed_pairs": 23,
+  "training_case_ids": [
+    "case_004",
+    "case_005",
+    "case_006",
+    "case_009",
+    "case_014",
+    "case_016",
+    "case_017",
+    "case_018",
+    "case_020",
+    "case_024",
+    "case_025",
+    "case_029",
+    "case_030",
+    "exp_009",
+    "exp_010",
+    "exp_012",
+    "exp_013",
+    "exp_014",
+    "exp_015",
+    "exp_016",
+    "exp_017",
+    "exp_018",
+    "exp_019",
+    "exp_074",
+    "exp_093",
+    "exp_096",
+    "exp_099"
+  ],
+  "training_coverage": {
+    "payload_kg": [
+      0.0,
+      0.25,
+      0.5,
+      0.75,
+      1.0,
+      1.25
+    ],
+    "speed_mps": [
+      4.0,
+      5.0,
+      6.0,
+      8.0,
+      10.0,
+      12.0,
+      15.0,
+      17.0,
+      20.0
+    ],
+    "height_m": [
+      25.0,
+      50.0,
+      75.0,
+      100.0,
+      200.0
+    ]
+  },
+  "field_test_coverage": {
+    "payload_kg": [
+      0.0,
+      0.25,
+      0.5
+    ],
+    "speed_mps": [
+      4.0,
+      6.0,
+      8.0,
+      10.0,
+      12.0
+    ],
+    "height_m": [
+      25.0,
+      50.0,
+      75.0,
+      100.0
+    ]
+  },
+  "field_unique_commands": 40,
+  "field_comparison": {
+    "flights": 60,
+    "mae_W": 18.222708482672314,
+    "rmse_W": 23.871711937699132,
+    "bias_W": -11.722518188051424
+  },
+  "fit_residuals_on_training_cases": {
+    "flights": 27,
+    "mae_W": 2.940919229827361,
+    "rmse_W": 4.766073561848126,
+    "bias_W": 1.726355683920836e-13
+  },
+  "field_sample_unit": "one previously assigned test flight",
+  "weighting": "one observation per simulator case / CMU flight",
+  "source_sha256": {
+    "training_research.csv": "72f407c2ccee2ada013bacdeb98f286d6ba212e5e7786bf328967b1197b4c5fe",
+    "measured_cruise.csv": "c0498b640244220bc5cda3c6de9d521641ed47ab30801edc076d2c18514a8f38",
+    "flight_manifest.csv": "171d8176bbddab97b25d19ada43c54c67d760a6e7680f0380233d54c08c044f3"
+  },
+  "implementation_sha256": "38cae1d9144f4dbbc986c0e702dfb9f525bbecc4f745e6c910bcc06fd778243d",
+  "model_inputs_sha256": {
+    "m100_atmosphere.py": "c55d89c71f27915f7c825dad31e2fa8590b2315b1172fa0ca7e9d92439aae77f",
+    "m100_energy_model_v2.yaml": "725b2a54d333bc3ed40a9919d990cda48ee28d158cde87749a8ff08cda585458",
+    "physics.json": "248100eb6505d4ef07597f072bfb8349070f3f43b3690c4ed58aaf034bc710a9"
+  },
+  "simulator_scope": "Accepted Gazebo / gz-physics-DART research-controller primary cases, one row per scenario.",
+  "field_scope": "CMU/Rodrigues instrumented M100 measured pack electrical power integrated at the actual electrical sample times.",
+  "declared_policy": "Only existing simulator TRAIN, T=15 C, wind=0, phase=CRUISE; no repeated cases. Field IDs fixed by the existing published holdout and quality filters.",
+  "provenance_limit": "The simulator is informed by CMU/Rodrigues data; this is a within-campaign domain-transfer diagnostic, not a fully independent experiment."
+}

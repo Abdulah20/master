@@ -1,0 +1,21 @@
+{
+  "case_id": "load_000",
+  "payload_kg": 0.0,
+  "cruise_speed_mps": 6,
+  "wind_speed_mps": 0,
+  "wind_direction_toward_deg_ENU": 0,
+  "altitude_m": 25,
+  "temperature_c": 15,
+  "measurement_distance_m": 100,
+  "hover_duration_s": 12,
+  "physics_step_s": 0.004,
+  "seed": 1701,
+  "observed_seed": 1701,
+  "observed_physics_step_s": 0.004,
+  "outcome": "COMPLETE",
+  "reason": "",
+  "landed": true,
+  "armed": false,
+  "terminal_state": "COMPLETE",
+  "run_id": "m100_20261121T214803Z"
+}

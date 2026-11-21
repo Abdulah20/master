@@ -1,0 +1,56 @@
+[
+  {
+    "case_id": "load_000",
+    "run_id": "m100_20261121T214803Z",
+    "outcome": "COMPLETE",
+    "recorded_rows": 2604,
+    "started_utc": "2026-11-21T21:47:46Z",
+    "stopped_utc": "2026-11-21T21:50:21Z",
+    "ulog_relative_to_work": "load_000/attempt_1/state/rootfs/log/2026-11-21/21_47_58.ulg",
+    "ulog_in_download": "ulog/load_000.ulg",
+    "ulog_sha256": "23f3303fb79a2cdca2974b440029438a7571130900bd2d0107aec1a0e1fb58ca",
+    "files_sha256": {
+      "flight_trace.csv.gz": "faa85c3370456bf398c2c039bd40933b16d9ab90c1976b0f5f17943748395b3d",
+      "manager_1hz.csv": "b588cd96ff27303e3a91fb8be1dda531f7e713b96790ac112d472b365bfe1d9a",
+      "pack_drive.jsonl.gz": "80a4d96777cc77d921c0560518c7e7eea23e319520ba4c9314a5175b0284c381",
+      "provenance.json": "c41479d4078f5d84568039f54dc90a78903a22f2021c0363c6a1c912d7dfb3c0",
+      "receipt.json": "2e38be9d4a7168c84e9fd501ead25a7875d3a643d5f85338da6fec930f10107e"
+    }
+  },
+  {
+    "case_id": "load_025",
+    "run_id": "m100_20261121T215038Z",
+    "outcome": "COMPLETE",
+    "recorded_rows": 2662,
+    "started_utc": "2026-11-21T21:50:21Z",
+    "stopped_utc": "2026-11-21T21:52:58Z",
+    "ulog_relative_to_work": "load_025/attempt_1/state/rootfs/log/2026-11-21/21_50_33.ulg",
+    "ulog_in_download": "ulog/load_025.ulg",
+    "ulog_sha256": "d38b50bfa3f65c7375c8f3cfe035c9b36036a5aeb781f557b2ea7d54ee5c03d8",
+    "files_sha256": {
+      "flight_trace.csv.gz": "d4121b3c466d41ebe9b6ca31e86dec0de16b5a08805176bea40c3e572f8534dd",
+      "manager_1hz.csv": "0cfe6aaa701a14ac348800b541f8e1f64d84570d6a248c508984a15c7c715dff",
+      "pack_drive.jsonl.gz": "ce2324364572e8ae1e923df86973b6bf7da3923a3fd50ea2ef257b14627a6509",
+      "provenance.json": "1fdc0c8109e5d6979e566eca0b58ff41fca14b89607f5df2519fb39f98a15a91",
+      "receipt.json": "ee29c7a52bfb9747a7ac9d6f9e2c24e01df2557da264604ec2f64e37456e507a"
+    }
+  },
+  {
+    "case_id": "load_050",
+    "run_id": "m100_20261121T215315Z",
+    "outcome": "COMPLETE",
+    "recorded_rows": 2644,
+    "started_utc": "2026-11-21T21:52:58Z",
+    "stopped_utc": "2026-11-21T21:55:34Z",
+    "ulog_relative_to_work": "load_050/attempt_1/state/rootfs/log/2026-11-21/21_53_10.ulg",
+    "ulog_in_download": "ulog/load_050.ulg",
+    "ulog_sha256": "a2f1e77e9314a48dd21889b771f847658d3373506c79b01abf89f2ded98336a7",
+    "files_sha256": {
+      "flight_trace.csv.gz": "373b7ef2d07a27f32d9db0ba873343d8a9a0a9bb6e1bfb08cf43be61adb21bf3",
+      "manager_1hz.csv": "dc07f6fd5d16152789627a20a8f98661d5bcb9299dc0b7216b7d4e59f2b081c6",
+      "pack_drive.jsonl.gz": "d8f767e25ce3f831cc2d5ecc077c6bea10e98fb56e2afe2f63201e56268a477b",
+      "provenance.json": "ae377a2d5e5710244bd762ad0c7867d6464b47f3fb014f9ddecb8e431ae9091b",
+      "receipt.json": "ffed5a75eee4bead3e4b6c4656793925a6c9ae6d544edc631f07421444566bc7"
+    }
+  }
+]

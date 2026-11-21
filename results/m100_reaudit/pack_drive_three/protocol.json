@@ -1,0 +1,62 @@
+{
+  "protocol": "M100_PACK_DRIVE_THREE_V1",
+  "planned_utc": "2026-11-21T21:47:46.894847+00:00",
+  "acquisition_commit": "0e3390b3b149436b7e3f4de1d837b298198cf8c2",
+  "cohort": "Sequential native PX4/Gazebo SITL. One new isolated world and fresh pack state per payload. All three planned before flight 1.",
+  "cases": [
+    {
+      "case_id": "load_000",
+      "payload_kg": 0.0,
+      "cruise_speed_mps": 6,
+      "wind_speed_mps": 0,
+      "wind_direction_toward_deg_ENU": 0,
+      "altitude_m": 25,
+      "temperature_c": 15,
+      "measurement_distance_m": 100,
+      "hover_duration_s": 12,
+      "physics_step_s": 0.004,
+      "seed": 1701
+    },
+    {
+      "case_id": "load_025",
+      "payload_kg": 0.25,
+      "cruise_speed_mps": 6,
+      "wind_speed_mps": 0,
+      "wind_direction_toward_deg_ENU": 0,
+      "altitude_m": 25,
+      "temperature_c": 15,
+      "measurement_distance_m": 100,
+      "hover_duration_s": 12,
+      "physics_step_s": 0.004,
+      "seed": 1701
+    },
+    {
+      "case_id": "load_050",
+      "payload_kg": 0.5,
+      "cruise_speed_mps": 6,
+      "wind_speed_mps": 0,
+      "wind_direction_toward_deg_ENU": 0,
+      "altitude_m": 25,
+      "temperature_c": 15,
+      "measurement_distance_m": 100,
+      "hover_duration_s": 12,
+      "physics_step_s": 0.004,
+      "seed": 1701
+    }
+  ],
+  "input_sha256": {
+    "plugin": "be821bc9226f875bd7472982363277f4e5b7929616f6f83ccfdee0c3a9ec4ac6",
+    "controller": "e6c43fbf7d99c2ffe0de226916fce7eb163d4f925a71178ba854cf83491b258e",
+    "manager": "40ba09d0167121eca7130b247c90ad28533cf2cbf5b84abfa74bccf08d819b1e",
+    "energy_config": "725b2a54d333bc3ed40a9919d990cda48ee28d158cde87749a8ff08cda585458",
+    "base_sdf": "20cd39e2801255e75025ac0a4a214e0c10734b4457bf8a61c662b482f76bda4a",
+    "payload025": "85cab7073d3329088b9b0f721389b7e96d68fce048510e65617ce7ecf55819a9",
+    "payload050": "4bbac163154fff2ba9a797519767f7ab95b4a916a5030ca7988dc52f773e23c8",
+    "fit": "d3413efef49a278a10f0dc404c6b34e5c6d07e42dd698ad21aae0ea00824377f",
+    "native": "98b1ac9c05c8f466bafa839093bd48d40242af78f627446b411e358d06c255cf",
+    "launcher": "1f48b4c470dc1717a3876395ef8885b1f3ee8d645f1074c3608e7d9ed00609e5",
+    "bridge": "638b19d5968a416ab0b0c797e39b92565e1e2a40b5b7edd3c27112435275b573",
+    "gz_environment": "dd84056c058be0be0ebebc86f88709622e34c448d3965fe25063b9fc7ad65e10",
+    "initial_parameters": "b8374eee7f8f291a79721a85862c6d20e4e5b42eb330c5049e4d876be7a1eae5"
+  }
+}

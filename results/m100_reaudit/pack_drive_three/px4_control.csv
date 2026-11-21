@@ -1,0 +1,4 @@
+case_id,cruise_observed,px4_cruise_start_s,px4_cruise_end_s,offboard_time_fraction,armed_time_fraction,failsafe_time_fraction,airborne_time_fraction,cruise_median_tilt_deg,cruise_max_tilt_deg,airborne_peak_tilt_deg,airborne_peak_tilt_px4_s,airborne_time_tilt_over_dji_35deg_s,ulog_initial_mpc_tiltmax_air_deg,ulog_dropout_events,ulog_final_landed
+load_000,True,40.756,57.3,1.0,1.0,0.0,1.0,1.5531032124060271,1.660757190075278,38.8128962438488,35.42,0.35999999999999943,45.0,0,True
+load_025,True,42.184,58.68,1.0,1.0,0.0,1.0,1.4810930417550991,1.6772971290752805,38.94465674073679,36.3,0.3639999999999972,45.0,0,True
+load_050,True,41.328,57.928,1.0,1.0,0.0,1.0,1.5095740094573928,1.6063420574123257,39.03529105158286,35.376,0.3639999999999972,45.0,0,True

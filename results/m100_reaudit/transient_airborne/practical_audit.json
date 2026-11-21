@@ -1,0 +1,45 @@
+{
+  "schema": "M100_PRACTICAL_AIRBORNE_V1",
+  "scope": "Existing recorded simulation missions, after-flight estimate at observed motion.",
+  "air_gate": "Half-open [first ULog vehicle_land_detected.landed=false, final landed=true); PX4 armed throughout. Contact-clear sensitivity requires ground_contact=false as well. These are estimator flags, not independent geometric contact measurements.",
+  "units": "s, W, Wh; mean interval power = Wh * 3600 / duration_s.",
+  "precedence": [
+    "native_pack_model: preserve released pack-model VI energy",
+    "cmu_local: preserve qualified local CMU whole-aircraft pack-power estimate",
+    "cmu_pooled: pooled training-flight regression on the received kinematics in STABILIZING and RETURN_BRAKING",
+    "recorded_manager: integrate the previously recorded manager power wherever the preceding sources are unavailable",
+    "unavailable: no valid recorded power or permitted estimate"
+  ],
+  "model_transfer": "Local support gaps remain recorded in strict_status and strict_reason regardless of the practical energy source. Pooled power estimates use joint motion after the flight. Model flags describe marginal transfer or clipping of the field regression. A pooled prediction with zero flags does not establish a measured joint analogue.",
+  "domain_partition": "For pooled intervals classify as dwell_and_bounded_dynamics if both dwell and clamp flags occur, long_or_unknown_dwell for dwell only, bounded_dynamic_inputs_or_power for other clamps, other_transfer_flag for remaining flags and no_pooled_transfer_flag otherwise. Exact flag combinations remain in each row and in pooled_flag_set. The categories are disjoint. Different summary levels repeat the same elapsed time and must not be added together.",
+  "fallback": "Use the last fresh manager power at its actual recorded callback time until the next valid callback, via manager_integrals(). Clipped controls, partial native coverage, unconfirmed states and phase boundaries remain separate reasons. Manager energy estimates contextual pack demand; no delivered motor current is observed during clipping. No battery state or thrust is recomputed.",
+  "missing": "Numeric missing time stays identifiable; practical_total_Wh is populated only for a fully covered airborne window.",
+  "inputs": {
+    "strict_audit_sha256": "6e97f25b492d61cad9cc7b9cfae0cd5fc49f5e9dd29ef250e7157041f5d4850b",
+    "strict_flights_sha256": "5cdadd1a321c478214d22979e275ef9fe10b91f8c41c86f80972000a9f4917a1",
+    "pooled_model_sha256": "0968898f94043597c7bc37d312d57122903e5a85d6d47edb4ddaeb9788aeb3cf",
+    "pooled_predictor_sha256": "03639059b08fc3186de931f6217630ef84c97e4ddb0621fd6df9b876e86b6e7d",
+    "integrator_sha256": "5c19fd1ac457b8dca95457f78b7ba1800101379d1182c00d00f45fe82095308f",
+    "manager_integration_file_sha256": "d910b98617fdc00bade33d1368e93e8ff89633d1fae735f0695a716e0088878a",
+    "flights": {
+      "load_000": {
+        "strict_ledger_sha256": "10e1c8618ec74d27c68f3eff188685f80cfcb377eace125f59a6daed5d4ec413",
+        "manager_trace_sha256": "faa85c3370456bf398c2c039bd40933b16d9ab90c1976b0f5f17943748395b3d",
+        "practical_ledger_sha256": "c0cadd808452e4cdcfef4c0c29c724b57989a1c0729167c18c1fd58feb156398",
+        "rows": 4933
+      },
+      "load_025": {
+        "strict_ledger_sha256": "754a77376ad7ec175dc46b365e2bf7d142642f991afac84d4b1e5b5cf88339d7",
+        "manager_trace_sha256": "d4121b3c466d41ebe9b6ca31e86dec0de16b5a08805176bea40c3e572f8534dd",
+        "practical_ledger_sha256": "342d38679d0fb8876ab503fff51cad872814613b667517e528186cf7fc83d921",
+        "rows": 5057
+      },
+      "load_050": {
+        "strict_ledger_sha256": "b81af3d5b3bebee3e2feb3fddca76e653be670f9fe8384187923fc3e3805a56e",
+        "manager_trace_sha256": "373b7ef2d07a27f32d9db0ba873343d8a9a0a9bb6e1bfb08cf43be61adb21bf3",
+        "practical_ledger_sha256": "e141787b4acf5c5b9ecbeb582ce7b0afcb2412157077540b766c50ec59d46a35",
+        "rows": 5035
+      }
+    }
+  }
+}

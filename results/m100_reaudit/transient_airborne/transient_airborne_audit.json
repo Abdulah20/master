@@ -1,0 +1,100 @@
+{
+  "schema": "M100_TRANSIENT_AIRBORNE_OFFLINE_V1",
+  "air_gate": "Half-open [first ULog vehicle_land_detected.landed=false, final landed=true); PX4 armed throughout. Contact-clear sensitivity requires ground_contact=false as well. These are estimator flags, not independent geometric contact measurements.",
+  "clocks": "PX4 SITL boot (microseconds) and Gazebo simulation time share a clock. Each position report becomes available at the later of its own PX4 timestamp and the first callback that saw it (one observed 4 ms lead). Kinematic derivatives use original PX4 report timestamps. Tilt is from the matched past-only attitude join with maximum ULog age 0.1 s. The native command_limited Boolean is held from each observation until the next event.",
+  "interval_method": "Exhaustive non-overlapping segments at airborne, contact, phase, native-event and received PX4 kinematic updates. A released previous_interval_covered flag qualifies the preceding native interval. Interpolate endpoint V*I linearly only inside that interval. For newly modeled transient power, hold the prior locally supported CMU estimate forward. Exclude native partial coverage, absent input, ambiguous intervals and command saturation. No inferred power enters the native battery ledger.",
+  "missing_policy": "Missing energy stays blank. Subtotals sum only justified native and modeled intervals. The total for a gate is reported only when it is fully covered.",
+  "ground_scope": "Simulation time preceding liftoff and at or after touchdown is excluded. Ground-contact and maybe-landed flags are retained during airborne detector transition periods.",
+  "inputs": {
+    "release_manifest_sha256": "7bdcc41cc0ca1d785781c2c881912b71b3623ef695cf4395ec29a131abfc937c",
+    "protocol_sha256": "0de162e55515f46f206f6bf0be4513795fd3d65335faf80c1bccf70c12131e04",
+    "evidence_index_sha256": "4010f1f823c5f60308bc92dc742a55f513e176e6e4d2d08b145d0f4e096766bc",
+    "model_sha256": "033ed7145bb1a930cca50301d5d9e3463b7e6080a7891401a9b0268e8bfdeab9",
+    "field_support_file": "field_support.npz",
+    "field_support_sha256": "f8f25dc28d028ddeaeceb1a1f371f67b770b9a0a4010bbd1e255699e267a1fdb",
+    "kinematics_and_predictor_source_sha256": "139934c8820c0ea635fab8b26d9717ddc3c9c68a1ec0df0c3b6168bcbe70f3b7",
+    "integrator_source_sha256": "3a5663cb9d8c5a009c3e5310e257249e4f430b257e078e598cd5addd643ee308",
+    "flag_extract_sha256": "bf56088f523b3393602a36e7719aa7563bc536ff05000b761b418410d8033c44",
+    "ulog_sha256": {
+      "load_000": "23f3303fb79a2cdca2974b440029438a7571130900bd2d0107aec1a0e1fb58ca",
+      "load_025": "d38b50bfa3f65c7375c8f3cfe035c9b36036a5aeb781f557b2ea7d54ee5c03d8",
+      "load_050": "a2f1e77e9314a48dd21889b771f847658d3373506c79b01abf89f2ded98336a7"
+    },
+    "flight_file_sha256": {
+      "evidence/load_000/flight_trace.csv.gz": "faa85c3370456bf398c2c039bd40933b16d9ab90c1976b0f5f17943748395b3d",
+      "evidence/load_000/provenance.json": "c41479d4078f5d84568039f54dc90a78903a22f2021c0363c6a1c912d7dfb3c0",
+      "evidence/load_000/receipt.json": "2e38be9d4a7168c84e9fd501ead25a7875d3a643d5f85338da6fec930f10107e",
+      "data/load_000.pack.csv.gz": "3bda5dc1449f9ddc5f2a4b28cde42d1e96bcd7955f2024b0c2a66981d91641be",
+      "data/load_000.trajectory.csv.gz": "c23fdedb8103bb67600c859809ebb2d61eb8a3d5b6afe45c973685a565b10c58",
+      "evidence/load_025/flight_trace.csv.gz": "d4121b3c466d41ebe9b6ca31e86dec0de16b5a08805176bea40c3e572f8534dd",
+      "evidence/load_025/provenance.json": "1fdc0c8109e5d6979e566eca0b58ff41fca14b89607f5df2519fb39f98a15a91",
+      "evidence/load_025/receipt.json": "ee29c7a52bfb9747a7ac9d6f9e2c24e01df2557da264604ec2f64e37456e507a",
+      "data/load_025.pack.csv.gz": "db5cb8151721e671bfc10dca84207f4953897bd9f991e233f1ae4f3d6185e7c1",
+      "data/load_025.trajectory.csv.gz": "99d288fcb810a24817fca34c63c5312cc32ab1bc9ffd2a35ca7f4e59a2c335bd",
+      "evidence/load_050/flight_trace.csv.gz": "373b7ef2d07a27f32d9db0ba873343d8a9a0a9bb6e1bfb08cf43be61adb21bf3",
+      "evidence/load_050/provenance.json": "ae377a2d5e5710244bd762ad0c7867d6464b47f3fb014f9ddecb8e431ae9091b",
+      "evidence/load_050/receipt.json": "ffed5a75eee4bead3e4b6c4656793925a6c9ae6d544edc631f07421444566bc7",
+      "data/load_050.pack.csv.gz": "b1f1321a390bca35ca34af277e56dedc0e917155e7f5ff0622d879895d9dc9bd",
+      "data/load_050.trajectory.csv.gz": "0089e533caf78bdba2f7655753f1b85f955f42c6a41d3e782511370d2ecb3391"
+    }
+  },
+  "flights": [
+    {
+      "case_id": "load_000",
+      "ledger_sha256": "10e1c8618ec74d27c68f3eff188685f80cfcb377eace125f59a6daed5d4ec413",
+      "rows": 4933,
+      "independent_native_Wh": 14.12149526016035,
+      "native_residual_Wh": 5.861977570020827e-14,
+      "partition_residual_s": 0.0,
+      "unresolved_seconds_by_reason": {
+        "AGGRESSIVE_OR_OUTSIDE_SPEED_ACCEL": 1.052,
+        "DWELL_EXCEEDS_LOCAL_FIELD": 0.3,
+        "INSUFFICIENT_LOCAL_FLIGHTS": 13.296,
+        "LONG_OR_UNKNOWN_LOW_SPEED_DWELL": 5.696,
+        "airborne_flag_not_yet_received_by_manager": 0.004,
+        "incomplete_native_interval_or_unqualified_endpoints": 0.104,
+        "native_gap_at_phase_boundary": 0.008,
+        "native_gap_outside_target_phases": 0.004,
+        "rotor_command_limited_delivered_power_unknown": 0.08
+      }
+    },
+    {
+      "case_id": "load_025",
+      "ledger_sha256": "754a77376ad7ec175dc46b365e2bf7d142642f991afac84d4b1e5b5cf88339d7",
+      "rows": 5057,
+      "independent_native_Wh": 15.911415991861963,
+      "native_residual_Wh": -1.3500311979441904e-13,
+      "partition_residual_s": 0.0,
+      "unresolved_seconds_by_reason": {
+        "AGGRESSIVE_OR_OUTSIDE_SPEED_ACCEL": 1.048,
+        "INSUFFICIENT_LOCAL_FLIGHTS": 13.656,
+        "LONG_OR_UNKNOWN_LOW_SPEED_DWELL": 6.256,
+        "OUTSIDE_LOCAL_TILT_RANGE": 0.252,
+        "airborne_flag_not_yet_received_by_manager": 0.024,
+        "incomplete_native_interval_or_unqualified_endpoints": 0.052,
+        "native_gap_at_phase_boundary": 0.008,
+        "native_gap_outside_target_phases": 0.004,
+        "phase_boundary_or_demand_unavailable": 0.004,
+        "rotor_command_limited_delivered_power_unknown": 0.104
+      }
+    },
+    {
+      "case_id": "load_050",
+      "ledger_sha256": "b81af3d5b3bebee3e2feb3fddca76e653be670f9fe8384187923fc3e3805a56e",
+      "rows": 5035,
+      "independent_native_Wh": 17.22285289813905,
+      "native_residual_Wh": -9.237055564881302e-14,
+      "partition_residual_s": 0.0,
+      "unresolved_seconds_by_reason": {
+        "AGGRESSIVE_OR_OUTSIDE_SPEED_ACCEL": 1.1,
+        "INSUFFICIENT_LOCAL_FLIGHTS": 16.924,
+        "LONG_OR_UNKNOWN_LOW_SPEED_DWELL": 5.58,
+        "airborne_flag_not_yet_received_by_manager": 0.016,
+        "incomplete_native_interval_or_unqualified_endpoints": 0.048,
+        "native_gap_at_phase_boundary": 0.008,
+        "native_gap_outside_target_phases": 0.004,
+        "rotor_command_limited_delivered_power_unknown": 0.132
+      }
+    }
+  ]
+}

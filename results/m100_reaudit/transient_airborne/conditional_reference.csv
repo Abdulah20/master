@@ -1,0 +1,4 @@
+payload_kg,case_id,run_id,airborne_duration_s,native_and_cmu_qualified_Wh,unresolved_s,prior_manager_available_in_unresolved_s,prior_manager_estimated_Wh_in_those_intervals,conditional_whole_airborne_Wh,complete_qualified_airborne_Wh,prior_manager_whole_airborne_Wh
+0,load_000,m100_20261121T214803Z,130.652,14.4100831424,20.544,20.544,2.55771178463,16.967794927,,16.941448318
+0.25,load_025,m100_20261121T215038Z,133.852,16.2125566969,21.408,21.408,2.94086207234,19.1534187692,,19.1201151443
+0.5,load_050,m100_20261121T215315Z,133.248,17.2228528981,23.812,23.812,3.59514723326,20.8180001314,,20.8135187778

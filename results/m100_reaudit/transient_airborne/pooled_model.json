@@ -1,0 +1,477 @@
+{
+  "schema": "CMU_POOLED_NEAR_LEVEL_AIRCRAFT_PACK_POWER_V1",
+  "scope": "POOLED_FIELD_REGRESSION_MARGINAL_SUPPORT",
+  "terms": [
+    "intercept_0kg_W",
+    "intercept_0.25kg_W",
+    "intercept_0.5kg_W",
+    "horizontal_speed",
+    "horizontal_speed_squared",
+    "signed_vertical_work",
+    "positive_horizontal_work",
+    "braking_horizontal_work_magnitude",
+    "sec_tilt_minus_one"
+  ],
+  "coefficients": {
+    "intercept_0kg_W": 472.2167875199869,
+    "intercept_0.25kg_W": 541.0028242978943,
+    "intercept_0.5kg_W": 576.6525399426321,
+    "horizontal_speed": -3.115914616113067,
+    "horizontal_speed_squared": -0.527326869268783,
+    "signed_vertical_work": 0.4252361679909997,
+    "positive_horizontal_work": -0.6302374073233927,
+    "braking_horizontal_work_magnitude": -0.9768580723193523,
+    "sec_tilt_minus_one": 1257.6643085284006
+  },
+  "design_rank": 9,
+  "rms_scaled_condition_number": 14.424661228590093,
+  "base_physical_mass_kg": 3.6799999999999997,
+  "gravity_mps2": 9.80665,
+  "fit_weighting": "Equal total weight per contributing training flight; within flight equal weight per observed manoeuvre regime; within flight/regime weight by original adjacent-interval endpoint seconds.",
+  "equation": "P[W]=intercept(payload)+b1*s+b2*s²+b3*m*g*v_up+b4*max(m*s*a,0)+b5*max(-m*s*a,0)+b6*(sec(tilt)-1). m is instrumented aircraft physical mass including payload. Coefficients apply to net pack demand. Component shaft power and motor/ESC efficiency are not targets.",
+  "application": "Use reliable airborne kinematics and source timestamps. Scalar speed acceleration is the shared causal 1 s difference. For each trained payload, bound speed/rate/up/tilt, then both horizontal work features and positive output power to their observed training intervals. Flag altitude band gaps and slow, near-level dwell beyond the observed duration. Dwell and altitude describe transfer; neither contributes a regression term. Input bounds are marginal. They do not establish close joint field analogues.",
+  "payload_support": {
+    "0": {
+      "ranges": {
+        "speed_mps": [
+          0.007342899483267128,
+          12.131622447154808
+        ],
+        "along_accel_mps2": [
+          -2.995523284466934,
+          2.6891908440201773
+        ],
+        "vertical_up_mps": [
+          -0.7987593334814274,
+          0.7993803733498434
+        ],
+        "tilt_deg": [
+          0.0109612734816706,
+          31.822171046119795
+        ],
+        "positive_horizontal_work": [
+          0.0,
+          54.76698507165657
+        ],
+        "braking_horizontal_work_magnitude": [
+          0.0,
+          76.83150863200397
+        ],
+        "power_w": [
+          140.20228352236248,
+          839.7436674656637
+        ]
+      },
+      "training_flights": [
+        1,
+        3,
+        4,
+        6,
+        8,
+        78,
+        82,
+        83,
+        84,
+        86,
+        116,
+        117,
+        121,
+        124,
+        139,
+        143,
+        148,
+        150,
+        164,
+        169,
+        170,
+        171,
+        172,
+        175,
+        234
+      ],
+      "retained_training_points": 5859,
+      "retained_training_s": 802.7700000000002,
+      "actual_agl_m_by_planned_altitude_m": {
+        "25": [
+          22.000251412391663,
+          27.233240634202957
+        ],
+        "50": [
+          45.00144988298405,
+          54.27319973707199
+        ],
+        "75": [
+          68.65317285060883,
+          77.58796244859695
+        ],
+        "100": [
+          91.71624255180353,
+          102.71150147914898
+        ]
+      },
+      "max_observed_slow_level_dwell_s": 2.3300000000000125
+    },
+    "0.25": {
+      "ranges": {
+        "speed_mps": [
+          0.018585062586831347,
+          11.887742050831648
+        ],
+        "along_accel_mps2": [
+          -2.9979529606663986,
+          2.30468808380325
+        ],
+        "vertical_up_mps": [
+          -0.7950838763698309,
+          0.7990863208288286
+        ],
+        "tilt_deg": [
+          0.10423214495158903,
+          28.075198355564424
+        ],
+        "positive_horizontal_work": [
+          0.0,
+          52.97622723250894
+        ],
+        "braking_horizontal_work_magnitude": [
+          0.0,
+          76.18632350821747
+        ],
+        "power_w": [
+          259.0938273103602,
+          815.5848810523166
+        ]
+      },
+      "training_flights": [
+        14,
+        15,
+        16,
+        17,
+        18,
+        23,
+        59,
+        60,
+        135,
+        136,
+        142,
+        149,
+        151,
+        153,
+        157,
+        160,
+        168,
+        173,
+        174,
+        225
+      ],
+      "retained_training_points": 4175,
+      "retained_training_s": 568.9700000000001,
+      "actual_agl_m_by_planned_altitude_m": {
+        "25": [
+          22.009694069624004,
+          26.290961027145386
+        ],
+        "50": [
+          45.00147169828415,
+          51.559678979218006
+        ],
+        "75": [
+          69.15342760086048,
+          77.07723367214203
+        ],
+        "100": [
+          98.48862494528288,
+          103.0621798485517
+        ]
+      },
+      "max_observed_slow_level_dwell_s": 2.4099999999999966
+    },
+    "0.5": {
+      "ranges": {
+        "speed_mps": [
+          0.044619140189349614,
+          11.939818738027638
+        ],
+        "along_accel_mps2": [
+          -2.9983565416492466,
+          2.6388785567428874
+        ],
+        "vertical_up_mps": [
+          -0.798690871933434,
+          0.7998399821775979
+        ],
+        "tilt_deg": [
+          0.1301274283398009,
+          30.48188413041073
+        ],
+        "positive_horizontal_work": [
+          0.0,
+          68.08100722076715
+        ],
+        "braking_horizontal_work_magnitude": [
+          0.0,
+          92.06039792871708
+        ],
+        "power_w": [
+          249.37170666322163,
+          946.7014978545194
+        ]
+      },
+      "training_flights": [
+        92,
+        93,
+        94,
+        95,
+        96,
+        97,
+        100,
+        101,
+        102,
+        105,
+        106,
+        107,
+        115,
+        122,
+        130,
+        134,
+        138,
+        144,
+        152,
+        156,
+        167,
+        226,
+        228,
+        230,
+        231,
+        238,
+        239,
+        240
+      ],
+      "retained_training_points": 7602,
+      "retained_training_s": 1046.47,
+      "actual_agl_m_by_planned_altitude_m": {
+        "25": [
+          22.000276416540203,
+          26.01772692799574
+        ],
+        "50": [
+          45.00394153594971,
+          54.64661294221878
+        ],
+        "75": [
+          68.97476583719259,
+          81.22225165367126
+        ],
+        "100": [
+          96.53407739847898,
+          103.51013489067554
+        ]
+      },
+      "max_observed_slow_level_dwell_s": 2.4099999999999966
+    }
+  },
+  "data_source": "Rodrigues et al., Carnegie Mellon University, https://doi.org/10.1184/R1/12683453 (CC BY 4.0)",
+  "training_registered_ids": [
+    1,
+    3,
+    4,
+    6,
+    8,
+    14,
+    15,
+    16,
+    17,
+    18,
+    23,
+    59,
+    60,
+    78,
+    82,
+    83,
+    84,
+    86,
+    92,
+    93,
+    94,
+    95,
+    96,
+    97,
+    100,
+    101,
+    102,
+    105,
+    106,
+    107,
+    115,
+    116,
+    117,
+    121,
+    122,
+    124,
+    130,
+    134,
+    135,
+    136,
+    138,
+    139,
+    142,
+    143,
+    144,
+    146,
+    148,
+    149,
+    150,
+    151,
+    152,
+    153,
+    156,
+    157,
+    160,
+    164,
+    167,
+    168,
+    169,
+    170,
+    171,
+    172,
+    173,
+    174,
+    175,
+    225,
+    226,
+    228,
+    230,
+    231,
+    234,
+    236,
+    238,
+    239,
+    240
+  ],
+  "training_contributing_ids": [
+    1,
+    3,
+    4,
+    6,
+    8,
+    14,
+    15,
+    16,
+    17,
+    18,
+    23,
+    59,
+    60,
+    78,
+    82,
+    83,
+    84,
+    86,
+    92,
+    93,
+    94,
+    95,
+    96,
+    97,
+    100,
+    101,
+    102,
+    105,
+    106,
+    107,
+    115,
+    116,
+    117,
+    121,
+    122,
+    124,
+    130,
+    134,
+    135,
+    136,
+    138,
+    139,
+    142,
+    143,
+    144,
+    148,
+    149,
+    150,
+    151,
+    152,
+    153,
+    156,
+    157,
+    160,
+    164,
+    167,
+    168,
+    169,
+    170,
+    171,
+    172,
+    173,
+    174,
+    175,
+    225,
+    226,
+    228,
+    230,
+    231,
+    234,
+    238,
+    239,
+    240
+  ],
+  "development_ids_for_descriptive_scoring": [
+    178,
+    179,
+    181,
+    183,
+    184,
+    186,
+    188,
+    189,
+    190,
+    194,
+    195,
+    198,
+    199,
+    200,
+    201,
+    203,
+    204,
+    205,
+    207,
+    208,
+    209,
+    241,
+    242,
+    243,
+    248,
+    250,
+    253,
+    254,
+    255,
+    256,
+    257,
+    261,
+    262,
+    263,
+    264
+  ],
+  "retained_training_points": 17636,
+  "retained_training_original_s": 2418.2100000000005,
+  "fit_provenance": {
+    "results/m100_reaudit/transient_airborne/model.json": "033ed7145bb1a930cca50301d5d9e3463b7e6080a7891401a9b0268e8bfdeab9",
+    "results/m100_reaudit/transient_airborne/field_support.npz": "f8f25dc28d028ddeaeceb1a1f371f67b770b9a0a4010bbd1e255699e267a1fdb",
+    "results/m100_reaudit/cmu_calibration/fit.json": "d3413efef49a278a10f0dc404c6b34e5c6d07e42dd698ad21aae0ea00824377f",
+    "config/m100_reaudit/physics.json": "248100eb6505d4ef07597f072bfb8349070f3f43b3690c4ed58aaf034bc710a9",
+    "tools/m100_reaudit/transient_pooled.py": "03639059b08fc3186de931f6217630ef84c97e4ddb0621fd6df9b876e86b6e7d",
+    "tools/m100_reaudit/transient_cmu.py": "139934c8820c0ea635fab8b26d9717ddc3c9c68a1ec0df0c3b6168bcbe70f3b7",
+    "data/external/m100/parameters.csv": "568dffaed11a4d335ef4f8a932b342c836907af2f4aa54da9b4a0e2ffef2108a",
+    "data/external/m100/flights.zip": "98f65a1ab54a8b618c169fdf49311a53ff1fefed86fdc3f440d6a0166ce49fb1",
+    "results/m100_reaudit/external/flight_manifest.csv": "171d8176bbddab97b25d19ada43c54c67d760a6e7680f0380233d54c08c044f3"
+  },
+  "development_protocol": "After freezing the model, apply it once to existing 35 development recordings. Reuse the original timestamp and near-level/turn selection. Endpoint weights integrate only available adjacent observed intervals. Energy metrics first sum signed errors on that flight's covered selected pieces, then take absolute value and average equally over flights. This measures selected-window energy, not whole-flight energy. No holdout signal is accessed; no selection on development errors."
+}

@@ -1,0 +1,13 @@
+split,regime,eligible_flights,flights_with_supported_points,eligible_field_s,supported_field_s,local_coverage_pct_of_eligible_time,equal_flight_bias_w,equal_flight_mae_w,equal_flight_rmse_w
+train_leave_one_flight_out,all,73,67,2418.21,183.695,7.59632125,2.4294738,43.3844743,56.2978048
+train_leave_one_flight_out,speed_up,73,65,186.11,67.355,36.1909623,3.960012,38.9702437,49.1643761
+train_leave_one_flight_out,braking,73,57,384.2,57.93,15.0780843,3.01010427,46.5612518,59.7066511
+train_leave_one_flight_out,low_speed_settling,67,50,66.39,37.26,56.1229101,-0.750545044,43.0069381,55.8908551
+train_leave_one_flight_out,settling,50,25,47.7,20.65,43.2914046,-10.0545741,62.522727,89.2258333
+train_leave_one_flight_out,nearly_steady_motion,58,2,1733.81,0.5,0.0288382233,58.6080885,58.6080885,63.9838073
+validation,all,35,29,1482.96,80.955,5.4590144,-1.75939345,35.9810847,48.6143169
+validation,speed_up,35,29,96.87,31.22,32.2287602,-9.42750573,33.5492696,45.7044723
+validation,braking,35,22,188.67,23.83,12.6305189,10.3134571,47.2314696,60.7599063
+validation,low_speed_settling,32,18,45.13,23.575,52.2379792,3.64517277,34.578025,53.797252
+validation,settling,15,3,11.81,0.905,7.66299746,-31.612681,69.1737775,81.4423345
+validation,nearly_steady_motion,30,3,1140.48,1.425,0.124947391,-11.679795,20.6981274,29.4804571

@@ -1,0 +1,8 @@
+# Retain the byte representation of archived model and reconciliation inputs.
+*.csv text eol=lf
+*.json text eol=lf
+*.md text eol=lf
+SHA256SUMS text eol=lf
+*.gz binary
+*.npz binary
+*.png binary

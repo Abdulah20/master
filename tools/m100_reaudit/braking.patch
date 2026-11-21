@@ -1,0 +1,118 @@
+--- a/ros2_ws/src/drone_nav/drone_nav/m100_experiment_manager.py
++++ b/ros2_ws/src/drone_nav/drone_nav/m100_experiment_manager.py
+@@ -283,6 +283,39 @@
+     pass
+ 
+ 
++class _LocalPositionClock:
++    """Use advancing PX4 LOCAL_POSITION_NED time for elapsed flight time.
++
++    The position, velocity, and boot timestamp arrive in one MAVLink message.
++    Wall time supervises transport freshness even if other streams keep arriving.
++    """
++
++    STALL_TIMEOUT_S = 2.0  # Same wall-time freshness envelope as the MAVLink backend.
++
++    def __init__(self, sample: dict, phase: str):
++        self.phase = phase
++        self._stamp: float | None = None
++        self._progress_wall = time.monotonic()
++        self.start = self.read(sample)
++
++    def read(self, sample: dict) -> float:
++        stamp = sample.get("boot_time_s")
++        arrival = sample.get("last_local_position_monotonic")
++        now = time.monotonic()
++        if (not sample.get("fresh") or sample.get("local") is None or stamp is None
++                or not math.isfinite(stamp) or stamp < 0 or arrival is None
++                or not math.isfinite(arrival) or not 0 <= now - arrival < self.STALL_TIMEOUT_S):
++            raise RuntimeError(f"PX4 position telemetry unavailable {self.phase}")
++        if self._stamp is not None and stamp < self._stamp:
++            raise RuntimeError(f"PX4 position clock moved backward {self.phase}")
++        if self._stamp is None or stamp > self._stamp:
++            self._stamp = stamp
++            self._progress_wall = now
++        elif now - self._progress_wall >= self.STALL_TIMEOUT_S:
++            raise RuntimeError(f"PX4 position clock stalled {self.phase}")
++        return stamp
++
++
+ class MavlinkBackend:
+     """Thread-safe MAVLink telemetry receiver and PX4 command adapter."""
+ 
+@@ -1628,16 +1661,9 @@
+ 
+             if config.cruise_speed_mps == 0.0:
+                 self._set_state("MEASURING", "Hover measurement started")
+-                measurement_start = self._mav.snapshot()["local"]
+                 self._begin_measurement(False)
+                 self._set_state("HOVER", f"Timed hover for {config.hover_duration_s:g} s")
+-                deadline = time.monotonic() + config.hover_duration_s
+-                while time.monotonic() < deadline:
+-                    self._check_abort()
+-                    self._mav.position_setpoint(
+-                        measurement_start["x"], measurement_start["y"], target_down, yaw
+-                    )
+-                    time.sleep(0.1)
++                self._hold_measured_hover(config.hover_duration_s, target_down, yaw)
+                 self._freeze_measurement(None)
+             else:
+                 cruise_speed = config.cruise_speed_mps
+@@ -1840,6 +1866,16 @@
+                 f"{M100_FINAL_LANDING_TOLERANCE_M:.2f} m"
+             )
+ 
++    def _hold_measured_hover(self, duration_s: float, target_down: float, yaw: float) -> None:
++        sample = self._mav.snapshot()
++        clock = _LocalPositionClock(sample, "during timed hover")
++        position = sample["local"]
++        while clock.read(sample) - clock.start < duration_s:
++            self._check_abort()
++            self._mav.position_setpoint(position["x"], position["y"], target_down, yaw)
++            time.sleep(M100_RETURN_SETPOINT_PERIOD_S)
++            sample = self._mav.snapshot()
++
+     def _brake_before_return(self, target_down: float, yaw: float) -> None:
+         """Bring measured horizontal motion to rest before commanding homeward motion."""
+         sample = self._mav.snapshot()
+@@ -1853,21 +1889,22 @@
+         if sample["mode"] != "OFFBOARD" or not sample["heartbeat_fresh"]:
+             self._enter_offboard_velocity(*command, target_down, yaw)
+ 
+-        last_setpoint = time.monotonic()
++        clock = _LocalPositionClock(self._mav.snapshot(), "while braking for return")
++        last_setpoint = clock.start
+         # Reserve a second command-ramp duration for measured PX4 settling.
+         # A 20 m/s run still had 0.24 m/s residual motion when the previous
+         # one-ramp + 10 s supervisory limit expired. The measured-speed and
+         # dwell gates below remain the criteria for starting homeward motion.
+         ramp_duration_s = math.hypot(*command) / M100_RETURN_HORIZONTAL_ACCEL_MPS2
+-        deadline = last_setpoint + 2.0 * ramp_duration_s + 10.0
++        deadline = clock.start + 2.0 * ramp_duration_s + 10.0
+         stopped_since: float | None = None
+-        while time.monotonic() < deadline:
++        while True:
+             self._check_abort()
+             sample = self._mav.snapshot()
+-            local = sample.get("local")
+-            if not sample["fresh"] or local is None:
+-                raise RuntimeError("PX4 position telemetry unavailable while braking for return")
+-            now = time.monotonic()
++            now = clock.read(sample)
++            if now >= deadline:
++                break
++            local = sample["local"]
+             command = _ramp_return_velocity_ned(command, (0.0, 0.0), now - last_setpoint)
+             self._mav.velocity_setpoint(*command, target_down, yaw)
+             last_setpoint = now
+--- a/ros2_ws/src/drone_nav/test/test_m100_return_guidance.py
++++ b/ros2_ws/src/drone_nav/test/test_m100_return_guidance.py
+@@ -173,6 +173,8 @@
+                 "fresh": True,
+                 "heartbeat_fresh": True,
+                 "mode": "OFFBOARD",
++                "boot_time_s": clock,
++                "last_local_position_monotonic": clock,
+                 "local": {"vx": 0.0, "vy": velocity},
+             }
+ 

@@ -10,8 +10,8 @@ from unittest.mock import Mock
 import pytest
 
 from tools.m100_reaudit.physics import (
-    Model, PATCH, PATCH_HASHES, air_velocity_enu, ensure_runtime_patch,
-    relative_wind, runtime_path, wind_enu,
+    Model, PATCH, PATCH_HASHES, PORTABLE_RUNTIME, air_velocity_enu, ensure_runtime_patch,
+    relative_wind, wind_enu,
 )
 
 
@@ -69,7 +69,8 @@ def test_nameplate_exhaustion_remains_visible_on_partial_energy(model):
 
 
 def test_version_guard_reapplies_only_to_exact_original(tmp_path):
-    source = runtime_path()
+    # The bundled, post-density fixture remains exact after later flight-guidance revisions.
+    source = PORTABLE_RUNTIME
     for name in PATCH_HASHES:
         target = tmp_path / name
         target.parent.mkdir(parents=True, exist_ok=True)
@@ -78,7 +79,11 @@ def test_version_guard_reapplies_only_to_exact_original(tmp_path):
     subprocess.run(["git", "-C", str(tmp_path), "apply", "-R", str(PATCH)], check=True)
     assert ensure_runtime_patch(tmp_path) == "APPLIED"
     assert ensure_runtime_patch(tmp_path) == "ALREADY_APPLIED"
-    with (tmp_path / next(iter(PATCH_HASHES))).open("a") as stream:
+    manager_name = "ros2_ws/src/drone_nav/drone_nav/m100_experiment_manager.py"
+    subprocess.run(["git", "-C", str(tmp_path), "apply", "--include=" + manager_name,
+                    str(PATCH.with_name("braking.patch"))], check=True)
+    assert ensure_runtime_patch(tmp_path) == "ALREADY_APPLIED"
+    with (tmp_path / "ros2_ws/src/drone_nav/drone_nav/m100_published_energy_v2.py").open("a") as stream:
         stream.write("\n# local work\n")
     with pytest.raises(RuntimeError, match="unexpected runtime source hashes"):
         ensure_runtime_patch(tmp_path)

@@ -214,11 +214,20 @@ PATCH_HASHES = {
 def ensure_runtime_patch(runtime_root=None):
     """Apply once to the identified runtime sources or recognize an applied patch."""
     root = runtime_path(runtime_root)
-    hashes = [hashlib.sha256((root / name).read_bytes()).hexdigest() for name in PATCH_HASHES]
-    before, after = zip(*PATCH_HASHES.values(), strict=True)
-    if tuple(hashes) == after:
+    hashes = {name: hashlib.sha256((root / name).read_bytes()).hexdigest() for name in PATCH_HASHES}
+    before = {name: pair[0] for name, pair in PATCH_HASHES.items()}
+    after = {name: pair[1] for name, pair in PATCH_HASHES.items()}
+    if hashes == after:
         return "ALREADY_APPLIED"
-    if tuple(hashes) != before:
+    if hashes != before:
+        # The recorded flight-clock revision is a successor of this density fix.
+        # Every other patched source must still match its exact post-density hash.
+        if __package__:
+            from . import braking
+        else:
+            import braking
+        if hashes == (after | {braking.MANAGER: braking.MANAGER_AFTER}):
+            return "ALREADY_APPLIED"
         raise RuntimeError(f"unexpected runtime source hashes in {root}; see {PATCH.name} for manual review")
     command = ["git", "-C", str(root), "apply"]
     subprocess.run([*command, "--check", str(PATCH)], check=True)

@@ -1,0 +1,167 @@
+{
+  "working_directory": "tmp/m100_reaudit_warm_final",
+  "launcher_sha256": "9fc05be72d345d4a102fa9c111bd63fd0c26b779e78c6cc930228f91248fb147",
+  "runtime_manager_sha256": "96e630ba7edaf4a017a601fcce4faddcc943963de047913209695798d88efebc",
+  "acquisition_inputs_sha256": "130bc0a6945eb99213317c6dd949113cbdfda0539acff776c7717f92d8aa1d03",
+  "source_receipt": "tmp/m100_reaudit_warm_final/pilot_warm/attempt_1/pilot_warm.json",
+  "attempts": [
+    {
+      "path": "tmp/m100_reaudit_postclock/pilot_warm/attempt_1/pilot_warm.json",
+      "receipt_sha256": "34d9d483c759620b5d9315b900b2e23cc759625a04ed048e89fa8571c1fb452d",
+      "outcome": "RUNNER_ERROR",
+      "reason": "manager entered ERROR: REJECTED \u2014 generated-model alias points elsewhere: /home/abdulah/PX4-Autopilot/Tools/simulation/gz/models/m100_cmu_v2_temp_f7b75987d14476336faf8a8f"
+    },
+    {
+      "path": "tmp/m100_reaudit_postclock/pilot_warm/attempt_2/pilot_warm.json",
+      "receipt_sha256": "34d9d483c759620b5d9315b900b2e23cc759625a04ed048e89fa8571c1fb452d",
+      "outcome": "RUNNER_ERROR",
+      "reason": "manager entered ERROR: REJECTED \u2014 generated-model alias points elsewhere: /home/abdulah/PX4-Autopilot/Tools/simulation/gz/models/m100_cmu_v2_temp_f7b75987d14476336faf8a8f"
+    },
+    {
+      "path": "tmp/m100_reaudit_warm_isolation/pilot_warm/attempt_1/pilot_warm.json",
+      "receipt_sha256": "c2454294bfe743ab4fabc6f5e1edaa4811611a894c2d33395fb1e51a41e256e2",
+      "outcome": "RUNNER_ERROR",
+      "reason": "manager entered ERROR: REJECTED \u2014 M100 static mass/model validation failed"
+    },
+    {
+      "path": "tmp/m100_reaudit_warm_isolation/pilot_warm/attempt_2/pilot_warm.json",
+      "receipt_sha256": "c2454294bfe743ab4fabc6f5e1edaa4811611a894c2d33395fb1e51a41e256e2",
+      "outcome": "RUNNER_ERROR",
+      "reason": "manager entered ERROR: REJECTED \u2014 M100 static mass/model validation failed"
+    },
+    {
+      "path": "tmp/m100_reaudit_warm_final/pilot_warm/attempt_1/pilot_warm.json",
+      "receipt_sha256": "0a381dcb89867ccc36cf2352072cb29faafd972e6552680549c4fbd296f76009",
+      "outcome": "COMPLETE",
+      "reason": ""
+    }
+  ],
+  "previous_density_only_control": "tmp/m100_reaudit_live/warm/pilot_warm.json",
+  "trajectory_input_sha256": "9823d3303208c864dfab87a9d8c4a2a32cc91bde887804de49d5f4656d0afd2c",
+  "raw_trace_sha256": "90f263e1327973ec2ff0b8fbae2daad50ca82bdf069dae53a7e778fbd8bdfbb9",
+  "raw_provenance_sha256": "bb0e3206b355b623b47c6a369817967804127611cc9def1c52b8c81a80dd3678",
+  "temperature_manifest_sha256": "220cca7c75b40e3427be055ded6f8ee13c42e785eb1b0fa69f04438eba5cb7af",
+  "captured_worker_mounts": {
+    "/home/abdulah/PX4-Autopilot/Tools/simulation/gz/models": {
+      "mount_root": "/home/abdulah/uav-energy-thesis/tmp/m100_reaudit_warm_final/pilot_warm/attempt_1/state/model_registry",
+      "effective_options": "rw,relatime"
+    },
+    "/home/abdulah/PX4-Autopilot/Tools/simulation/gz/models/m100_cmu_v2": {
+      "mount_root": "/home/abdulah/PX4-Autopilot/Tools/simulation/gz/models/m100_cmu_v2",
+      "effective_options": "ro,relatime"
+    },
+    "/home/abdulah/PX4-Autopilot/Tools/simulation/gz/models/m100_cmu_v2_payload_025": {
+      "mount_root": "/home/abdulah/PX4-Autopilot/Tools/simulation/gz/models/m100_cmu_v2_payload_025",
+      "effective_options": "ro,relatime"
+    },
+    "/home/abdulah/PX4-Autopilot/Tools/simulation/gz/models/m100_cmu_v2_payload_050": {
+      "mount_root": "/home/abdulah/PX4-Autopilot/Tools/simulation/gz/models/m100_cmu_v2_payload_050",
+      "effective_options": "ro,relatime"
+    },
+    "/home/abdulah/PX4-Autopilot/Tools/simulation/gz/models/m100_cmu_v2_payload_075": {
+      "mount_root": "/home/abdulah/PX4-Autopilot/Tools/simulation/gz/models/m100_cmu_v2_payload_075",
+      "effective_options": "ro,relatime"
+    },
+    "/home/abdulah/PX4-Autopilot/Tools/simulation/gz/models/m100_cmu_v2_payload_100": {
+      "mount_root": "/home/abdulah/PX4-Autopilot/Tools/simulation/gz/models/m100_cmu_v2_payload_100",
+      "effective_options": "ro,relatime"
+    },
+    "/home/abdulah/PX4-Autopilot/Tools/simulation/gz/models/m100_cmu_v2_payload_125": {
+      "mount_root": "/home/abdulah/PX4-Autopilot/Tools/simulation/gz/models/m100_cmu_v2_payload_125",
+      "effective_options": "ro,relatime"
+    }
+  },
+  "private_alias_target": "/home/abdulah/uav-energy-thesis/tmp/m100_reaudit_warm_final/pilot_warm/attempt_1/state/temperature_models/m100_cmu_v2_temp_f7b75987d14476336faf8a8f",
+  "shared_registry_before_after_identical": true,
+  "prior_host_alias_count": 14,
+  "canonical_and_payload_sdf_hashes": {
+    "m100_cmu_v2/model.sdf": "63d50538ec859472832c2b95db36c6ffd2b29da23286cce4ae8e9ba67b02ad54",
+    "m100_cmu_v2_payload_025/model.sdf": "85cab7073d3329088b9b0f721389b7e96d68fce048510e65617ce7ecf55819a9",
+    "m100_cmu_v2_payload_050/model.sdf": "4bbac163154fff2ba9a797519767f7ab95b4a916a5030ca7988dc52f773e23c8",
+    "m100_cmu_v2_payload_075/model.sdf": "7f0bff6c39719657a7bb310ab6be3a659d658b302de324d886d5b88e55eedf2f",
+    "m100_cmu_v2_payload_100/model.sdf": "40ed6ecbc91ca1d6b1022200d2e08fbc2ff6e0f216256df67e88cc51aade53ee",
+    "m100_cmu_v2_payload_125/model.sdf": "134c12e27d3f31d1032b8387eea694e32e6fdabc95ec8e6cfc448b2ef2ab4409"
+  },
+  "generated_model_name": "m100_cmu_v2_temp_f7b75987d14476336faf8a8f",
+  "generated_sdf_sha256": "270571603a2ee7815ba89cac222a15acdc622bcf6f39cb11444e1b0424a6bde6",
+  "generated_case_sha256": "f7b75987d14476336faf8a8fdee1a010339efe1ecd24f54e2108bcfed18fb01a",
+  "case_temperature_c": 35.0,
+  "density_ratio_35C_over_15C": 0.9352422974774631,
+  "canonical_motor_constant": 2.452825363226109e-05,
+  "effective_four_motor_constants": [
+    2.2939860280145794e-05,
+    2.2939860280145794e-05,
+    2.2939860280145794e-05,
+    2.2939860280145794e-05
+  ],
+  "battery_temperature_modeled": false,
+  "landed": true,
+  "armed": false,
+  "decision": {
+    "case_id": "pilot_warm",
+    "run_id": "m100_20261121T185559Z",
+    "simulator": "PX4_OFFBOARD_GAZEBO_8.11",
+    "seed": null,
+    "manager_sha256": "96e630ba7edaf4a017a601fcce4faddcc943963de047913209695798d88efebc",
+    "payload_kg": 0,
+    "cruise_speed_mps": 6,
+    "temperature_c": 35,
+    "altitude_m": 25,
+    "measurement_distance_m": 100,
+    "hover_duration_s": 12,
+    "wind_speed_mps": 0,
+    "wind_direction_toward_deg_ENU": 0,
+    "observed_physics_step_s": 0.004,
+    "outcome": "COMPLETE",
+    "data_verdict": "NUMERICALLY_ACCEPTED",
+    "reason": "",
+    "stock_exclusions": "ABOVE_DJI_MAXIMUM_TAKEOFF_MASS",
+    "evidence_flags": "ATMOSPHERIC_SENSITIVITY_NO_BATTERY_THERMAL_CALIBRATION|LIMITED_PUBLISHED_M100_PHASE_MODEL_EXTRAPOLATION",
+    "source_observations": 33166,
+    "recorded_start_s": 9.612,
+    "recorded_end_s": 142.356,
+    "powered_observations": 32983,
+    "paired_vi": 32983,
+    "powered_without_vi": 0,
+    "max_abs_vi_w": 1.1368683772161603e-13,
+    "max_sample_interval_s": 0.016000000000005343,
+    "unsupported_or_gap_s": 0.7319999999999993,
+    "integrated_duration_s": 132.012,
+    "summed_phase_wh": 17.70990664923908,
+    "runtime_supported_wh": 17.709906649238945,
+    "phase_sum_residual_wh": 1.3500311979441904e-13,
+    "max_abs_individual_phase_error_wh": 0.0,
+    "full_flight_energy_claim": false,
+    "max_abs_density_error_kg_m3": 0.0,
+    "gate_distance_m": 100.01449394226074,
+    "gate_energy_wh": 2.1920943970217115,
+    "max_speed_error_mps": 0.26885287326638174,
+    "max_height_error_m": 0.05675593018531799,
+    "recorded_horizontal_path_m": 284.6004680105627,
+    "achieved_speed_min_mps": 5.997132356038063,
+    "achieved_speed_max_mps": 6.268852873266382,
+    "achieved_height_min_m": 24.943244069814682,
+    "achieved_height_max_m": 25.02698239684105,
+    "nominal_remaining_wh": 82.19009335076092,
+    "budget_status": "PARTIAL_ENERGY_UPPER_BOUND_ON_REMAINING",
+    "aligned_start_s": 39.572,
+    "aligned_end_s": 56.072,
+    "aligned_span_s": 16.5,
+    "aligned_energy_wh": 2.1920943970217084,
+    "aligned_mean_power_w": 478.2751411683727,
+    "aligned_counter_delta_wh": 2.1920943970217,
+    "measurement_integral_error_wh": 8.43769498715119e-15,
+    "aligned_outbound_distance_m": 100.01449394226074,
+    "aligned_wh_per_km": 21.91776722169113,
+    "observed_supported_measurement_wh": 2.1920943970217084,
+    "observed_supported_measurement_s": 16.5
+  },
+  "matched_15C_cruise": {
+    "run_id": "m100_20261121T184624Z",
+    "receipt_sha256": "5dfbf462359d1f5b24fe70f5cf24043ba6a6e1ba0d80660530f93bc837401db5",
+    "mean_power_15C_W": 463.08318768607825,
+    "mean_power_35C_W": 478.2751411683727,
+    "energy_15C_Wh": 2.119377388976618,
+    "energy_35C_Wh": 2.1920943970217084
+  }
+}

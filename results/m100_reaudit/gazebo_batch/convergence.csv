@@ -1,0 +1,7 @@
+case_id,coarse_dt_s,fine_dt_s,coarse_status,fine_status,measurement_mean_difference_W,measurement_relative_energy_difference,mission_relative_energy_difference,measurement_duration_difference_s,mission_duration_difference_s,measurement_distance_difference_m,passes_declared_sensitivity_limits
+case_001,0.008,0.004,passed,passed,-6.2928836542e-07,-1.3541960317e-09,0.00016542053515,0,0.04,0.0021145195699,True
+case_007,0.008,0.004,passed,passed,-0.00076599846091,0.00066499360826,0.00022470930042,0.04,0.04,,True
+exp_001,0.008,0.004,passed,passed,2.6613282103e-06,5.3597280804e-09,-2.7223627067e-06,0,0,0.00012751965002,True
+exp_012,0.008,0.004,passed,passed,7.539417652e-06,1.4798462304e-08,0.0007633270383,0,0.08,0.00038198948002,True
+exp_023,0.008,0.004,passed,passed,1.5394743855e-05,2.9379813534e-08,-8.6030494455e-07,0,0,0.00010595670003,True
+exp_053,0.008,0.004,passed,passed,-0.0065167154009,0.0026519418612,0.0016497704311,0.04,0.04,,True

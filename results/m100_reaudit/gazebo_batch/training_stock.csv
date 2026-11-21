@@ -1,0 +1,1 @@
+case_id,split_group,split,payload_kg,cruise_speed_mps,wind_speed_mps,wind_along_eastbound_mps,wind_cross_eastbound_mps,altitude_m,temperature_c,route_for_cruise_m,hover_for_measurement_s,target_phase,measurement_mean_power_W

@@ -1,0 +1,42 @@
+{
+  "schema_version": 1,
+  "implementation_sha256": {
+    "replay.py": "b7336aa99fc4f99c24897e907be11f38937e44c4f885f24607ccebbaf4e1b036",
+    "historical.py": "df6f5e7becaf5bfe9e7b49eaf954df81b0dca02bc7f29f630e8ffccc2cdded6c",
+    "physics.py": "abc76fc7d9e33dfaf3607fb192103dd5815fecf9f9500b39169f5a7e58e908f4",
+    "physics.json": "248100eb6505d4ef07597f072bfb8349070f3f43b3690c4ed58aaf034bc710a9",
+    "m100_atmosphere.py": "c55d89c71f27915f7c825dad31e2fa8590b2315b1172fa0ca7e9d92439aae77f",
+    "frozen_source_sha256.json": "7e815eb7850e26b6d5456d9c139d9fef0b28e932e9fb9c91e8ebbf83462d7d38"
+  },
+  "model_scope": "Offline energy accounting replay conditioned on the observed SITL path and original wind-transfer policy.",
+  "study_hash": "ea24ff674b74940b2f1ffaf12fcee49164eb5180f895ab0bdcf9bda1b060028c",
+  "energy_config_sha256": "725b2a54d333bc3ed40a9919d990cda48ee28d158cde87749a8ff08cda585458",
+  "sample_pairing_max_wall_s": 0.05,
+  "guard_max_energy_gap_s": 0.5,
+  "source_cases": 69,
+  "source_trace_digests_recorded": 69,
+  "unique_energy_observations": 245863,
+  "overlap_with_1Hz_stamps": 24510,
+  "overlap_with_1Hz_power_samples": 24441,
+  "overlap_max_abs_power_difference_W": 0.0,
+  "overlap_nearest_nav_phase_disagreements": 1,
+  "overlap_power_availability_disagreements": 0,
+  "archived_voltage_current_pairs": 194183,
+  "archived_voltage_current_max_abs_error_W": 2.2737367544323206e-13,
+  "archived_wind_formula_checks": 142194,
+  "archived_wind_formula_max_abs_error_W": 2.8421709430404007e-13,
+  "stored_high_rate_examples": 4,
+  "complete_measurement_windows": 69,
+  "passing_achieved_control_cases": 69,
+  "archived_power_samples_without_replay": 2,
+  "intervals_over_gap_limit": 1,
+  "max_abs_replay_phase_sum_error_Wh": 7.389644451905042e-13,
+  "max_abs_archive_observer_quadrature_error_on_complete_measurement_Wh": 1.8353129664916423e-05,
+  "max_abs_2x_coarsen_delta_Wh": 3.4832532094242197e-06,
+  "max_abs_4x_coarsen_delta_Wh": 1.4404925275712799e-05,
+  "median_observer_density_change_Wh": -0.04744830123539856,
+  "observer_density_change_range_Wh": [
+    -0.1937191568593022,
+    -0.02979252060286086
+  ]
+}

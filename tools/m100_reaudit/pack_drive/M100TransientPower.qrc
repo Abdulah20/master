@@ -1,0 +1,5 @@
+<RCC>
+  <qresource prefix="/m100/calibration">
+    <file>cmu_transient_v1.qz</file>
+  </qresource>
+</RCC>

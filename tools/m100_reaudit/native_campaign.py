@@ -76,10 +76,14 @@ def run_cases(which, work, jobs, only=None):
     px4 = Path(os.environ.get("M100_PX4", Path.home() / "PX4-Autopilot")).expanduser()
     inputs = {
         "linked_px4_manager": project / ENERGY_MODULE.parent / "m100_experiment_manager.py",
+        "px4_sitl_executable": px4 / "build/px4_sitl_default/bin/px4",
         "native_pack_drive_library": project / "ros2_ws/install/m100_gazebo_gui/lib/m100_gazebo_gui/libM100PackDrive.so",
         "m100_cmu_v2/model.sdf": px4 / "Tools/simulation/gz/models/m100_cmu_v2/model.sdf",
         "gz_env.sh": px4 / "build/px4_sitl_default/rootfs/gz_env.sh",
     }
+    training_writer = project / ENERGY_MODULE.parent / "m100_airborne_training.py"
+    if training_writer.is_file():
+        inputs["airborne_training_writer"] = training_writer
     for script in (Path(__file__), Path(__file__).with_name("native.py"),
                    Path(__file__).with_name("run_native.sh"), Path(__file__).with_name("isolated_native.sh")):
         inputs[str(script.relative_to(ROOT))] = script

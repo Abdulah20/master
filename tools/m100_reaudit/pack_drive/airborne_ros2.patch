@@ -1,0 +1,408 @@
+diff --git a/ros2_ws/src/drone_nav/drone_nav/m100_experiment_manager.py b/ros2_ws/src/drone_nav/drone_nav/m100_experiment_manager.py
+index 0f34d5a381fd5052f0d748766a3d34355a5d89c2..d15baf1cfec6d4506b8f763eb599de05d4e76cde 100644
+--- a/ros2_ws/src/drone_nav/drone_nav/m100_experiment_manager.py
++++ b/ros2_ws/src/drone_nav/drone_nav/m100_experiment_manager.py
+@@ -73,6 +73,12 @@
+ )
+ from .m100_propulsion_v2 import M100PropulsionV2
+ from .m100_thevenin import TheveninProfile
++from .m100_airborne_training import (
++    BOUNDARY_SOURCE as AIRBORNE_BOUNDARY_SOURCE,
++    CALIBRATION_ID as AIRBORNE_CALIBRATION_ID,
++    publish_training_row,
++    training_row,
++)
+ from .m100_transient_power import (
+     MODEL_ID as TRANSIENT_POWER_MODEL_ID,
+     STATUS as TRANSIENT_POWER_STATUS,
+@@ -173,6 +179,7 @@
+ PACK_DRIVE_FLAGS = ("command_limited", "q_at_lower_boundary", "q_domain_exhausted",
+                     "loaded_charge_coverage_complete", "raw_command_fresh", "awaiting_post_reset_zero_command")
+ PACK_DRIVE_COMMANDS = ("raw_motor_rad_s", "applied_motor_rad_s")
++PACK_RECEIPT_GRACE_S = 2.0
+ M100_RETURN_SPEED_CAP_MPS = 4.0
+ M100_RETURN_DEFAULT_SPEED_MPS = 2.0
+ M100_RETURN_CAPTURE_RADIUS_M = 0.75
+@@ -672,6 +679,12 @@
+         )
+ 
+         self._lock = threading.RLock()
++        self._pack_receipt = threading.Condition(self._lock)
++        self._airborne_budget: dict[str, Any] | None = None
++        self._recording_epoch: int | None = None
++        self._recording_start_sim_s: float | None = None
++        self._manual_stop_deadline: float | None = None
++        self._recovering_landing = False
+         self._mav = MavlinkBackend()
+         self._state = "IDLE"
+         self._status = "M100 backend starting"
+@@ -725,6 +738,8 @@
+             self._start_job("startup", lambda: self._startup_stack(PAYLOAD_MODELS[0.0]))
+ 
+     def _energy_phase(self) -> str:
++        if self._recovering_landing:
++            return "LANDING"
+         if self._state == "MEASURING":
+             return "HOVER" if self._config and self._config.cruise_speed_mps == 0.0 else "CRUISE"
+         return self._state
+@@ -743,6 +758,7 @@
+ 
+     def _reset_pack_drive_epoch(self) -> None:
+         self._pack_epoch += 1
++        self._airborne_budget = None
+         self._pack_epoch_s = self._gazebo_sim_time_s
+         self._pack_state = None
+         self._pack_joint_observation = None
+@@ -765,7 +781,8 @@
+                 "wind_speed_mps": config.wind_speed_mps, "power_reference_temperature_c": 15.0,
+                 "temperature_support": ("REFERENCE_SETTING" if is_reference_temperature_c(config.temperature_c)
+                                         else "NONREFERENCE_TEMPERATURE_TRANSFER"),
+-                "wind_power_applied": False, "application": "AIRCRAFT_PHASE_MEAN_TRANSFER_TO_SIMULATION"}
++                "wind_power_applied": False, "application": "AIRCRAFT_PHASE_MEAN_AND_CMU_TRANSIENT_TRANSFER",
++                "transient_calibrated_payload": payload in (0.0, 0.25, 0.5)}
+ 
+     def _pack_time_is_current(self, stamp: float, now: float) -> bool:
+         limit = self._energy_config.maximum_valid_gap_s
+@@ -785,7 +802,7 @@
+             self._pack_signal_times[key] = (received_at, stamp)
+         return stamp - self._pack_signal_times[key][1] <= max_age
+ 
+-    def _publish_pack_demand(self, stamp, sample, velocities, phase, calibration) -> None:
++    def _publish_pack_demand(self, stamp, sample, velocities, phase, calibration, manager_power_w=None) -> None:
+         model = self._active_runtime_model
+         now = time.monotonic()
+         if not model or not self._pack_time_is_current(stamp, now):
+@@ -801,29 +818,32 @@
+                                             "simulated_rotor_speed_rad_s": [abs(v) * scale for v in velocities]}
+         heartbeat_recent = self._pack_signal_fresh("heartbeat", sample.get("last_heartbeat_monotonic"), stamp, now, 2.0)
+         armed = bool(sample["armed"]) if sample.get("heartbeat_fresh") and heartbeat_recent else None
+-        power = None
+-        source = "ARMED_STATE_UNKNOWN"
++        landed_recent = self._pack_signal_fresh("landed", sample.get("last_landed_state_monotonic"),
++                                                stamp, now, self._energy_config.maximum_valid_gap_s)
++        landed = bool(sample["landed"]) if sample.get("landed_state_known") and landed_recent else None
++        phase_power, phase_source = None, "FLIGHT_STATE_UNAVAILABLE"
++        if (self._config is not None and self._applied_atmosphere is not None
++                and self._power_air_state is not None and joints_valid):
++            # The native PX4 detector may transition before the rate-limited MAVLink
++            # message. Send a separate proposal for the pack to gate on the native clock.
++            estimate = self._energy_config.estimate_power(
++                phase, self._config.payload.payload_kg, self._applied_atmosphere.reference.density_kg_m3,
++                limited_hover_eligible=calibration.use_limited_hover_mean,
++            )
++            phase_power = estimate.power_w
++            phase_source = ("CMU_LIMITED_HOVER_MEAN" if estimate.coefficient_phase == "limited_hover"
++                            else estimate.model_id if phase_power is not None else "UNSUPPORTED_PHASE")
++        else:
++            manager_power_w = None
++        power, source = None, "ARMED_STATE_UNKNOWN" if armed is None else "FLIGHT_STATE_UNAVAILABLE"
+         if armed is False:
+-            # Native disarm is an explicit off state of the drive. Avionics draw is unresolved.
+             power, source = 0.0, "DRIVE_DISARMED"
+-        elif armed:
+-            source = "FLIGHT_STATE_UNAVAILABLE"
+-            landed_recent = self._pack_signal_fresh("landed", sample.get("last_landed_state_monotonic"),
+-                                                    stamp, now, self._energy_config.maximum_valid_gap_s)
+-            ready = (self._config is not None and self._applied_atmosphere is not None
+-                     and self._power_air_state is not None and sample.get("landed_state_known")
+-                     and landed_recent and not sample["landed"] and joints_valid)
+-            if ready:
+-                # Reuse the release equation for the energy-selected phase model at planned altitude.
+-                # Live phase transitions supply elapsed time. Preflight duration fits do not drive Gazebo.
+-                estimate = self._energy_config.estimate_power(
+-                    phase, self._config.payload.payload_kg, self._applied_atmosphere.reference.density_kg_m3,
+-                    limited_hover_eligible=calibration.use_limited_hover_mean,
+-                )
+-                power = estimate.power_w
+-                source = ("CMU_LIMITED_HOVER_MEAN" if estimate.coefficient_phase == "limited_hover"
+-                          else estimate.model_id if power is not None else "UNSUPPORTED_PHASE")
++        elif armed and landed is False:
++            power, source = phase_power, phase_source
+         request = {"model": f"{model}_0", "time_s": stamp, "power_w": power, "armed": armed,
++                   "landed": landed, "run_id": self._run_id if self._recording else None,
++                   "phase_power_w": phase_power, "phase_source": phase_source,
++                   "manager_power_w": manager_power_w,
+                    "producer": "m100_experiment_manager", "source": source, "phase": phase,
+                    "phase_applicability": calibration.status, **self._pack_command_conditions()}
+         self._pack_drive_pub.publish(String(data=json.dumps(request, allow_nan=False)))
+@@ -859,6 +879,23 @@
+                     or (self._pack_state is not None and stamp <= self._pack_state["time_s"])):
+                 return
+             state.update(model=native["model"], status=native["status"])
++            for key in ("effective_demand_power_w", "transient_support_flights"):
++                value = native.get(key)
++                state[key] = value if type(value) in (int, float) else None
++            for key in ("effective_demand_source", "transient_reason"):
++                value = native.get(key)
++                state[key] = value if isinstance(value, str) else None
++            flags = native.get("transient_transfer_flags")
++            state["transient_transfer_flags"] = (
++                flags if isinstance(flags, list) and all(isinstance(item, str) for item in flags) else None)
++            budget = native.get("airborne_budget")
++            if (self._recording and self._recording_epoch == self._pack_epoch
++                    and isinstance(budget, dict) and budget.get("run_id") == self._run_id):
++                end = budget.get("end_s")
++                if end is None or (type(end) in (float, int) and end <= stamp + 1e-8):
++                    self._airborne_budget = budget
++                    if self._has_landing_receipt():
++                        self._pack_receipt.notify_all()
+             self._pack_state = state
+             self._pack_state_received_at = now
+             if (self._recording and self._pack_trace is not None and
+@@ -893,6 +930,8 @@
+             "conditions": self._pack_command_conditions(), "acknowledged_request": None,
+             "latest_joint_observation": joint if joint and self._pack_time_is_current(joint["time_s"], now) else None,
+             "last_request": request, "last_request_fresh": bool(request and self._pack_time_is_current(request["time_s"], now)),
++            "effective_demand_power_w": None, "effective_demand_source": None,
++            "transient_reason": None, "transient_transfer_flags": None, "transient_support_flights": None,
+             **dict.fromkeys((*PACK_DRIVE_NUMBERS, *PACK_DRIVE_FLAGS, *PACK_DRIVE_COMMANDS)),
+         }
+         if state is None or state["model"] != result["model"]:
+@@ -909,8 +948,10 @@
+                       native_demand_fresh=state["demand_fresh"], armed=state["armed"])
+         # The plugin still reports its held actuator limit and charge coverage when a load is unknown.
+         for key in ("discharged_ah", "fit_q_ah", "covered_load_time_s", "unaccounted_load_time_s", "unmodelled_idle_time_s",
+-                    "cap_voltage_v", "omega_limit_rad_s", "thrust_limit_fraction", "raw_command_time_s", *PACK_DRIVE_FLAGS, *PACK_DRIVE_COMMANDS):
+-            result[key] = state[key]
++                    "cap_voltage_v", "omega_limit_rad_s", "thrust_limit_fraction", "raw_command_time_s",
++                    "effective_demand_power_w", "effective_demand_source", "transient_reason", "transient_transfer_flags",
++                    "transient_support_flights", *PACK_DRIVE_FLAGS, *PACK_DRIVE_COMMANDS):
++            result[key] = state.get(key)
+         demand_stamp = state["demand_time_s"]
+         if demand_stamp is None:
+             return result
+@@ -983,8 +1024,8 @@
+         changing_model = self._state in BUSY_CONFIGURATION_STATES or self._state == "RESETTING"
+         committed = not changing_model and self._config is not None and payload is not None and atmosphere is not None
+         self._power_air_state = self._air_state_for_power(sample, enu["z"], timestamp_s) if committed else None
+-        self._publish_pack_demand(timestamp_s, sample, velocities, energy_phase, calibration)
+         if not committed:
++            self._publish_pack_demand(timestamp_s, sample, velocities, energy_phase, calibration)
+             self._rotor_telemetry_monotonic = 0.0
+             return
+         power_density = (self._power_air_state.density_kg_m3
+@@ -1060,6 +1101,8 @@
+                 * atmosphere.density_ratio
+             ),
+         )
++        self._publish_pack_demand(timestamp_s, sample, velocities, energy_phase, calibration,
++                                  model_energy.operational_power_w)
+         # Keep the scientific applicability label atomic with the exact model
+         # snapshot that used it.  Status/CSV readers run under the same manager
+         # lock and therefore cannot pair a new lifecycle flag with an older
+@@ -1151,9 +1194,7 @@
+                 except Exception as error:
+                     self.get_logger().error(f"{label} failed: {error}")
+                     self._set_state("ERROR", f"REJECTED — {error}")
+-                    # A full-test finally block clears _auto_running before
+-                    # its exception reaches this wrapper. Preserve recovery
+-                    # for that case even after recording has been finalized.
++                    # Preserve recovery even if recording finalization itself failed.
+                     if label == "full-test" or self._auto_running:
+                         self._safe_land_after_abort(error=True)
+ 
+@@ -1684,6 +1725,13 @@
+                     if self._auto_running:
+                         self._status = "REJECTED — the automatic test owns its recording"
+                         return
++                    if self._recording and self._mav.snapshot()["landed"] and not self._has_landing_receipt():
++                        # This ROS callback shares the executor with the pack subscriber.
++                        # Give a just-landed native budget time to arrive without blocking it.
++                        if self._manual_stop_deadline is None:
++                            self._manual_stop_deadline = time.monotonic() + PACK_RECEIPT_GRACE_S
++                        self._status = "Finishing the recorded airborne energy budget"
++                        return
+                     path = self._stop_recording()
+                     self._status = f"CSV saved: {path}" if path else "No active CSV recording"
+             elif command == "export":
+@@ -1878,7 +1926,6 @@
+         with self._lock:
+             self._start_recording("m100")
+             self._auto_running = True
+-        outcome = "ERROR"
+         try:
+             self._arm_and_takeoff(config.altitude_m)
+             home = self._home_ned
+@@ -2001,9 +2048,6 @@
+             )
+             path = self._stop_recording(outcome="COMPLETE")
+             self._set_state("COMPLETE", f"COMPLETE — CSV saved: {path}")
+-        except AbortRequested:
+-            outcome = "ABORTED"
+-            raise
+         finally:
+             if self._measurement_active:
+                 try:
+@@ -2015,12 +2059,11 @@
+                 finally:
+                     self._measurement_active = False
+             with self._lock:
+-                try:
+-                    if self._recording:
+-                        self._stop_recording(outcome=outcome)
+-                finally:
++                # The job wrapper owns the actual recovery landing on failures.
++                # Keep the recorder alive until that landing finishes.
++                if not self._recording:
+                     self._auto_running = False
+-                    self._manual_hold = None
++                self._manual_hold = None
+ 
+     def _precision_return_and_land(
+         self,
+@@ -2204,7 +2247,6 @@
+             raise RuntimeError("precision return-to-home did not settle over the landing center")
+ 
+     def _safe_land_after_abort(self, error: bool = False) -> None:
+-        self._auto_running = False
+         self._manual_hold = None
+         try:
+             sample = self._mav.snapshot()
+@@ -2213,6 +2255,8 @@
+                     max(0.0, self._relative_altitude(sample))
+                 )
+                 self._mav.land()
++                with self._lock:
++                    self._recovering_landing = True
+                 deadline = time.monotonic() + landing_timeout_s
+                 while time.monotonic() < deadline:
+                     if self._mav.snapshot()["landed"]:
+@@ -2220,8 +2264,13 @@
+                     time.sleep(0.2)
+         except Exception as landing_error:
+             self.get_logger().error(f"safe landing failed: {landing_error}")
+-        if self._recording:
+-            self._stop_recording(outcome="ERROR" if error else "ABORTED")
++        try:
++            if self._recording:
++                self._stop_recording(outcome="ERROR" if error else "ABORTED")
++        finally:
++            with self._lock:
++                self._recovering_landing = False
++                self._auto_running = False
+         if not error:
+             self._set_state("ABORTED", "ABORTED — safe landing command completed")
+ 
+@@ -2337,6 +2386,14 @@
+ 
+         enu = self._enu_values(sample)
+         with self._lock:
++            if self._manual_stop_deadline is not None and (
++                    self._has_landing_receipt() or now >= self._manual_stop_deadline):
++                self._manual_stop_deadline = None
++                try:
++                    path = self._stop_recording()
++                    self._status = f"CSV saved: {path}"
++                except OSError as error:
++                    self.get_logger().error(f"Could not finalize manual recording: {error}")
+             position = (enu["x"], enu["y"], enu["z"])
+             if (self._recording and sample.get("armed")
+                     and sample.get("landed") is not None
+@@ -2622,6 +2679,7 @@
+         energy = {
+             "schema": "M100_TELEMETRY_V3",
+             "native_pack_drive": self._pack_drive_telemetry(),
++            "native_airborne_training": self._airborne_budget,
+             "recording": self._recording,
+             "recorded_energy_coverage": model_energy.recorded_energy_coverage,
+             "airborne_energy_coverage": model_energy.airborne_energy_coverage,
+@@ -2823,6 +2881,9 @@
+         with self._lock:
+             if self._recording:
+                 raise RuntimeError("recording is already active")
++            if self._run_provenance_context is not None:
++                # Retry publication of the previous frozen recording before reusing its state.
++                self._stop_recording()
+             if self._state != "READY":
+                 raise RuntimeError("recording requires a committed READY configuration")
+             if self._measurement_active:
+@@ -2846,6 +2907,10 @@
+                 csv_handle.flush()
+ 
+                 self._pack_trace_start_s = self._gazebo_sim_time_s
++                self._recording_epoch = self._pack_epoch
++                self._recording_start_sim_s = self._gazebo_sim_time_s
++                self._airborne_budget = None
++                self._manual_stop_deadline = None
+                 self._pack_trace_rows, self._pack_trace_error = 0, None
+                 self._sample_count = 0
+                 self._last_csv_energy_timestamp_s = None
+@@ -2879,9 +2944,20 @@
+             self._pack_trace_error = str(error)
+             self.get_logger().error(f"Native pack trace close failed: {error}")
+ 
++    def _has_landing_receipt(self) -> bool:
++        return bool(self._airborne_budget and self._airborne_budget.get("status") in ("COMPLETE", "INCOMPLETE")
++                    and self._airborne_budget.get("end_s") is not None)
++
+     def _stop_recording(self, *, outcome: str = "MANUAL_STOP") -> Path | None:
+         with self._lock:
+             if self._recording:
++                wait_for_landing = outcome == "COMPLETE" or (
++                    outcome in ("ABORTED", "ERROR") and self._mav.snapshot()["landed"])
++                if wait_for_landing and not self._has_landing_receipt():
++                    # Automatic flights close on their worker after landing. Waiting on
++                    # the condition releases every level of the manager RLock.
++                    self._pack_receipt.wait_for(self._has_landing_receipt, timeout=PACK_RECEIPT_GRACE_S)
++                self._manual_stop_deadline = None
+                 self._energy_model.freeze_bms_session()
+                 self._recording = False
+                 self._close_pack_trace()
+@@ -2909,6 +2985,14 @@
+                         "armed": sample["armed"] if sample["fresh"] else None,
+                         "native_pack_drive": self._pack_drive_telemetry(),
+                     }
++                context = self._run_provenance_context
++                if "airborne_training" not in context:
++                    row = training_row(
++                        context["config"], self._run_id, context["recording_end"]["outcome"],
++                        self._airborne_budget, recording_start_s=self._recording_start_sim_s,
++                        epoch_changed=self._recording_epoch != self._pack_epoch,
++                    )
++                    context["airborne_training"] = publish_training_row(self._csv_path, row, self._airborne_budget)
+                 self._last_run_provenance_path = self._finalize_run_provenance(
+                     self._csv_path,
+                     self._run_provenance_context,
+@@ -2962,6 +3046,7 @@
+                 ).resolve(),
+                 "m100_stable_cruise_speed_config": self._stable_cruise_config_path,
+                 "m100_transient_power": Path(__file__).with_name("m100_transient_power.py").resolve(),
++                "m100_airborne_training": Path(__file__).with_name("m100_airborne_training.py").resolve(),
+                 "m100_transient_power_config": self._transient_config_path,
+                 "m100_wind_simulation": Path(__file__).with_name("m100_wind_simulation.py").resolve(),
+                 "m100_wind_simulation_config": self._wind_config_path,
+@@ -2978,6 +3063,7 @@
+         package_root = Path(get_package_share_directory("m100_gazebo_gui")).parents[1]
+         for name, path in {
+             "gazebo_m100_pack_drive_plugin": package_root / "lib/m100_gazebo_gui/libM100PackDrive.so",
++            "px4_executable_with_stamped_land_state": PX4_BINARY,
+             "m100_canonical_base_sdf": PX4_MODELS_ROOT / "m100_cmu_v2/model.sdf",
+         }.items():
+             sources[name] = {"path": str(path), "sha256": self._sha256_path(path) if path.is_file() else None}
+@@ -2995,7 +3081,11 @@
+                 "conditions": self._pack_command_conditions(),
+                 "cmu_training_ranges": {"payload_kg": [0.0, 0.5], "commanded_speed_mps": [4.0, 12.0],
+                                         "commanded_altitude_agl_m": [25.0, 100.0]},
+-                "demand_definition": "CMU whole-aircraft phase mean, 15 C density at commanded altitude, published regression mass. The narrow field hover mean requires its own eligibility gate. Unsupported airborne phases have no demand estimate.",
++                "demand_definition": "Phase means use 15 C density at commanded altitude. Gazebo selects the CMU transient estimate from live kinematics during supported manoeuvres. Manager fallback is a separately attributed aircraft-level estimate.",
++                "airborne_calibration_id": AIRBORNE_CALIBRATION_ID,
++                "airborne_boundary_source": AIRBORNE_BOUNDARY_SOURCE,
++                "airborne_boundary_gazebo_topic": "/m100/pack_drive/land",
++                "airborne_training_target": "estimated_airborne_energy_Wh in training/<run_id>.csv, original recording and source bins in airborne_training",
+                 "elapsed_time_source": "Measured Gazebo joint timestamps; CMU preflight duration predictions are offline only.",
+                 "csv_schema": CSV_SCHEMA, "native_series_in_csv": False,
+                 "trace_schema": "M100_NATIVE_PACK_DRIVE_RECORD_V1",
+diff --git a/ros2_ws/src/m100_gazebo_gui/CMakeLists.txt b/ros2_ws/src/m100_gazebo_gui/CMakeLists.txt
+index b585d8684236b6738e50e9d1b0aecc992bf9202f..1e2409aeb052b2e657f5d6ab5975c349a2a8f2d8 100644
+--- a/ros2_ws/src/m100_gazebo_gui/CMakeLists.txt
++++ b/ros2_ws/src/m100_gazebo_gui/CMakeLists.txt
+@@ -63,7 +63,8 @@
+   gz-transport::gz-transport gz-msgs::gz-msgs)
+ install(TARGETS M100AerodynamicDrag LIBRARY DESTINATION lib/${PROJECT_NAME})
+ 
+-add_library(M100PackDrive SHARED propulsion/M100PackDrive.cc)
++qt5_add_resources(m100_transient_resources propulsion/M100TransientPower.qrc)
++add_library(M100PackDrive SHARED propulsion/M100PackDrive.cc ${m100_transient_resources})
+ target_compile_features(M100PackDrive PRIVATE cxx_std_17)
+ target_link_libraries(M100PackDrive PRIVATE gz-sim::gz-sim gz-plugin::gz-plugin
+   gz-transport::gz-transport gz-msgs::gz-msgs Qt5::Core)

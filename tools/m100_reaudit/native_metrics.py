@@ -11,6 +11,7 @@ from pathlib import Path
 import shutil
 import tempfile
 
+from . import native_training
 from .physics import Model
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -230,6 +231,7 @@ def package(run_dirs, out):
     (out/'traces').mkdir(exist_ok=True); (out/'provenance').mkdir(exist_ok=True)
     (out/'telemetry_1Hz').mkdir(exist_ok=True)
     records=[]; segments=[]; attempts=[]; sources=[]
+    airborne_examples = []
     for directory in run_dirs:
         for path in sorted(directory.glob('*.json')):
             info=json.loads(path.read_text()); cid=info.get('case_id')
@@ -259,15 +261,19 @@ def package(run_dirs, out):
             receipt=out/'provenance'/f'{cid}-{rid}.json'
             receipt.write_text(json.dumps(doc,sort_keys=True,indent=2)+'\n')
             row, spans=verify(read_trace(packed),info,doc,model)
+            archived_row, example = native_training.archive_row(directory, out, cid, rid, doc, info["outcome"])
+            if example is not None:
+                airborne_examples.append(example)
             records.append(row); segments.extend(spans)
             sources.append(dict(case_id=cid,run_id=rid,trace_path=str(packed.relative_to(out)),
                                 trace_xz_sha256=digest(packed),trace_csv_sha256=plain_sha,raw_input_gz_sha256=digest(trace),
                                 provenance_path=str(receipt.relative_to(out)),provenance_sha256=digest(receipt),
                                 telemetry_path=str(csv_archive.relative_to(out)),original_csv_sha256=doc['csv']['sha256'],
-                                **archive_pack_drive(directory, out, cid, rid, doc)))
+                                **archive_pack_drive(directory, out, cid, rid, doc), **archived_row))
     if not records or len({(r['case_id'],r['run_id']) for r in records}) != len(records):
         raise ValueError('expected unique native flight records')
     table(out/'runs.csv',records); table(out/'phases.csv',segments); table(out/'attempts.csv',attempts); table(out/'sources.csv',sources)
+    native_training.publish_aggregate(out, airborne_examples, any("airborne_row_path" in item for item in sources))
     return records
 
 
@@ -312,6 +318,7 @@ def verify_saved(out):
     sources = read_rows(out/'sources.csv')
     if {key(r) for r in sources} != runs.keys() or runs.keys() != attempts.keys() or len(sources) != len(runs):
         raise ValueError('native receipt, trace and results inventories disagree')
+    airborne_examples = []
     for source in sources:
         k = key(source)
         trace = out/source['trace_path']
@@ -322,6 +329,14 @@ def verify_saved(out):
             if hashlib.file_digest(raw,'sha256').hexdigest() != source['original_csv_sha256']:
                 raise ValueError(f'{k} original CSV hash differs')
         doc = json.loads(provenance.read_text())
+        if "airborne_training" in doc:
+            receipt = doc["airborne_training"]
+            if source.get("airborne_row_sha256") != receipt["sha256"]:
+                raise ValueError(f"{k}: airborne row receipt differs")
+            example = native_training.training_example((out / source["airborne_row_path"]).read_bytes(),
+                                                        receipt, *k, attempts[k]["outcome"])
+            if example is not None:
+                airborne_examples.append(example)
         if "native_pack_drive" in doc:
             expected = doc["native_pack_drive"]["trace"]["sha256"]
             with gzip.open(out / source["pack_drive_path"], "rb") as raw:
@@ -331,6 +346,10 @@ def verify_saved(out):
         assert_same(runs[k],record)
         for old, new in zip(phases[k],spans,strict=True):
             assert_same(old,new)
+    table_path = out / "training_airborne.csv"
+    if any(item.get("airborne_row_path") for item in sources) or table_path.exists():
+        if table_path.read_bytes() != native_training.aggregate_bytes(airborne_examples):
+            raise ValueError("airborne training table differs from eligible flight receipts")
     return len(sources)
 
 

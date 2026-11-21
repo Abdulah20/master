@@ -1,0 +1,119 @@
+diff --git a/src/modules/simulation/gz_bridge/GZBridge.cpp b/src/modules/simulation/gz_bridge/GZBridge.cpp
+index 8e917e4afc..bd3bf98453 100644
+--- a/src/modules/simulation/gz_bridge/GZBridge.cpp
++++ b/src/modules/simulation/gz_bridge/GZBridge.cpp
+@@ -166,6 +166,18 @@ int GZBridge::init()
+ 
+ #endif // CONFIG_MODULES_GIMBAL
+ 
++	// Only M100 models consume the stamped detector gate. The allowed model
++	// names are safe to include verbatim in the Gazebo JSON protocol.
++	if (_model_name.rfind("m100_cmu_v2", 0) == 0
++	    && _model_name.find_first_not_of("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_") == std::string::npos) {
++		_m100_land_publisher = _node.Advertise<gz::msgs::StringMsg>("/m100/pack_drive/land");
++
++		if (!_m100_land_publisher.Valid()) {
++			PX4_ERR("M100 airborne energy: could not advertise land detector");
++			return PX4_ERROR;
++		}
++	}
++
+ 	ScheduleNow();
+ 	return OK;
+ }
+@@ -196,9 +208,58 @@ void GZBridge::Run()
+ 		_gimbal.updateParams();
+ 	}
+ 
++	if (_m100_land_publisher.Valid()) {
++		publishM100LandState();
++	}
++
+ 	ScheduleDelayed(10_ms);
+ }
+ 
++void GZBridge::publishM100LandState()
++{
++	const hrt_abstime now = hrt_absolute_time();
++	const unsigned previous_generation = _land_state_sub.get_last_generation();
++	const bool previous_landed = _land_state.landed;
++	const hrt_abstime previous_sample = _land_state.timestamp;
++	const bool updated = _land_state_sub.update(&_land_state);
++	_land_vehicle_status_sub.update(&_land_vehicle_status);
++
++	if (updated) {
++		if (!_land_transition_us || _land_state.timestamp < previous_sample) {
++			_land_sequence = 1;
++			_land_transition_us = _land_state.timestamp;
++
++		} else if (_land_state_sub.get_last_generation() - previous_generation != 1) {
++			// uORB overwrote an observation. A consumer cannot establish an
++			// uninterrupted airborne episode across this discontinuity.
++			_land_sequence += 2;
++			_land_transition_us = _land_state.timestamp;
++
++		} else if (_land_state.landed != previous_landed) {
++			++_land_sequence;
++			_land_transition_us = _land_state.timestamp;
++		}
++	}
++
++	// The detector publishes on changes and at least once per second. Repeat
++	// its original timestamp so delayed subscribers can recover an exact edge.
++	if (!_land_transition_us || now < _land_state.timestamp || now - _land_state.timestamp > 2_s
++	    || (!updated && now >= _last_land_send_us && now - _last_land_send_us < 200_ms)) {
++		return;
++	}
++
++	const bool arm_known = _land_vehicle_status.timestamp && _land_vehicle_status.timestamp <= now
++			       && now - _land_vehicle_status.timestamp < 2_s;
++	const char *armed = arm_known ? (_land_vehicle_status.arming_state == vehicle_status_s::ARMING_STATE_ARMED ? "true" : "false") : "null";
++	gz::msgs::StringMsg message;
++	message.set_data("{\"model\":\"" + _model_name + "\",\"time_s\":" + std::to_string(_land_state.timestamp * 1e-6)
++			 + ",\"transition_s\":" + std::to_string(_land_transition_us * 1e-6)
++			 + ",\"sequence\":" + std::to_string(_land_sequence) + ",\"landed\":" + (_land_state.landed ? "true" : "false")
++			 + ",\"armed\":" + armed + "}");
++	_m100_land_publisher.Publish(message);
++	_last_land_send_us = now;
++}
++
+ bool GZBridge::subscribeClock(bool required)
+ {
+ 	std::string clock_topic = "/world/" + _world_name + "/clock";
+diff --git a/src/modules/simulation/gz_bridge/GZBridge.hpp b/src/modules/simulation/gz_bridge/GZBridge.hpp
+index 31c892d539..e1f3fec5e4 100644
+--- a/src/modules/simulation/gz_bridge/GZBridge.hpp
++++ b/src/modules/simulation/gz_bridge/GZBridge.hpp
+@@ -66,7 +66,9 @@
+ #include <uORB/topics/vehicle_attitude.h>
+ #include <uORB/topics/vehicle_global_position.h>
+ #include <uORB/topics/vehicle_local_position.h>
++#include <uORB/topics/vehicle_land_detected.h>
+ #include <uORB/topics/vehicle_odometry.h>
++#include <uORB/topics/vehicle_status.h>
+ 
+ #include <gz/math.hh>
+ #include <gz/msgs.hh>
+@@ -110,6 +112,7 @@ public:
+ private:
+ 
+ 	void Run() override;
++	void publishM100LandState();
+ 
+ 	bool subscribeClock(bool required);
+ 	bool subscribePoseInfo(bool required);
+@@ -183,6 +186,14 @@ private:
+ 
+ 	bool _realtime_clock_set{false};
+ 	gz::transport::Node _node;
++	gz::transport::Node::Publisher _m100_land_publisher;
++	uORB::Subscription _land_state_sub{ORB_ID(vehicle_land_detected)};
++	uORB::Subscription _land_vehicle_status_sub{ORB_ID(vehicle_status)};
++	vehicle_land_detected_s _land_state{};
++	vehicle_status_s _land_vehicle_status{};
++	hrt_abstime _land_transition_us{0};
++	hrt_abstime _last_land_send_us{0};
++	unsigned _land_sequence{0};
+ 
+ 	// GPS noise model
+ 	float _gps_pos_noise_n = 0.0f;

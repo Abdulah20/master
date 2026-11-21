@@ -6,6 +6,16 @@
 
 أُعيد بعد ذلك حساب الطاقة بين إشارتي الإقلاع والهبوط في السجلات نفسها، باستخدام قياسات CMU لتقدير استهلاك المناورات التي تتوفر لها أمثلة ميدانية. [معايرة التسارع والاستقرار والكبح وميزانية الطاقة لكل رحلة](../../results/m100_reaudit/transient_airborne/report_ar.md)
 
+## طاقة الرحلة في التسجيل المباشر
+
+أصبحت معايرة CMU المستخدمة في تحليل الرحلات الثلاث جزءًا من إضافة الحزمة داخل Gazebo. أثناء الاستقرار قبل القياس والكبح قبل العودة، تستخرج الإضافة سرعة الطائرة الأفقية وتغيّرها خلال الثانية الماضية والسرعة الرأسية والارتفاع والميل. تبحث أولًا عن مقاطع حركة متشابهة في ثلاث رحلات CMU مختلفة على الأقل. عند ضعف المطابقة تستخدم معاملات الانحدار الميداني المحفوظة وتوسم تجاوز حدودها، مثل الوقفة الطويلة أو الميل العالي. تغطي المعايرة حمولات 0 و0.25 و0.50 كغ. تدخل القدرة المختارة في حساب جهد الحزمة وتيارها وسقف سرعة الدوّار في خطوة الفيزياء نفسها. [المعايرة داخل Gazebo](../../tools/m100_reaudit/pack_drive/M100TransientPower.hh) · [مرجع المعايرة الميدانية](../../results/m100_reaudit/transient_airborne/report_ar.md)
+
+يرسل PX4 إلى الإضافة حالة `vehicle_land_detected.landed` ووقت تغيّرها الأصلي. تبدأ نافذة الطاقة عند الانتقال من الأرض إلى الجو، وتنتهي عند أول انتقال إلى الأرض. تُحسب الطاقة بالواط·ساعة على ساعة المحاكاة، وتُقسّم الفترة عند وقت الانتقال حتى لو وصل إشعار الهبوط متأخرًا. يحتفظ السجل بزمن وطاقة كل مصدر – نموذج الحزمة في المراحل المعتادة، والمعايرة المحلية، والانحدار الأوسع، وتقدير مدير الرحلة الاحتياطي. يبقى التيار المتحقق عند قص أمر محرك مجهولًا. [نقل إشارة الهبوط من PX4](../../tools/m100_reaudit/pack_drive/airborne_px4.patch) · [تكامل الطاقة في الإضافة](../../tools/m100_reaudit/pack_drive/M100PackDrive.cc)
+
+يكتب المسجّل مباشرة صفًا لكل تسجيل في `outputs/m100_csv/training/<run_id>.csv`، أو في `training/` داخل مجلد التسجيل المحدد. هدف الطاقة هو `estimated_airborne_energy_Wh`. عند نقص حدود الرحلة أو وجود زمن جوي بلا تقدير، يبقى الهدف فارغًا وتظهر الحالة في `training_status`. يُرفق سجل المصادر وبصمة صف التدريب بملف الرحلة `.provenance.json`. عند تجميع حملة، يحفظ المصدّر الصفوف الأصلية في `airborne_rows/` ويجمع الرحلات المؤهلة في `training_airborne.csv` مع خصائص المهمة المتاحة قبل الإقلاع. تبقى أرقام الرحلات الثلاث المنشورة من إعادة الحساب على التسجيلات السابقة. [كاتب صفوف التدريب](../../tools/m100_reaudit/pack_drive/m100_airborne_training.py) · [تجميع بيانات الحملة](../../tools/m100_reaudit/native_training.py)
+
+تحتفظ الرحلة اليدوية أو الملغاة بطاقتها في صف التسجيل إذا رُصدت فترة جوية واحدة كاملة. ويضم جدول التدريب على المهام المخططة الرحلات الآلية المكتملة ذات حمولة معايَرة وسرعة مطلوبة بين 4 و12 م/ث وارتفاع بين 25 و100 م، عند إعداد 15°م ورياح محاكاة صفرية. تحتفظ الإعدادات الأبعد بوسم نقل التقدير خارج شروط المرجع. تُحفظ مدد المصادر وأسباب الفجوات في صفوف التسجيل الأصلية، ويقتصر جدول التدريب المجمع على خصائص ما قبل الرحلة والهدف ومعرّفات التتبع.
+
 ## القدرة والتيار والدفع
 
 يستخدم المدير قانون Rodrigues لمتوسط قدرة المرحلة، وهو المدخل الذي اختارته معايرة CMU لتقدير طاقة الرحلة. تدخل فيه الحمولة وكثافة الهواء المرجعية عند الارتفاع المخطط ودرجة حرارة مرجعية 15°م. تعطي مراحل الرحلة الفعلية في المحاكي الزمن المستخدم. يؤخذ الإقلاع والصعود من قانون الإقلاع، والطيران الأفقي والعودة من قانون الطيران الأفقي، والهبوط من قانون الهبوط. للتحويم مرجع تجريبي محدود من رحلتين داخل شروطه المنشورة. يُوسَم نقل القدرة إلى أوامر خارج مجالات التدريب، وإلى درجات حرارة تشغيل أخرى. [اختيار نموذج القدرة وبيانات الملاءمة](../../results/m100_reaudit/cmu_calibration/fit.json) · [معاملات المراحل وشروط التحويم](../../tools/m100_reaudit/runtime_snapshot/ros2_ws/src/drone_nav/config/m100_energy_model_v2.yaml)
@@ -47,9 +57,9 @@ I = P / V
 
 ## تركيب المصدر على نسخة أخرى من بيئة M100
 
-استُخدم Gazebo Sim 8.11 من بيئة Jazzy عند بناء المكتبة المحلية. بصمة SHA-256 للملف المثبّت `libM100PackDrive.so` هي `be821bc9226f875bd7472982363277f4e5b7929616f6f83ccfdee0c3a9ec4ac6`. تسجل كل رحلة لاحقة بصمة النسخة الموجودة عند بدء التسجيل.
+استُخدم Gazebo Sim 8.11 من بيئة Jazzy عند بناء المكتبة المحلية. كانت بصمة `libM100PackDrive.so` المستخدمة في الرحلات الثلاث المؤرشفة `be821bc9226f875bd7472982363277f4e5b7929616f6f83ccfdee0c3a9ec4ac6`. بصمة النسخة المبنية بعد دمج معايرة المناورات هي `405cd45a8e48daaa25de226f302636ebfd35aff05ec59085ffcea11e7d4a8211`. بُنيت الإضافة ونسخة PX4 ورُوجع مسار التسجيل دون تشغيل اختبار أو محاكاة. تسجَّل بصمة المكتبة عند بدء كل تسجيل. تحمل معايرة المناورات المدمجة أيضًا معرّفًا مشتقًا من بصمات بيانات CMU ومعاملات النموذجين. [هوية المعايرة](../../tools/m100_reaudit/pack_drive/M100TransientModelId.hh)
 
-تحتاج الرقعتان إلى مشروع ROS الكامل وشجرة PX4 المخصصة للطائرة بما فيها ملفات النموذج والأصول. من جذر مستودع الأطروحة، تضيف الأوامر التالية المصدر وتبني حزمتي ROS المطلوبتين. المساران `project` و`px4` يشيران إلى النسختين المراد تحديثهما. في مساحة العمل الأصلية يرتبط المدير وملف الإطلاق مباشرة بالمصدر.
+تحتاج الحزمة إلى مشروع ROS الكامل وشجرة PX4 المخصصة للطائرة بما فيها ملفات النموذج والأصول. من جذر مستودع الأطروحة، يجهّز الجزء الأول إصدار ربط الحزمة الأساسي على نسخة أقدم. ابدأ من الجزء الثاني إذا كانت إضافة الحزمة السابقة مركبة بالفعل. المساران `project` و`px4` يشيران إلى النسختين المراد تحديثهما.
 
 ```bash
 release="$PWD/tools/m100_reaudit/pack_drive"
@@ -57,10 +67,23 @@ project="$HOME/Master/Drone/project"
 px4="$HOME/PX4-Autopilot"
 git -C "$project" apply "$release/ros2.patch"
 git -C "$px4" apply "$release/px4.patch"
-install -D -m 0644 "$release/M100PackDrive.cc" "$project/ros2_ws/src/m100_gazebo_gui/propulsion/M100PackDrive.cc"
+```
+
+تركيب إصدار المعايرة المباشرة وبناؤه، باستخدام مسارات `release` و`project` و`px4` نفسها
+
+```bash
+git -C "$project" apply "$release/airborne_ros2.patch"
+git -C "$px4" apply "$release/airborne_px4.patch"
+install -d "$project/ros2_ws/src/m100_gazebo_gui/propulsion"
+install -m 0644 "$release"/{M100PackDrive.cc,M100TransientPower.hh,M100TransientModelId.hh,M100TransientPower.qrc,cmu_transient_v1.qz} \
+  "$project/ros2_ws/src/m100_gazebo_gui/propulsion/"
+install -m 0644 "$release/m100_airborne_training.py" "$project/ros2_ws/src/drone_nav/drone_nav/"
 source /opt/ros/jazzy/setup.bash
+cmake --build "$px4/build/px4_sitl_default" --target px4 --parallel 4
 cd "$project/ros2_ws"
 colcon build --symlink-install --packages-select drone_nav m100_gazebo_gui --cmake-args -DBUILD_TESTING=OFF
-ln -s "$project/ros2_ws/install/m100_gazebo_gui/lib/m100_gazebo_gui/libM100PackDrive.so" \
-  "$px4/build/px4_sitl_default/src/modules/simulation/gz_plugins/libM100PackDrive.so"
+plugin="$px4/build/px4_sitl_default/src/modules/simulation/gz_plugins/libM100PackDrive.so"
+if [[ ! -e "$plugin" && ! -L "$plugin" ]]; then
+  ln -s "$project/ros2_ws/install/m100_gazebo_gui/lib/m100_gazebo_gui/libM100PackDrive.so" "$plugin"
+fi
 ```

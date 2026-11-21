@@ -5,11 +5,13 @@
 #include <chrono>
 #include <cmath>
 #include <cstdint>
+#include <deque>
 #include <memory>
 #include <mutex>
 #include <optional>
 #include <stdexcept>
 #include <string>
+#include <string_view>
 
 #include <QByteArray>
 #include <QJsonArray>
@@ -17,15 +19,20 @@
 #include <QJsonObject>
 #include <QJsonValue>
 #include <QString>
+#include <QStringList>
 #include <gz/msgs/actuators.pb.h>
 #include <gz/msgs/stringmsg.pb.h>
 #include <gz/plugin/Register.hh>
 #include <gz/sim/EntityComponentManager.hh>
+#include <gz/sim/Link.hh>
 #include <gz/sim/Model.hh>
 #include <gz/sim/System.hh>
+#include <gz/sim/Util.hh>
 #include <gz/sim/components/Actuators.hh>
 #include <gz/transport/Node.hh>
 #include <sdf/Element.hh>
+
+#include "M100TransientPower.hh"
 
 namespace m100
 {
@@ -37,6 +44,10 @@ using Ecm = gz::sim::EntityComponentManager;
 constexpr double kClockEpsilon = 1e-9;
 constexpr const char *kDemandTopic = "/m100/pack_drive/demand";
 constexpr const char *kStateTopic = "/m100/pack_drive/state";
+constexpr const char *kLandTopic = "/m100/pack_drive/land";
+// PX4 publishes land detection on changes or once a second at unchanged state.
+constexpr double kLandReportAge = 1.5;
+constexpr double kIntegralHistorySeconds = 5.0;
 
 double Required(const sdf::Element &sdf, const std::string &key)
 {
@@ -78,8 +89,23 @@ struct Fit
 
 struct Demand
 {
-  double time;
-  Number power;
+  double time{};
+  Number power, phasePower, managerPower, payload;
+  std::optional<bool> armed, landed;
+  QString phase, phaseSource, runId;
+
+  bool Transient() const
+  {
+    return this->phaseSource == "UNSUPPORTED_PHASE" &&
+           (this->phase == "STABILIZING" || this->phase == "RETURN_BRAKING");
+  }
+};
+
+struct LandReport
+{
+  double time, transition;
+  std::uint64_t sequence;
+  bool landed;
   std::optional<bool> armed;
 };
 
@@ -93,6 +119,7 @@ struct Inputs
 {
   std::optional<Demand> demand;
   std::optional<Raw> raw;
+  std::optional<LandReport> land;
   std::uint64_t discontinuity{0};
   bool awaitingZero{false};
 };
@@ -100,6 +127,13 @@ struct Inputs
 bool Fresh(double now, double stamp, double maxAge)
 {
   return stamp <= now + kClockEpsilon && now - stamp <= maxAge + kClockEpsilon;
+}
+
+Number Nonnegative(const QJsonValue &value)
+{
+  if (value.isDouble() && std::isfinite(value.toDouble()) && value.toDouble() >= 0)
+    return value.toDouble();
+  return std::nullopt;
 }
 
 // Each subscription epoch owns a different inbox. Delayed callbacks from an
@@ -136,21 +170,58 @@ class Inbox
         !(power.isNull() || (power.isDouble() && std::isfinite(power.toDouble()) &&
                              power.toDouble() >= 0)))
       return;
-    Demand next{time.toDouble(), std::nullopt, std::nullopt};
-    if (power.isDouble())
-      next.power = power.toDouble();
+    Demand next;
+    next.time = time.toDouble();
+    next.power = Nonnegative(power);
+    next.phasePower = Nonnegative(obj.value("phase_power_w"));
+    next.managerPower = Nonnegative(obj.value("manager_power_w"));
+    next.payload = Nonnegative(obj.value("payload_kg"));
+    next.phase = obj.value("phase").toString();
+    next.phaseSource = obj.value("phase_source").toString(obj.value("source").toString());
+    next.runId = obj.value("run_id").toString();
     if (armed.isBool())
       next.armed = armed.toBool();
+    if (obj.value("landed").isBool())
+      next.landed = obj.value("landed").toBool();
     std::lock_guard<std::mutex> lock(this->mutex);
     const auto &prev = this->latest.demand;
     if (!this->clock || next.time < *this->firstClock - kClockEpsilon ||
         !Fresh(*this->clock, next.time, this->maxAge) ||
         (prev && next.time <= prev->time))
       return;
+    const auto &land = this->latest.land;
+    const bool nativeArmedInAir = land && Fresh(*this->clock, land->time, kLandReportAge) &&
+                                  !land->landed && land->armed.value_or(false);
     if ((prev && next.time - prev->time > this->maxAge) ||
-        !next.armed.value_or(false) || !next.power || *next.power <= 0)
+        (next.armed == false && !nativeArmedInAir) || !(next.power.value_or(0) > 0 ||
+                                next.phasePower.value_or(0) > 0 || next.Transient()))
       ++this->latest.discontinuity;
     this->latest.demand = next;
+  }
+
+  public: void OnLand(const gz::msgs::StringMsg &message)
+  {
+    const auto obj = QJsonDocument::fromJson(QByteArray::fromStdString(message.data())).object();
+    const auto time = Nonnegative(obj.value("time_s"));
+    const auto edge = Nonnegative(obj.value("transition_s"));
+    const auto seq = Nonnegative(obj.value("sequence"));
+    if (obj.value("model").toString() != this->model || !time || !edge || !seq ||
+        *edge > *time + kClockEpsilon || *seq < 1 || *seq > 9007199254740991.0 ||
+        std::floor(*seq) != *seq || !obj.value("landed").isBool())
+      return;
+    LandReport next{*time, *edge, static_cast<std::uint64_t>(*seq),
+                    obj.value("landed").toBool(), std::nullopt};
+    if (obj.value("armed").isBool())
+      next.armed = obj.value("armed").toBool();
+    std::lock_guard<std::mutex> lock(this->mutex);
+    const auto &old = this->latest.land;
+    // A PX4 callback can arrive one physics tick ahead of PreUpdate. Consume it
+    // only after that stamped simulation time has actually been reached.
+    if (!this->clock || *time < *this->firstClock - kClockEpsilon ||
+        *time > *this->clock + this->maxAge ||
+        (old && (next.time < old->time || (next.time == old->time && next.sequence < old->sequence))))
+      return;
+    this->latest.land = next;
   }
 
   public: void OnRaw(const gz::msgs::Actuators &message)
@@ -200,6 +271,173 @@ class Inbox
   private: Inputs latest;
 };
 
+enum class Source { Pack, Local, Pooled, Manager, Missing };
+constexpr std::array<const char *, 5> kSourceNames{
+    "native_pack_model", "cmu_local", "cmu_pooled", "recorded_manager", "unavailable"};
+
+struct Sum
+{
+  double seconds{}, wh{};
+};
+using Totals = std::array<Sum, kSourceNames.size()>;
+
+struct Slice
+{
+  double start, end, p0, p1;
+  Source source;
+  Totals before;
+
+  Totals At(double time) const
+  {
+    Totals value = this->before;
+    const double dt = std::clamp(time - this->start, 0.0, this->end - this->start);
+    auto &sum = value[static_cast<std::size_t>(this->source)];
+    sum.seconds += dt;
+    const double endPower = this->p0 + (this->p1 - this->p0) * dt / (this->end - this->start);
+    sum.wh += (this->p0 + endPower) * 0.5 * dt / 3600.0;
+    return value;
+  }
+};
+
+// Save cumulative primitives at physics ticks. PX4 reports transitions after
+// their source stamps. Clipping a stored trapezoid recovers both boundaries
+// without assigning a ROS receive time or an entire publish interval to air.
+class Integrals
+{
+  public: void Append(double start, double end, Source source, double p0 = 0, double p1 = 0)
+  {
+    if (end <= start)
+      return;
+    this->slices.push_back({start, end, p0, p1, source, this->total});
+    this->total = this->slices.back().At(end);
+    while (this->slices.front().end < end - kIntegralHistorySeconds)
+      this->slices.pop_front();
+  }
+
+  public: std::optional<Totals> At(double time) const
+  {
+    for (auto it = this->slices.rbegin(); it != this->slices.rend(); ++it)
+      if (it->start <= time + kClockEpsilon && time <= it->end + kClockEpsilon)
+        return it->At(time);
+    return std::nullopt;
+  }
+
+  public: const Totals &Current() const { return this->total; }
+  private: Totals total{};
+  private: std::deque<Slice> slices;
+};
+
+QJsonValue JsonNumber(Number n)
+{
+  return n ? QJsonValue(*n) : QJsonValue(QJsonValue::Null);
+}
+
+struct AirborneBudget
+{
+  QString run, status{"WAITING_FOR_RECORDING"}, reason;
+  double recordingStart{};
+  Number start, end;
+  std::optional<LandReport> last;
+  std::optional<Totals> origin, final;
+
+  void Observe(const LandReport &land, const Integrals &energy, bool recording)
+  {
+    if (this->status == "INCOMPLETE" || this->run.isEmpty())
+      return;
+    if (this->end)
+    {
+      // A manual recording may include another sortie. A single planned-flight
+      // row cannot use just the first completed gate of this multi-flight run.
+      if (recording && land.sequence != this->last->sequence)
+        this->Fail("MULTIPLE_OR_DISCONTINUOUS_AIRBORNE_WINDOWS");
+      return;
+    }
+    if (!this->last)
+    {
+      if (land.landed)
+      {
+        this->last = land;
+        this->status = "WAITING_FOR_TAKEOFF";
+      }
+      else if (land.transition >= this->recordingStart - kClockEpsilon)
+        this->Fail("NO_PRECEDING_GROUND_OBSERVATION");
+      return;
+    }
+    if (land.sequence == this->last->sequence && land.landed == this->last->landed &&
+        land.transition == this->last->transition)
+      return;
+    if (land.sequence != this->last->sequence + 1 || land.landed == this->last->landed ||
+        land.transition < this->last->transition || land.transition < this->recordingStart - kClockEpsilon)
+    {
+      this->Fail("DISCONTINUOUS_PX4_LAND_SEQUENCE");
+      return;
+    }
+    this->last = land;
+    if (!land.landed)
+    {
+      this->start = land.transition;
+      this->origin = energy.At(land.transition);
+      if (!this->origin)
+        this->Fail("TAKEOFF_OUTSIDE_INTEGRATION_HISTORY");
+      else
+        this->status = "AIRBORNE";
+      return;
+    }
+    this->end = land.transition;
+    this->final = energy.At(land.transition);
+    if (!this->final || !this->origin || !this->start || *this->end <= *this->start)
+    {
+      this->Fail("LANDING_OUTSIDE_INTEGRATION_HISTORY");
+      return;
+    }
+    const auto missing = static_cast<std::size_t>(Source::Missing);
+    if ((*this->final)[missing].seconds != (*this->origin)[missing].seconds)
+      this->Fail("MISSING_AIRBORNE_POWER");
+    else
+      this->status = "COMPLETE";
+  }
+
+  void Fail(const char *detail)
+  {
+    this->status = "INCOMPLETE";
+    this->reason = detail;
+  }
+
+  QJsonObject Json(const Integrals &energy, double now) const
+  {
+    QJsonObject object, sources;
+    object["run_id"] = this->run.isEmpty() ? QJsonValue(QJsonValue::Null) : QJsonValue(this->run);
+    object["boundary_source"] = "PX4_VEHICLE_LAND_DETECTED";
+    object["calibration_id"] = transient::kCalibrationId;
+    object["status"] = this->status;
+    object["reason"] = this->reason;
+    object["start_s"] = JsonNumber(this->start);
+    object["end_s"] = JsonNumber(this->end);
+    const bool running = this->status == "AIRBORNE";
+    object["duration_s"] = JsonNumber(this->start && (this->end || running) ?
+        Number(this->end.value_or(now) - *this->start) : std::nullopt);
+    const Totals &value = this->final ? *this->final : energy.Current();
+    const bool available = this->origin && (running || this->final);
+    double covered = 0, wh = 0;
+    for (std::size_t i = 0; i < static_cast<std::size_t>(Source::Missing); ++i)
+    {
+      const double seconds = available ? value[i].seconds - (*this->origin)[i].seconds : 0;
+      const double wattsHours = available ? value[i].wh - (*this->origin)[i].wh : 0;
+      sources[kSourceNames[i]] = QJsonObject{{"seconds", seconds}, {"energy_Wh", wattsHours}};
+      covered += seconds;
+      wh += wattsHours;
+    }
+    object["sources"] = sources;
+    object["covered_s"] = covered;
+    object["known_energy_Wh"] = wh;
+    const auto missing = static_cast<std::size_t>(Source::Missing);
+    object["uncovered_s"] = JsonNumber(available ? Number(value[missing].seconds -
+                                           (*this->origin)[missing].seconds) : std::nullopt);
+    object["estimated_airborne_energy_Wh"] = JsonNumber(this->status == "COMPLETE" ? Number(wh) : std::nullopt);
+    return object;
+  }
+};
+
 struct State
 {
   const char *status{"WAITING_FOR_DEMAND_CAP_HELD"};
@@ -207,13 +445,10 @@ struct State
   bool knownIdle{false};
   double capV{0};
   Number requestedV, requestedI, terminalV, current;
+  Number effectivePower, managerPower, managerExpires;
+  Source source{Source::Missing};
   Speeds output{};
 };
-
-QJsonValue JsonNumber(Number n)
-{
-  return n ? QJsonValue(*n) : QJsonValue(QJsonValue::Null);
-}
 
 QJsonArray JsonSpeeds(const Speeds &speeds)
 {
@@ -242,6 +477,7 @@ class PackDrive final : public gz::sim::System,
     this->modelName = model.Name(ecm);
     this->entity = entity;
     this->fit = Fit::Read(*sdf);
+    this->predictor.Load();
     this->heldV = this->fit.Voltage(this->fit.maxI, this->fit.minQ);
     this->WriteMotors(ecm, {});
     this->publisher = this->outputNode.Advertise<gz::msgs::StringMsg>(kStateTopic);
@@ -256,9 +492,15 @@ class PackDrive final : public gz::sim::System,
     // Only a new instance, attached to a new spawn, starts a new pack ledger.
     this->lastStep.reset();
     this->previousCurrent.reset();
+    this->previousState = State{};
     this->previousLoad = false;
     this->previousIdle = false;
     this->lastPublish.reset();
+    this->body = gz::sim::kNullEntity;
+    this->groundZ.reset();
+    this->ResetMotion();
+    this->integrals = {};
+    this->budget = {};
     this->WriteMotors(ecm, {});
     this->Connect(true);
   }
@@ -272,15 +514,18 @@ class PackDrive final : public gz::sim::System,
     if (dt < 0 || (this->lastStep && now < *this->lastStep - kClockEpsilon))
       this->Reset(info, ecm);
     const auto inputs = this->inbox->At(now);
+    if (!info.paused && dt > 0 && (!this->lastStep || now > *this->lastStep))
+      this->UpdateMotion(inputs, now, ecm);
     auto state = this->Evaluate(inputs, now);
     const double elapsed = this->lastStep ? now - *this->lastStep : 0;
-    if (!info.paused && dt > 0 && elapsed > 0)
+    if (elapsed > 0)
     {
       double covered = 0;
+      const bool contiguous = !info.paused && dt > 0 && elapsed <= this->fit.maxAge &&
+                              std::abs(elapsed - dt) <= kClockEpsilon;
       // Only bridge consecutive supported endpoints with the same input
       // history. Never fill missing power, stale commands, or rotor saturation.
-      if (elapsed <= this->fit.maxAge && std::abs(elapsed - dt) <= kClockEpsilon &&
-          this->previousBreak == inputs.discontinuity && this->previousCurrent &&
+      if (contiguous && this->previousBreak == inputs.discontinuity && this->previousCurrent &&
           state.current)
       {
         const double amps = 0.5 * (*this->previousCurrent + *state.current);
@@ -288,8 +533,10 @@ class PackDrive final : public gz::sim::System,
         this->q = (covered < elapsed) ? this->fit.maxQ :
                   std::min(this->fit.maxQ, this->q + covered * amps / 3600.0);
         this->coveredSeconds += covered;
-        state = this->Evaluate(inputs, now);
       }
+      this->IntegratePower(*this->lastStep, now, covered, contiguous, state);
+      if (covered > 0)
+        state = this->Evaluate(inputs, now);
       if (this->previousLoad)
         this->uncoveredSeconds += elapsed - covered;
       else if (this->previousIdle)
@@ -297,7 +544,20 @@ class PackDrive final : public gz::sim::System,
     }
     this->heldV = state.capV;
     this->WriteMotors(ecm, state.output);
-    const bool changed = this->lastStatus != state.status || this->lastLimited != state.limited;
+    const QString previousBudget = this->budget.status;
+    if (state.demandFresh && !inputs.demand->runId.isEmpty() && inputs.demand->runId != this->budget.run)
+    {
+      this->budget = {};
+      this->budget.run = inputs.demand->runId;
+      this->budget.recordingStart = inputs.demand->time;
+      this->budget.status = "WAITING_FOR_GROUND";
+    }
+    if (inputs.land && inputs.land->time <= now + kClockEpsilon &&
+        (this->budget.last || Fresh(now, inputs.land->time, kLandReportAge)))
+      this->budget.Observe(*inputs.land, this->integrals,
+          state.demandFresh && inputs.demand->runId == this->budget.run);
+    const bool changed = this->lastStatus != state.status || this->lastLimited != state.limited ||
+                         previousBudget != this->budget.status || this->previousState.source != state.source;
     if (!this->lastPublish || changed ||
         now - *this->lastPublish >= std::min(0.05, this->fit.maxAge / 2.0))
     {
@@ -308,9 +568,35 @@ class PackDrive final : public gz::sim::System,
     }
     this->lastStep = now;
     this->previousCurrent = info.paused ? std::nullopt : state.current;
+    this->previousState = state;
     this->previousBreak = inputs.discontinuity;
     this->previousLoad = state.loadPossible;
     this->previousIdle = state.knownIdle;
+  }
+
+  private: void IntegratePower(double start, double end, double covered, bool contiguous, const State &next)
+  {
+    const State &previous = this->previousState;
+    if (covered > 0)
+    {
+      // Both pack endpoint pairs passed the voltage/current fit and the uncapped
+      // command checks. Across a source switch the prior command owned this tick.
+      const double p0 = *previous.terminalV * *previous.current;
+      const double p1 = previous.source == next.source ? *next.terminalV * *next.current : p0;
+      const double fraction = std::clamp(covered / (end - start), 0.0, 1.0);
+      const double cutoff = std::min(end, start + covered);
+      this->integrals.Append(start, cutoff, previous.source, p0, p0 + (p1 - p0) * fraction);
+      start = cutoff;
+    }
+    // Only a fresh, explicitly identified whole-aircraft manager estimate may
+    // cover the remainder (including clipping). It never supplies charge or V/I.
+    if (contiguous && previous.managerPower && previous.managerExpires)
+    {
+      const double until = std::clamp(*previous.managerExpires, start, end);
+      this->integrals.Append(start, until, Source::Manager, *previous.managerPower, *previous.managerPower);
+      start = until;
+    }
+    this->integrals.Append(start, end, Source::Missing);
   }
 
   private: void Connect(bool requireZero)
@@ -323,7 +609,9 @@ class PackDrive final : public gz::sim::System,
             "/" + this->modelName + "/command/motor_speed",
             [in](const gz::msgs::Actuators &m) { in->OnRaw(m); }) ||
         !this->inputNode->Subscribe<gz::msgs::StringMsg>(
-            kDemandTopic, [in](const gz::msgs::StringMsg &m) { in->OnDemand(m); }))
+            kDemandTopic, [in](const gz::msgs::StringMsg &m) { in->OnDemand(m); }) ||
+        !this->inputNode->Subscribe<gz::msgs::StringMsg>(
+            kLandTopic, [in](const gz::msgs::StringMsg &m) { in->OnLand(m); }))
       throw std::runtime_error("Could not subscribe M100PackDrive inputs");
   }
 
@@ -337,6 +625,56 @@ class PackDrive final : public gz::sim::System,
     ecm.SetComponentData<gz::sim::components::Actuators>(this->entity, command);
   }
 
+  private: void ResetMotion()
+  {
+    this->predictor.Reset();
+    this->prediction = {};
+    this->predictionAt.reset();
+    this->predictionPayload.reset();
+  }
+
+  private: void UpdateMotion(const Inputs &in, double now, Ecm &ecm)
+  {
+    if (this->body == gz::sim::kNullEntity)
+    {
+      this->body = gz::sim::Model(this->entity).LinkByName(ecm, "base_link");
+      if (this->body == gz::sim::kNullEntity)
+        return;
+      gz::sim::Link(this->body).EnableVelocityChecks(ecm);
+    }
+    const auto pose = gz::sim::worldPose(this->body, ecm);
+    const auto velocity = gz::sim::Link(this->body).WorldLinearVelocity(ecm);
+    const bool demandFresh = in.demand && Fresh(now, in.demand->time, this->fit.maxAge);
+    const bool nativeFresh = in.land && Fresh(now, in.land->time, kLandReportAge);
+    const auto landed = nativeFresh ? std::optional<bool>(in.land->landed) :
+                        demandFresh ? in.demand->landed : std::nullopt;
+    if (!landed || *landed || !velocity || !velocity->IsFinite() || !pose.IsFinite())
+    {
+      if (landed == true && pose.IsFinite() && velocity && velocity->IsFinite() &&
+          std::abs(velocity->Z()) < 0.1)
+        this->groundZ = pose.Pos().Z();
+      this->ResetMotion();
+      return;
+    }
+    this->predictor.Observe(now, std::hypot(velocity->X(), velocity->Y()), velocity->Z());
+    if (!demandFresh || !in.demand->Transient() || !in.demand->payload || !this->groundZ)
+    {
+      this->prediction = {};
+      this->predictionAt.reset();
+      return;
+    }
+    // Keep causal speed history at physics cadence. Local-neighbour lookup
+    // follows the native telemetry cadence; integrate the applied value each tick.
+    if (this->predictionAt && this->predictionPayload == in.demand->payload &&
+        now - *this->predictionAt < 0.05 - kClockEpsilon)
+      return;
+    const double tilt = std::acos(std::clamp(pose.Rot().ZAxis().Z(), -1.0, 1.0)) *
+                        (180.0 / std::acos(-1.0));
+    this->prediction = this->predictor.Predict(*in.demand->payload, pose.Pos().Z() - *this->groundZ, tilt);
+    this->predictionAt = now;
+    this->predictionPayload = in.demand->payload;
+  }
+
   private: State Evaluate(const Inputs &in, double now) const
   {
     State s;
@@ -345,10 +683,38 @@ class PackDrive final : public gz::sim::System,
     s.rawFresh = in.raw && Fresh(now, in.raw->time, this->fit.maxAge);
     const Speeds raw = s.rawFresh ? in.raw->speed : Speeds{};
     const double peak = std::max(0.0, *std::max_element(raw.begin(), raw.end()));
-    const bool armKnown = s.demandFresh && in.demand->armed.has_value();
-    const bool armed = armKnown && in.demand->armed.value();
-    const bool powerKnown = s.demandFresh && in.demand->power.has_value();
-    const double power = powerKnown ? in.demand->power.value() : -1.0;
+    const bool nativeFresh = in.land && Fresh(now, in.land->time, kLandReportAge);
+    // A native in-air arming observation supersedes the slower MAVLink
+    // heartbeat. On the ground retain the original arming and motor start path.
+    const bool nativeArmKnown = nativeFresh && !in.land->landed && in.land->armed.has_value();
+    const bool nativeAir = nativeArmKnown && *in.land->armed;
+    const bool armKnown = s.demandFresh && (nativeArmKnown || in.demand->armed.has_value());
+    const bool armed = armKnown && (nativeArmKnown ? nativeAir : in.demand->armed.value_or(false));
+    if (s.demandFresh)
+    {
+      s.effectivePower = in.demand->power;
+      if (nativeAir && in.demand->armed == false)
+        s.effectivePower.reset();  // The echo is a zero from an older disarmed heartbeat.
+      if (nativeAir && !s.effectivePower && in.demand->phasePower)
+        s.effectivePower = in.demand->phasePower;
+      if (s.effectivePower && *s.effectivePower > 0)
+        s.source = Source::Pack;
+      const bool airborne = nativeFresh ? !in.land->landed : in.demand->landed == false;
+      if (armed && airborne && s.rawFresh && peak > 0 && !s.effectivePower &&
+          in.demand->Transient() && this->predictionAt && this->prediction.power &&
+          this->predictionPayload == in.demand->payload && Fresh(now, *this->predictionAt, 0.05))
+      {
+        s.effectivePower = this->prediction.power;
+        s.source = std::string_view(this->prediction.source) == "cmu_local" ? Source::Local : Source::Pooled;
+      }
+      if (in.demand->managerPower.value_or(0) > 0)
+      {
+        s.managerPower = in.demand->managerPower;
+        s.managerExpires = in.demand->time + this->fit.maxAge;
+      }
+    }
+    const bool powerKnown = s.effectivePower.has_value();
+    const double power = s.effectivePower.value_or(-1.0);
     s.knownIdle = armKnown && !armed;
     s.loadPossible = !s.knownIdle && (armed || peak > 0);
     const double fitQ = std::clamp(this->q, this->fit.minQ, this->fit.maxQ);
@@ -416,6 +782,26 @@ class PackDrive final : public gz::sim::System,
     json["demand_fresh"] = s.demandFresh;
     json["demand_time_s"] = JsonNumber(in.demand ? Number(in.demand->time) : std::nullopt);
     json["demand_power_w"] = JsonNumber(s.demandFresh ? in.demand->power : std::nullopt);
+    json["effective_demand_power_w"] = JsonNumber(s.effectivePower);
+    json["effective_demand_source"] = kSourceNames[static_cast<std::size_t>(s.source)];
+    json["calibration_id"] = transient::kCalibrationId;
+    json["transient_time_s"] = JsonNumber(this->predictionAt);
+    json["transient_regime"] = this->prediction.regime;
+    json["transient_reason"] = this->predictionAt ? this->prediction.reason : "NO_CURRENT_TRANSIENT_ESTIMATE";
+    json["transient_local_reason"] = this->prediction.localReason;
+    json["transient_support_flights"] = this->prediction.supportFlights;
+    json["transient_acceleration_mps2"] = JsonNumber(this->prediction.acceleration);
+    json["transient_low_speed_dwell_s"] = JsonNumber(this->prediction.dwell);
+    QJsonArray flags;
+    if (!this->prediction.flags.empty())
+      for (const auto &flag : QString::fromStdString(this->prediction.flags).split('|'))
+        flags.append(flag);
+    json["transient_transfer_flags"] = flags;
+    json["airborne_budget"] = this->budget.Json(this->integrals, now);
+    json["px4_land_time_s"] = JsonNumber(in.land ? Number(in.land->time) : std::nullopt);
+    json["px4_land_transition_s"] = JsonNumber(in.land ? Number(in.land->transition) : std::nullopt);
+    json["px4_land_sequence"] = JsonNumber(in.land ? Number(in.land->sequence) : std::nullopt);
+    json["px4_landed"] = in.land ? QJsonValue(in.land->landed) : QJsonValue(QJsonValue::Null);
     json["armed"] = s.demandFresh && in.demand->armed ? QJsonValue(*in.demand->armed)
                                                        : QJsonValue(QJsonValue::Null);
     json["requested_load_voltage_v"] = JsonNumber(s.requestedV);
@@ -451,8 +837,15 @@ class PackDrive final : public gz::sim::System,
   }
 
   private: gz::sim::Entity entity{gz::sim::kNullEntity};
+  private: gz::sim::Entity body{gz::sim::kNullEntity};
   private: std::string modelName;
   private: Fit fit{};
+  private: transient::Predictor predictor;
+  private: transient::Prediction prediction;
+  private: Number predictionAt, predictionPayload, groundZ;
+  private: Integrals integrals;
+  private: AirborneBudget budget;
+  private: State previousState;
   private: double q{0}, heldV{0};
   private: double coveredSeconds{0}, uncoveredSeconds{0}, idleSeconds{0};
   private: Number lastStep, previousCurrent, lastPublish;

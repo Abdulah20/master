@@ -1,0 +1,198 @@
+{
+  "actual_recordings": 209,
+  "ambient_wind_ground_truth": false,
+  "context_parent_sha256": {
+    "energy_summary_v1.csv": "df560db3c856ddf3bba92e889de4862c1c5b53de1a100cd7fbfa6d319aeaedb9",
+    "official_sample_v1.csv": "a5d3922846cba85047e6ecd31726cc1727bc4941a767975c12a12645415df6ea"
+  },
+  "dataset": "https://doi.org/10.1184/R1/12683453",
+  "density": "per-flight retrospective KAGC METAR proxy from the frozen publication-protocol reconstruction",
+  "diagnostic_preflight_regression": {
+    "coefficients": {
+      "commanded_altitude_agl_m": -0.035262798316831434,
+      "commanded_speed_mps": 2.3486365191091054,
+      "intercept_W": 453.56388377849674,
+      "payload_kg": 195.6376391913923
+    },
+    "model": "ordinary least squares; intercept + payload_kg + commanded_speed_mps + commanded_altitude_agl_m",
+    "scores": {
+      "test": {
+        "MAE_W": 14.131138640190207,
+        "RMSE_W": 18.30217992812372,
+        "bias_W": 0.9673374369214173,
+        "flights": 60
+      },
+      "train": {
+        "MAE_W": 12.448052793675885,
+        "RMSE_W": 15.638985067365493,
+        "bias_W": -3.285549610154703e-12,
+        "flights": 75
+      },
+      "validation": {
+        "MAE_W": 11.570918009046904,
+        "RMSE_W": 14.140996762277915,
+        "bias_W": 5.727033292997139,
+        "flights": 35
+      }
+    },
+    "target": "measured whole-cruise mean electrical power (W)",
+    "training_scope": "train only; no model selection or retuning on validation or test"
+  },
+  "excluded_reason_combinations": {
+    "ancillary_or_hover": 13,
+    "gap_over_0.5s": 18,
+    "gap_over_0.5s|route_outside_published_cohort": 5,
+    "outside_study_payloads": 1,
+    "route_outside_published_cohort": 2
+  },
+  "excluded_recordings": 39,
+  "holdout": [
+    {
+      "MAE_W": 9.829859699613335,
+      "MAE_Wh": 0.3859066851576028,
+      "RMSE_W": 13.056977507046597,
+      "RMSE_Wh": 0.5250923072261102,
+      "bias_W": -1.2097698324729143,
+      "bias_Wh": -0.028672794036973818,
+      "flights": 60,
+      "model": "published_phase",
+      "scope": "airborne",
+      "split": "test",
+      "stratum": "all",
+      "value": "all"
+    },
+    {
+      "MAE_W": 15.08239666552382,
+      "MAE_Wh": 0.28817987655118077,
+      "RMSE_W": 20.632628046260162,
+      "RMSE_Wh": 0.38753057164858556,
+      "bias_W": -1.9761893947978004,
+      "bias_Wh": 0.0037677325521316973,
+      "flights": 60,
+      "model": "published_phase",
+      "scope": "cruise",
+      "split": "test",
+      "stratum": "all",
+      "value": "all"
+    },
+    {
+      "MAE_W": 12.557497500839286,
+      "MAE_Wh": 0.14761922641362882,
+      "RMSE_W": 16.938333992497952,
+      "RMSE_Wh": 0.21637741603497118,
+      "bias_W": 0.24022138533247717,
+      "bias_Wh": 0.005617005023843554,
+      "flights": 60,
+      "model": "published_phase",
+      "scope": "landing",
+      "split": "test",
+      "stratum": "all",
+      "value": "all"
+    },
+    {
+      "MAE_W": 9.76926829855265,
+      "MAE_Wh": 0.1493559860734994,
+      "RMSE_W": 12.866960188018853,
+      "RMSE_Wh": 0.20972519461054065,
+      "bias_W": -0.3569814227275305,
+      "bias_Wh": 0.012824473753763001,
+      "flights": 33,
+      "model": "existing_stable_speed",
+      "scope": "stable_selected",
+      "split": "test",
+      "stratum": "all",
+      "value": "all"
+    },
+    {
+      "MAE_W": 19.62346317340516,
+      "MAE_Wh": 0.29568836139823146,
+      "RMSE_W": 23.471952548292172,
+      "RMSE_Wh": 0.35980635113288706,
+      "bias_W": 19.33285699282871,
+      "bias_Wh": 0.29322458420355235,
+      "flights": 33,
+      "model": "published_phase",
+      "scope": "stable_selected",
+      "split": "test",
+      "stratum": "all",
+      "value": "all"
+    },
+    {
+      "MAE_W": 21.232426004849867,
+      "MAE_Wh": 0.14947688179464258,
+      "RMSE_W": 27.801144941988824,
+      "RMSE_Wh": 0.205066559280107,
+      "bias_W": -3.3973553116577895,
+      "bias_Wh": -0.03805753161294854,
+      "flights": 60,
+      "model": "published_phase",
+      "scope": "takeoff",
+      "split": "test",
+      "stratum": "all",
+      "value": "all"
+    }
+  ],
+  "included_complete_flights": 170,
+  "independent_aircraft_or_campaign": false,
+  "limits": {
+    "duration_check_absolute_s": 1e-07,
+    "maximum_gap_s": 0.5,
+    "phase_sum_absolute_Wh": 1e-08
+  },
+  "max_measured_phase_sum_error_Wh": 1.4210854715202004e-14,
+  "max_measured_phase_sum_error_s": 2.842170943040401e-14,
+  "measured_target": "time-weighted battery electrical mean power W in cruise including turns",
+  "measured_train_validation_test": {
+    "test": 60,
+    "train": 75,
+    "validation": 35
+  },
+  "measured_training_features": [
+    "payload_kg",
+    "commanded_speed_mps",
+    "commanded_altitude_agl_m"
+  ],
+  "newly_fit_simulator_parameters": 0,
+  "physical_operating_scope": "CMU research configuration, 3.680 kg plus payload, above DJI published 3.6 kg MTOW",
+  "published_after_qc": {
+    "fit": 110,
+    "holdout": 60
+  },
+  "published_before_qc": {
+    "fit": 120,
+    "holdout": 68
+  },
+  "release_commit": "3d27ac92ba5db36a2fe3fc1449bbb5c422e10ca6",
+  "runtime_config_sha256": {
+    "m100_energy_model_v2.yaml": "725b2a54d333bc3ed40a9919d990cda48ee28d158cde87749a8ff08cda585458",
+    "m100_stable_cruise_speed_v1.yaml": "a702c1f1a4b2498e29554b10c0e10ff1f9d6541333fe82fc0b1b36736ce0f2c7"
+  },
+  "same_campaign_external_to_simulator": true,
+  "software": "https://doi.org/10.5281/zenodo.6726991",
+  "source_sha256": {
+    "README.txt": "8601dd211d6c297c5411992dc34923bdb98b72cdc287517ed18e479f0e9540fd",
+    "flights.zip": "98f65a1ab54a8b618c169fdf49311a53ff1fefed86fdc3f440d6a0166ce49fb1",
+    "parameters.csv": "568dffaed11a4d335ef4f8a932b342c836907af2f4aa54da9b4a0e2ffef2108a",
+    "published_context.csv": "b2ce6705326edb6174e5191901195e21d0c73cd161d28b9f1c0759d9bcee0ea8"
+  },
+  "split_unit": "complete flight; new-flight generalization in one campaign",
+  "train_test_overlap_calendar_dates": [
+    "2019-04-07",
+    "2019-05-06",
+    "2019-06-05",
+    "2019-06-11",
+    "2019-06-19",
+    "2019-06-24",
+    "2019-06-25",
+    "2019-06-29",
+    "2019-07-01",
+    "2019-07-03",
+    "2019-07-09",
+    "2019-07-24"
+  ],
+  "validation_dates_in_development_partition": [
+    "2019-07-10",
+    "2019-07-15",
+    "2019-08-05"
+  ]
+}

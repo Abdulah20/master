@@ -102,3 +102,6 @@ def test_delivered_tables_and_compressed_traces_match_recorded_digests():
     repeats = pd.read_csv(gb.OUTPUT / 'repeatability.csv')
     for row in repeats.itertuples():
         assert gb.sha(gb.OUTPUT / 'traces' / f'repeat_{row.case_id}.csv.gz') == row.repeat_trace_sha256
+    first = json.loads(gb.ENGINE.with_name("gazebo_batch_first_manifest.json").read_text())
+    assert manifest["original_acquisition"]["input_sha256"] == first["input_sha256"]
+    assert manifest["original_acquisition"]["base_and_fine_cases_identical_to_first_release"]

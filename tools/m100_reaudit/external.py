@@ -8,6 +8,7 @@ import hashlib
 import json
 import math
 from pathlib import Path
+import shutil
 from zipfile import ZipFile
 
 import numpy as np
@@ -357,6 +358,9 @@ def evaluate(dataset, context_path, destination):
         "holdout": metrics[(metrics.split == "test") & (metrics.stratum == "all")].to_dict("records"),
     }
     destination.mkdir(parents=True, exist_ok=True)
+    context_copy = destination / "published_context.csv"
+    if context_path.resolve() != context_copy.resolve():
+        shutil.copyfile(context_path, context_copy)
     for filename, frame in [("flight_manifest.csv", manifest), ("phase_comparisons.csv", table),
                             ("grouped_errors.csv", metrics), ("measured_cruise.csv", measured)]:
         write_table(frame, destination / filename)

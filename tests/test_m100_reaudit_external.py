@@ -69,6 +69,7 @@ def test_every_recording_and_locked_holdout_reproduce(tmp_path):
     import json
 
     summary = ex.evaluate(ex.INPUT, ex.CONTEXT, tmp_path)
+    ex.check_hash(tmp_path / 'published_context.csv', ex.SHA256['published_context.csv'])
     saved = json.loads((ex.OUTPUT / 'validation.json').read_text())
     assert summary['source_sha256'] == saved['source_sha256']
     assert summary['actual_recordings'] == 209 and summary['included_complete_flights'] == 170

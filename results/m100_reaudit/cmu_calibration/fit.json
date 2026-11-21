@@ -1,0 +1,956 @@
+{
+  "aircraft": {
+    "aggregation": "Phase Wh = predicted W * predicted s / 3600. Airborne Wh and s sum takeoff, cruise and landing. Airborne W = 3600 * airborne Wh / airborne s. All three phase models share predicted durations.",
+    "coefficients": {
+      "cruise": {
+        "duration": {
+          "design_rank": 2,
+          "intercept_s": 20.082044346889216,
+          "predictor": "1 / commanded_speed_mps",
+          "slope": 389.2886424765658,
+          "slope_unit": "m"
+        },
+        "offset_only_W": 9.625301003923157,
+        "power_correction": {
+          "design_rank": 2,
+          "offset_W": 9.02468708149797,
+          "slope_W_per_mps": 2.252302209094433
+        }
+      },
+      "landing": {
+        "duration": {
+          "design_rank": 2,
+          "intercept_s": 16.21640629640627,
+          "predictor": "commanded_altitude_agl_m",
+          "slope": 0.3911306207306208,
+          "slope_unit": "s/m"
+        },
+        "offset_only_W": 8.703277730516412,
+        "power_correction": {
+          "design_rank": 2,
+          "offset_W": 8.688168409874,
+          "slope_W_per_mps": 0.05665995240904908
+        }
+      },
+      "takeoff": {
+        "duration": {
+          "design_rank": 2,
+          "intercept_s": 4.088832788832797,
+          "predictor": "commanded_altitude_agl_m",
+          "slope": 0.33702738342738325,
+          "slope_unit": "s/m"
+        },
+        "offset_only_W": 11.151574359646297,
+        "power_correction": {
+          "design_rank": 2,
+          "offset_W": 11.200487526480135,
+          "slope_W_per_mps": -0.1834243756268917
+        }
+      }
+    },
+    "development_choice": {
+      "airborne_energy_Wh": "published_phase_preflight",
+      "airborne_mean_power_W": "calibrated_phase_preflight",
+      "criterion": "Lowest development MAE among the coherent phase models sharing the same predicted durations. Each chosen model produces its own mutually consistent power, duration and energy."
+    },
+    "duration_coefficient_order": [
+      "intercept_s",
+      "slope"
+    ],
+    "duration_definition": "duration_s = intercept_s + slope * predictor. Both coefficients are nonnegative. The cruise slope estimates an effective distance for the campaign route mix.",
+    "error_definition": "Predicted minus observed. P95_abs is the linear-interpolated 95th percentile of absolute flight errors.",
+    "fit_split": "train",
+    "fitting": "Unweighted least squares on one observation per training flight and phase. A constant predictor gives the training mean response and a zero unidentified slope. Validation is scored after fitting.",
+    "metrics": {
+      "train": {
+        "airborne": {
+          "calibrated_phase_preflight": {
+            "MAE_W": 9.87281573534546,
+            "MAE_Wh": 0.4698988882022032,
+            "MAE_s": 2.197803799304786,
+            "P95_abs_W": 23.36599572423028,
+            "P95_abs_Wh": 1.0723679766799072,
+            "P95_abs_s": 5.868830195626981,
+            "RMSE_W": 12.009472742990525,
+            "RMSE_Wh": 0.5683589978006074,
+            "RMSE_s": 2.890585240101482,
+            "bias_W": -0.34299957761283545,
+            "bias_Wh": -0.017361558199238538,
+            "bias_s": -1.0421293457814802e-13,
+            "flights": 75
+          },
+          "offset_only_phase_preflight": {
+            "MAE_W": 9.93124804448704,
+            "MAE_Wh": 0.48347137081957003,
+            "MAE_s": 2.197803799304786,
+            "P95_abs_W": 24.00443317019266,
+            "P95_abs_Wh": 0.9182990056954962,
+            "P95_abs_s": 5.868830195626981,
+            "RMSE_W": 12.454808042593807,
+            "RMSE_Wh": 0.5743913921644537,
+            "RMSE_s": 2.890585240101482,
+            "bias_W": 0.1665740291846138,
+            "bias_Wh": 0.020874465945218742,
+            "bias_s": -1.0421293457814802e-13,
+            "flights": 75
+          },
+          "published_phase_preflight": {
+            "MAE_W": 12.45884101001689,
+            "MAE_Wh": 0.5223152941436708,
+            "MAE_s": 2.197803799304786,
+            "P95_abs_W": 30.63086793831412,
+            "P95_abs_Wh": 1.3035925269478361,
+            "P95_abs_s": 5.868830195626981,
+            "RMSE_W": 15.640338625134797,
+            "RMSE_Wh": 0.6613749131891551,
+            "RMSE_s": 2.890585240101482,
+            "bias_W": -9.458364884883936,
+            "bias_Wh": -0.3490027025933219,
+            "bias_s": -1.0421293457814802e-13,
+            "flights": 75
+          },
+          "train_mean": {
+            "MAE_W": 40.13881979389411,
+            "MAE_Wh": 3.650926181071877,
+            "MAE_s": 21.960352,
+            "P95_abs_W": 67.75140727096499,
+            "P95_abs_Wh": 7.946348706906258,
+            "P95_abs_s": 46.76119999999996,
+            "RMSE_W": 45.38128977311459,
+            "RMSE_Wh": 4.553276726269987,
+            "RMSE_s": 26.44539430398672,
+            "bias_W": -6.821210263296962e-14,
+            "bias_Wh": -5.684341886080802e-16,
+            "bias_s": -2.7284841053187846e-14,
+            "flights": 75
+          }
+        },
+        "cruise": {
+          "calibrated_phase_preflight": {
+            "MAE_W": 12.399923950153623,
+            "MAE_Wh": 0.5182831538134266,
+            "MAE_s": 3.0421002401420796,
+            "P95_abs_W": 28.442361358488203,
+            "P95_abs_Wh": 1.2551451157256788,
+            "P95_abs_s": 9.24588087315946,
+            "RMSE_W": 15.831769786543871,
+            "RMSE_Wh": 0.6381628254087047,
+            "RMSE_s": 4.113438391926993,
+            "bias_W": -1.1368683772161604e-14,
+            "bias_Wh": -0.0035586622743697424,
+            "bias_s": -7.910709124795782e-14,
+            "flights": 75
+          },
+          "offset_only_phase_preflight": {
+            "MAE_W": 13.267833207538136,
+            "MAE_Wh": 0.5216108594673478,
+            "MAE_s": 3.0421002401420796,
+            "P95_abs_W": 31.28928192227788,
+            "P95_abs_Wh": 1.2553047725692548,
+            "P95_abs_s": 9.24588087315946,
+            "RMSE_W": 17.070683203807697,
+            "RMSE_Wh": 0.6450976897761683,
+            "RMSE_s": 4.113438391926993,
+            "bias_W": -8.337034766251842e-15,
+            "bias_Wh": 0.03453684668774018,
+            "bias_s": -7.910709124795782e-14,
+            "flights": 75
+          },
+          "published_phase_preflight": {
+            "MAE_W": 15.026849875168745,
+            "MAE_Wh": 0.517131826593471,
+            "MAE_s": 3.0421002401420796,
+            "P95_abs_W": 38.98221818897023,
+            "P95_abs_Wh": 1.2903420604616354,
+            "P95_abs_s": 9.24588087315946,
+            "RMSE_W": 19.597312174399995,
+            "RMSE_Wh": 0.6597300056115455,
+            "RMSE_s": 4.113438391926993,
+            "bias_W": -9.625301003923157,
+            "bias_Wh": -0.1647582190321564,
+            "bias_s": -7.910709124795782e-14,
+            "flights": 75
+          },
+          "train_mean": {
+            "MAE_W": 39.48492041731431,
+            "MAE_Wh": 2.66394125249196,
+            "MAE_s": 19.27901866666667,
+            "P95_abs_W": 72.65578471740906,
+            "P95_abs_Wh": 7.8314648297345695,
+            "P95_abs_s": 46.023799999999994,
+            "RMSE_W": 44.81802237323639,
+            "RMSE_Wh": 3.3968094456520816,
+            "RMSE_s": 22.967085478135882,
+            "bias_W": -2.3495279795800646e-14,
+            "bias_Wh": -5.447494307494101e-16,
+            "bias_s": 6.8212102632969615e-15,
+            "flights": 75
+          }
+        },
+        "landing": {
+          "calibrated_phase_preflight": {
+            "MAE_W": 11.995118735404153,
+            "MAE_Wh": 0.3284976947262816,
+            "MAE_s": 2.12060477180477,
+            "P95_abs_W": 30.89097387073727,
+            "P95_abs_Wh": 0.6655195837339685,
+            "P95_abs_s": 4.7370112860113,
+            "RMSE_W": 15.009152304884617,
+            "RMSE_Wh": 0.3951356517266912,
+            "RMSE_s": 2.5350199066938175,
+            "bias_W": 4.547473508864641e-15,
+            "bias_Wh": -0.005725934644402955,
+            "bias_s": -2.3495279795800646e-14,
+            "flights": 75
+          },
+          "offset_only_phase_preflight": {
+            "MAE_W": 11.988873549538626,
+            "MAE_Wh": 0.3286789113410107,
+            "MAE_s": 2.12060477180477,
+            "P95_abs_W": 30.805606209107616,
+            "P95_abs_Wh": 0.6664185358361847,
+            "P95_abs_s": 4.7370112860113,
+            "RMSE_W": 15.010011654181495,
+            "RMSE_Wh": 0.39531298110304836,
+            "RMSE_s": 2.5350199066938175,
+            "bias_W": -7.579122514774402e-16,
+            "bias_Wh": -0.0058044572858382,
+            "bias_s": -2.3495279795800646e-14,
+            "flights": 75
+          },
+          "published_phase_preflight": {
+            "MAE_W": 14.25622533899784,
+            "MAE_Wh": 0.33188603036255937,
+            "MAE_s": 2.12060477180477,
+            "P95_abs_W": 30.00891192176659,
+            "P95_abs_Wh": 0.7536670939330201,
+            "P95_abs_s": 4.7370112860113,
+            "RMSE_W": 17.350720247677533,
+            "RMSE_Wh": 0.4100232517088239,
+            "RMSE_s": 2.5350199066938175,
+            "bias_W": -8.703277730516412,
+            "bias_Wh": -0.10142898142912031,
+            "bias_s": -2.3495279795800646e-14,
+            "flights": 75
+          },
+          "train_mean": {
+            "MAE_W": 39.91592041167435,
+            "MAE_Wh": 1.387953293777861,
+            "MAE_s": 9.248288,
+            "P95_abs_W": 75.69824084554676,
+            "P95_abs_Wh": 3.066100533935706,
+            "P95_abs_s": 18.189133333333327,
+            "RMSE_W": 45.68547300336279,
+            "RMSE_Wh": 1.7057881550991174,
+            "RMSE_s": 10.995077431085038,
+            "bias_W": 4.168517383125921e-14,
+            "bias_Wh": 1.0421293457814803e-15,
+            "bias_s": 2.9369099744750807e-15,
+            "flights": 75
+          }
+        },
+        "takeoff": {
+          "calibrated_phase_preflight": {
+            "MAE_W": 15.441658253604485,
+            "MAE_Wh": 0.28837968267817776,
+            "MAE_s": 1.755311830511831,
+            "P95_abs_W": 38.478944254059535,
+            "P95_abs_Wh": 0.7846538074247926,
+            "P95_abs_s": 4.845366498366493,
+            "RMSE_W": 19.416510941021663,
+            "RMSE_Wh": 0.3998370034903192,
+            "RMSE_s": 2.451918613623399,
+            "bias_W": 4.092726157978177e-14,
+            "bias_Wh": -0.008076961280466054,
+            "bias_s": -1.7053025658242404e-15,
+            "flights": 75
+          },
+          "offset_only_phase_preflight": {
+            "MAE_W": 15.478745183090119,
+            "MAE_Wh": 0.28920647487304824,
+            "MAE_s": 1.755311830511831,
+            "P95_abs_W": 38.27106329501582,
+            "P95_abs_Wh": 0.7818371108173371,
+            "P95_abs_s": 4.845366498366493,
+            "RMSE_W": 19.423471609996803,
+            "RMSE_Wh": 0.3998823481732663,
+            "RMSE_s": 2.451918613623399,
+            "bias_W": -5.0022208597511053e-14,
+            "bias_Wh": -0.007857923456683645,
+            "bias_s": -1.7053025658242404e-15,
+            "flights": 75
+          },
+          "published_phase_preflight": {
+            "MAE_W": 17.541131261460713,
+            "MAE_Wh": 0.28278533435998826,
+            "MAE_s": 1.755311830511831,
+            "P95_abs_W": 44.49440240131658,
+            "P95_abs_Wh": 0.8645235641784615,
+            "P95_abs_s": 4.845366498366493,
+            "RMSE_W": 22.397072578421326,
+            "RMSE_Wh": 0.41242404950746625,
+            "RMSE_s": 2.451918613623399,
+            "bias_W": -11.151574359646297,
+            "bias_Wh": -0.08281550213204526,
+            "bias_s": -1.7053025658242404e-15,
+            "flights": 75
+          },
+          "train_mean": {
+            "MAE_W": 46.25408123360772,
+            "MAE_Wh": 1.4462264797653315,
+            "MAE_s": 8.234492444444443,
+            "P95_abs_W": 89.98074037019126,
+            "P95_abs_Wh": 2.801119042243309,
+            "P95_abs_s": 14.231866666666669,
+            "RMSE_W": 53.38890821275655,
+            "RMSE_Wh": 1.7142169253546578,
+            "RMSE_s": 9.539421602778418,
+            "bias_W": 3.789561257387201e-14,
+            "bias_Wh": 4.263256414560601e-16,
+            "bias_s": 1.1368683772161603e-15,
+            "flights": 75
+          }
+        }
+      },
+      "validation": {
+        "airborne": {
+          "calibrated_phase_preflight": {
+            "MAE_W": 8.68671125871456,
+            "MAE_Wh": 0.44307613292238085,
+            "MAE_s": 1.732566456531306,
+            "P95_abs_W": 22.862174028898114,
+            "P95_abs_Wh": 1.137424579937414,
+            "P95_abs_s": 5.457524260689638,
+            "RMSE_W": 11.247249524592885,
+            "RMSE_Wh": 0.5879603331214001,
+            "RMSE_s": 2.466051954594175,
+            "bias_W": 5.394168371528126,
+            "bias_Wh": 0.3184884716503956,
+            "bias_s": 0.6159316755655535,
+            "flights": 35
+          },
+          "offset_only_phase_preflight": {
+            "MAE_W": 10.648076165079402,
+            "MAE_Wh": 0.5140894916625649,
+            "MAE_s": 1.732566456531306,
+            "P95_abs_W": 26.105690466091854,
+            "P95_abs_Wh": 1.126606216037225,
+            "P95_abs_s": 5.457524260689638,
+            "RMSE_W": 13.285629203247252,
+            "RMSE_Wh": 0.664924485491508,
+            "RMSE_s": 2.466051954594175,
+            "bias_W": 6.890982252982961,
+            "bias_Wh": 0.39866532971555046,
+            "bias_s": 0.6159316755655535,
+            "flights": 35
+          },
+          "published_phase_preflight": {
+            "MAE_W": 9.082360756081323,
+            "MAE_Wh": 0.4001776169665445,
+            "MAE_s": 1.732566456531306,
+            "P95_abs_W": 21.18826179468463,
+            "P95_abs_Wh": 0.9771950352428449,
+            "P95_abs_s": 5.457524260689638,
+            "RMSE_W": 11.68952261790352,
+            "RMSE_Wh": 0.5000522753649557,
+            "RMSE_s": 2.466051954594175,
+            "bias_W": -2.735474129595499,
+            "bias_Wh": 0.007637699655257637,
+            "bias_s": 0.6159316755655535,
+            "flights": 35
+          },
+          "train_mean": {
+            "MAE_W": 32.94787231800231,
+            "MAE_Wh": 3.8146452016058072,
+            "MAE_s": 25.377257142857143,
+            "P95_abs_W": 64.3980852260775,
+            "P95_abs_Wh": 7.355403683753458,
+            "P95_abs_s": 60.2348,
+            "RMSE_W": 38.82704445088049,
+            "RMSE_Wh": 4.6391747517117565,
+            "RMSE_s": 31.703579528591327,
+            "bias_W": 4.948904950234066,
+            "bias_Wh": -0.7775232379544482,
+            "bias_s": -7.255085714285738,
+            "flights": 35
+          }
+        },
+        "cruise": {
+          "calibrated_phase_preflight": {
+            "MAE_W": 11.31297554310422,
+            "MAE_Wh": 0.4312644268998496,
+            "MAE_s": 2.7665146027395284,
+            "P95_abs_W": 23.115155023433843,
+            "P95_abs_Wh": 1.137784027008654,
+            "P95_abs_s": 8.127376728693113,
+            "RMSE_W": 13.977063024810063,
+            "RMSE_Wh": 0.5775959497590285,
+            "RMSE_s": 3.725179134453918,
+            "bias_W": 5.731872909264356,
+            "bias_Wh": 0.3026418597231287,
+            "bias_s": 1.1134451890790946,
+            "flights": 35
+          },
+          "offset_only_phase_preflight": {
+            "MAE_W": 14.141415737272112,
+            "MAE_Wh": 0.47220420900955723,
+            "MAE_s": 2.7665146027395284,
+            "P95_abs_W": 27.02235989748407,
+            "P95_abs_Wh": 1.2970175599665705,
+            "P95_abs_s": 8.127376728693113,
+            "RMSE_W": 16.614893707814915,
+            "RMSE_Wh": 0.6379831960522037,
+            "RMSE_s": 3.725179134453918,
+            "bias_W": 7.7482196488346124,
+            "bias_Wh": 0.38336845030251926,
+            "bias_s": 1.1134451890790946,
+            "flights": 35
+          },
+          "published_phase_preflight": {
+            "MAE_W": 10.851405104122591,
+            "MAE_Wh": 0.4048386618760977,
+            "MAE_s": 2.7665146027395284,
+            "P95_abs_W": 22.734131883511395,
+            "P95_abs_Wh": 1.0170021393311388,
+            "P95_abs_s": 8.127376728693113,
+            "RMSE_W": 14.816990909392562,
+            "RMSE_Wh": 0.5255323384944661,
+            "RMSE_s": 3.725179134453918,
+            "bias_W": -1.8770813550885384,
+            "bias_Wh": 0.1678495133535964,
+            "bias_s": 1.1134451890790946,
+            "flights": 35
+          },
+          "train_mean": {
+            "MAE_W": 35.50901202509379,
+            "MAE_Wh": 2.923817039380215,
+            "MAE_s": 19.878308571428565,
+            "P95_abs_W": 66.50021075227582,
+            "P95_abs_Wh": 6.972035559686075,
+            "P95_abs_s": 45.83379999999999,
+            "RMSE_W": 41.02193900966839,
+            "RMSE_Wh": 3.488323239384861,
+            "RMSE_s": 24.065737607288437,
+            "bias_W": 5.681080848514327,
+            "bias_Wh": -0.6060287576795685,
+            "bias_s": -4.954514285714275,
+            "flights": 35
+          }
+        },
+        "landing": {
+          "calibrated_phase_preflight": {
+            "MAE_W": 9.110930292335913,
+            "MAE_Wh": 0.4408049994430394,
+            "MAE_s": 2.9244504221647025,
+            "P95_abs_W": 24.348762642103594,
+            "P95_abs_Wh": 1.109288632152247,
+            "P95_abs_s": 7.455746658746655,
+            "RMSE_W": 12.06437392255201,
+            "RMSE_Wh": 0.5798080765271137,
+            "RMSE_s": 3.834687188246059,
+            "bias_W": 0.9224970333752432,
+            "bias_Wh": -0.08011952023404292,
+            "bias_s": -0.5667622724765814,
+            "flights": 35
+          },
+          "offset_only_phase_preflight": {
+            "MAE_W": 9.139638001556493,
+            "MAE_Wh": 0.4409091804009636,
+            "MAE_s": 2.9244504221647025,
+            "P95_abs_W": 24.590511772382182,
+            "P95_abs_Wh": 1.11021751068399,
+            "P95_abs_s": 7.455746658746655,
+            "RMSE_W": 12.120023795331718,
+            "RMSE_Wh": 0.5798532352618564,
+            "RMSE_s": 3.834687188246059,
+            "bias_W": 0.9732211812461953,
+            "bias_Wh": -0.07956036761251983,
+            "bias_s": -0.5667622724765814,
+            "flights": 35
+          },
+          "published_phase_preflight": {
+            "MAE_W": 11.902829299827175,
+            "MAE_Wh": 0.4588316230547763,
+            "MAE_s": 2.9244504221647025,
+            "P95_abs_W": 27.010681703311985,
+            "P95_abs_Wh": 1.0587316905993682,
+            "P95_abs_s": 7.455746658746655,
+            "RMSE_W": 14.342300777305438,
+            "RMSE_Wh": 0.5999844902365971,
+            "RMSE_s": 3.834687188246059,
+            "bias_W": -7.7300565492702145,
+            "bias_Wh": -0.17752634887086352,
+            "bias_s": -0.5667622724765814,
+            "flights": 35
+          },
+          "train_mean": {
+            "MAE_W": 31.493150089428784,
+            "MAE_Wh": 1.2909993415731933,
+            "MAE_s": 10.106019047619046,
+            "P95_abs_W": 57.596196565121744,
+            "P95_abs_Wh": 3.224407525510511,
+            "P95_abs_s": 20.82913333333332,
+            "RMSE_W": 36.8830236648186,
+            "RMSE_Wh": 1.6283899833069397,
+            "RMSE_s": 11.736079448341245,
+            "bias_W": -1.1719228568219495,
+            "bias_Wh": -0.17392537765308053,
+            "bias_s": -1.5352761904761876,
+            "flights": 35
+          }
+        },
+        "takeoff": {
+          "calibrated_phase_preflight": {
+            "MAE_W": 18.035690562384183,
+            "MAE_Wh": 0.21994476417201855,
+            "MAE_s": 1.2851106113963253,
+            "P95_abs_W": 40.41524931399286,
+            "P95_abs_Wh": 0.5089968285815467,
+            "P95_abs_s": 3.0500718740718735,
+            "RMSE_W": 22.076089702759884,
+            "RMSE_Wh": 0.2610000485608182,
+            "RMSE_s": 1.6701696405389157,
+            "bias_W": 13.451978697860318,
+            "bias_Wh": 0.09596613216130996,
+            "bias_s": 0.06924875896304218,
+            "flights": 35
+          },
+          "offset_only_phase_preflight": {
+            "MAE_W": 17.849121768889354,
+            "MAE_Wh": 0.219432854332436,
+            "MAE_s": 1.2851106113963253,
+            "P95_abs_W": 39.74269327002752,
+            "P95_abs_Wh": 0.5049616837583338,
+            "P95_abs_s": 3.0500718740718735,
+            "RMSE_W": 21.800779852689374,
+            "RMSE_Wh": 0.2601689523539864,
+            "RMSE_s": 1.6701696405389157,
+            "bias_W": 13.287770209203778,
+            "bias_Wh": 0.0948572470255508,
+            "bias_s": 0.06924875896304218,
+            "flights": 35
+          },
+          "published_phase_preflight": {
+            "MAE_W": 13.714437151992108,
+            "MAE_Wh": 0.1961579551330955,
+            "MAE_s": 1.2851106113963253,
+            "P95_abs_W": 31.634161323642275,
+            "P95_abs_Wh": 0.42368069053374835,
+            "P95_abs_s": 3.0500718740718735,
+            "RMSE_W": 17.414720720140483,
+            "RMSE_Wh": 0.2366119863854038,
+            "RMSE_s": 1.6701696405389157,
+            "bias_W": 2.136195849557531,
+            "bias_Wh": 0.017314535172524854,
+            "bias_s": 0.06924875896304218,
+            "flights": 35
+          },
+          "train_mean": {
+            "MAE_W": 38.64848997363546,
+            "MAE_Wh": 1.3805427269475161,
+            "MAE_s": 8.56176761904762,
+            "P95_abs_W": 77.86648454260735,
+            "P95_abs_Wh": 2.4091483869326265,
+            "P95_abs_s": 14.24186666666666,
+            "RMSE_W": 45.871415199172965,
+            "RMSE_Wh": 1.5595615363770017,
+            "RMSE_s": 9.502885992644883,
+            "bias_W": 10.875608241921583,
+            "bias_Wh": 0.0024308973782027135,
+            "bias_s": -0.7652952380952373,
+            "flights": 35
+          }
+        }
+      }
+    },
+    "models": {
+      "calibrated_phase_preflight": "Corrected phase power with the same preflight durations.",
+      "offset_only_phase_preflight": "Original phase power plus the training mean of observed minus original phase power.",
+      "published_phase_preflight": "Original supplied phase power with calibrated preflight durations.",
+      "train_mean": "Separate arithmetic training mean for each scope and target, including airborne."
+    },
+    "power_coefficient_order": [
+      "offset_W",
+      "slope_W_per_mps"
+    ],
+    "power_definition": "P_cal = base_phase_power_W + offset_W + slope_W_per_mps * (commanded_speed_mps - 8). The reference is the supplied original phase model at 15 C using planned altitude and payload.",
+    "preflight_inputs": [
+      "payload_kg",
+      "commanded_speed_mps",
+      "commanded_altitude_agl_m"
+    ],
+    "reference_speed_mps": 8.0,
+    "route_coverage": {
+      "train": {
+        "R1": 71,
+        "R3": 1,
+        "R5": 3
+      },
+      "validation": {
+        "R1": 35
+      }
+    },
+    "route_limit": "Route identifies coverage only. Duration depends on planned speed or altitude. Duration and energy estimates depend on the training campaign's route mix and turns.",
+    "schema": "cmu_preflight_phase_calibration_v1",
+    "split_flight_counts": {
+      "train": 75,
+      "validation": 35
+    },
+    "target": "Mean pack electrical power, duration and integrated pack energy over the CMU airborne phase windows.",
+    "training_distinct_command_settings": 46,
+    "training_domain": {
+      "commanded_altitude_agl_m": [
+        25.0,
+        50.0,
+        75.0,
+        100.0
+      ],
+      "commanded_speed_mps": [
+        4.0,
+        6.0,
+        8.0,
+        10.0,
+        12.0
+      ],
+      "payload_kg": [
+        0.0,
+        0.25,
+        0.5
+      ]
+    },
+    "training_means": {
+      "airborne": {
+        "duration_s": 138.29119999999998,
+        "energy_Wh": 20.364760388877855,
+        "mean_power_W": 529.0217789662986
+      },
+      "cruise": {
+        "duration_s": 74.53920000000001,
+        "energy_Wh": 10.773734030524722,
+        "mean_power_W": 521.741051559993
+      },
+      "landing": {
+        "duration_s": 39.55386666666667,
+        "energy_Wh": 5.506540038452052,
+        "mean_power_W": 498.4101886849286
+      },
+      "takeoff": {
+        "duration_s": 24.198133333333335,
+        "energy_Wh": 4.084486319901083,
+        "mean_power_W": 602.9397651391531
+      }
+    }
+  },
+  "cohorts": {
+    "train": {
+      "calendar_dates": [
+        "2019-04-07",
+        "2019-05-06",
+        "2019-06-05",
+        "2019-06-11",
+        "2019-06-19",
+        "2019-06-24",
+        "2019-06-25",
+        "2019-06-29",
+        "2019-07-01",
+        "2019-07-03",
+        "2019-07-09",
+        "2019-07-24"
+      ],
+      "flight_ids": [
+        1,
+        3,
+        4,
+        6,
+        8,
+        14,
+        15,
+        16,
+        17,
+        18,
+        23,
+        59,
+        60,
+        78,
+        82,
+        83,
+        84,
+        86,
+        92,
+        93,
+        94,
+        95,
+        96,
+        97,
+        100,
+        101,
+        102,
+        105,
+        106,
+        107,
+        115,
+        116,
+        117,
+        121,
+        122,
+        124,
+        130,
+        134,
+        135,
+        136,
+        138,
+        139,
+        142,
+        143,
+        144,
+        146,
+        148,
+        149,
+        150,
+        151,
+        152,
+        153,
+        156,
+        157,
+        160,
+        164,
+        167,
+        168,
+        169,
+        170,
+        171,
+        172,
+        173,
+        174,
+        175,
+        225,
+        226,
+        228,
+        230,
+        231,
+        234,
+        236,
+        238,
+        239,
+        240
+      ],
+      "routes": {
+        "R1": 71,
+        "R3": 1,
+        "R5": 3
+      }
+    },
+    "validation": {
+      "calendar_dates": [
+        "2019-07-10",
+        "2019-07-15",
+        "2019-08-05"
+      ],
+      "flight_ids": [
+        178,
+        179,
+        181,
+        183,
+        184,
+        186,
+        188,
+        189,
+        190,
+        194,
+        195,
+        198,
+        199,
+        200,
+        201,
+        203,
+        204,
+        205,
+        207,
+        208,
+        209,
+        241,
+        242,
+        243,
+        248,
+        250,
+        253,
+        254,
+        255,
+        256,
+        257,
+        261,
+        262,
+        263,
+        264
+      ],
+      "routes": {
+        "R1": 35
+      }
+    }
+  },
+  "input_and_code_sha256": {
+    "config/m100_reaudit/physics.json": "248100eb6505d4ef07597f072bfb8349070f3f43b3690c4ed58aaf034bc710a9",
+    "data/external/m100/README.txt": "8601dd211d6c297c5411992dc34923bdb98b72cdc287517ed18e479f0e9540fd",
+    "data/external/m100/flights.zip": "98f65a1ab54a8b618c169fdf49311a53ff1fefed86fdc3f440d6a0166ce49fb1",
+    "data/external/m100/parameters.csv": "568dffaed11a4d335ef4f8a932b342c836907af2f4aa54da9b4a0e2ffef2108a",
+    "results/m100_reaudit/external/flight_manifest.csv": "171d8176bbddab97b25d19ada43c54c67d760a6e7680f0380233d54c08c044f3",
+    "results/m100_reaudit/external/published_context.csv": "b2ce6705326edb6174e5191901195e21d0c73cd161d28b9f1c0759d9bcee0ea8",
+    "tools/m100_reaudit/cmu_calibration.py": "9a88bb430b096023942a5bc4ba30916b2a43a9edfc4c89f1bfc0a913492bf656",
+    "tools/m100_reaudit/cmu_flight_calibration.py": "b74331e9c5eeacd95eb973a774ea2d7e58e523a16ea107e519beff15db349c1f",
+    "tools/m100_reaudit/cmu_voltage_calibration.py": "e02bb233ea697a85685340aca5500e832ed4f01abc72201ea29ab89f38370c5f",
+    "tools/m100_reaudit/external.py": "69b0f614532a8de290daff37ba43f1170e0e29e1d4096e188f47fcea19a7bdb6",
+    "tools/m100_reaudit/runtime_snapshot/ros2_ws/src/drone_nav/config/m100_energy_model_v2.yaml": "725b2a54d333bc3ed40a9919d990cda48ee28d158cde87749a8ff08cda585458",
+    "tools/m100_reaudit/runtime_snapshot/ros2_ws/src/drone_nav/drone_nav/m100_atmosphere.py": "c55d89c71f27915f7c825dad31e2fa8590b2315b1172fa0ca7e9d92439aae77f"
+  },
+  "loaded_voltage": {
+    "baseline": {
+      "mean_training_V": 21.90494147929575,
+      "method": "Constant time-weighted mean voltage from training flights, with equal flight weight.",
+      "metrics": {
+        "train": {
+          "bias_V": -1.717376241217039e-15,
+          "mae_V": 0.7154101321172114,
+          "p95_abs_V": 1.6448803743419411,
+          "rmse_V": 0.868335130560068
+        },
+        "validation": {
+          "bias_V": -0.06338549046845877,
+          "mae_V": 0.7331725841369909,
+          "p95_abs_V": 1.5860348543224134,
+          "rmse_V": 0.8774229638029505
+        }
+      }
+    },
+    "charge_origin": "Signed trapezoidal integral of measured current from the first recording sample, with discharge positive. Initial charge and absolute SOC are unknown.",
+    "coefficients": {
+      "a_V": 23.77940135767335,
+      "k_V_per_Ah": 0.48810623032113687,
+      "r_V_per_A": 0.06739413945814177
+    },
+    "condition_number_in_raw_units": 155.8136451207193,
+    "coverage": {
+      "train": {
+        "flights_supplied": 75,
+        "flights_with_loaded_intervals": 75,
+        "time_weighted_fraction_in_training_ranges": 1.0
+      },
+      "validation": {
+        "flights_supplied": 35,
+        "flights_with_loaded_intervals": 35,
+        "time_weighted_fraction_in_training_ranges": 1.0
+      }
+    },
+    "coverage_definition": "Inclusive marginal train minima and maxima of I and q; joint combinations may be unseen.",
+    "design_columns": 3,
+    "design_rank": 3,
+    "fit_status": "FULL_RANK_EXPECTED_SIGNS",
+    "flight_minimum_voltage": {
+      "definition": "One residual per flight: minimum predicted minus minimum measured over the same loaded samples. Minima may occur at different times.",
+      "metrics": {
+        "train": {
+          "baseline": {
+            "bias_V": 0.8835442574085762,
+            "flights": 75,
+            "mae_V": 1.0552834308978984,
+            "median_error_V": 1.0119704404773913
+          },
+          "model": {
+            "bias_V": -0.09153671355090003,
+            "flights": 75,
+            "mae_V": 0.6673737587846534,
+            "median_error_V": 0.05200392208474369
+          }
+        },
+        "validation": {
+          "baseline": {
+            "bias_V": 0.7637788794596734,
+            "flights": 35,
+            "mae_V": 0.98660749023738,
+            "median_error_V": 0.8967818418445823
+          },
+          "model": {
+            "bias_V": -0.16235218998980624,
+            "flights": 35,
+            "mae_V": 0.6735867812125647,
+            "median_error_V": -0.07649909818136535
+          }
+        }
+      }
+    },
+    "interpretation": "Observational load-voltage slopes conditional on measured current. Pack identity and temperature are unresolved. Coefficients do not identify TB47D OCV, internal resistance or capacity. No validation or test observations enter coefficient estimation or the training ranges.",
+    "metrics": {
+      "train": {
+        "bias_V": 8.465450562766819e-16,
+        "mae_V": 0.6803544564404006,
+        "p95_abs_V": 1.4941546462398634,
+        "rmse_V": 0.8096200612004816
+      },
+      "validation": {
+        "bias_V": -0.049605834095870514,
+        "mae_V": 0.6971604429781108,
+        "p95_abs_V": 1.4393898534316207,
+        "rmse_V": 0.8159363380667808
+      }
+    },
+    "model": "V_terminal = a_V - r_V_per_A * measured_current_A - k_V_per_Ah * net_discharged_Ah",
+    "target": "Measured Mauch PL-200 pack-output voltage during positive discharge in CMU airborne windows.",
+    "training_predictor_ranges": {
+      "current_A": [
+        0.1431319266557693,
+        44.87186050415039
+      ],
+      "net_discharged_Ah": [
+        0.0019523813459608292,
+        1.5018077402863415
+      ]
+    },
+    "weights": "Each flight contributes equal mass. Within a flight each positively loaded adjacent airborne interval contributes half its elapsed seconds to each endpoint. P95 is the weighted empirical 95th percentile of absolute voltage error. Bias is predicted minus measured voltage."
+  },
+  "measurement": "Battery output on the instrumented CMU aircraft (Mauch PL-200). Positive discharge in the processed CSVs. Observed airborne energy integrates V times I at the actual adjacent times, in Wh. The published altitude regime boundaries exclude ground time.",
+  "protocol": "Raw synchronized CSVs, accepted development flight IDs only. New coefficients use the 75 train flights. The 35 validation flights come from other development dates in the same campaign. The original published phase reference predates this split. No test-flight CSV is opened or scored.",
+  "published_power_reference": {
+    "coefficients_by_phase": {
+      "cruise": {
+        "b0": 16.8,
+        "b1": 68.9
+      },
+      "landing": {
+        "b0": -24.3,
+        "b1": 71.5
+      },
+      "takeoff": {
+        "b0": 13.8,
+        "b1": 80.4
+      }
+    },
+    "development_overlap": "The published reference was derived from the original 120 fitting flights, including both current development partitions.",
+    "equation": "P_W = b1 * (regression_baseline_kg + payload_kg)^1.5 / sqrt(rho_kg_m3) + b0",
+    "ground_datum_msl_m": 0.0,
+    "model": "RODRIGUES_PATTERNS_M100_PHASE_POWER_V1",
+    "original_fit_flights": 120,
+    "reference_atmosphere": "dry hydrostatic air at commanded AGL plus ground MSL; actual flight weather unknown",
+    "regression_baseline_kg": 3.715,
+    "temperature_at_datum_C": 15.0,
+    "wind_power_runtime_applied": false
+  },
+  "scope": {
+    "3510_1345s_shaft_thrust_torque_and_620d_losses": "C_NOT_CALIBRATED",
+    "battery_voltage_fidelity": "LIMITED_EMPIRICAL_PROXY",
+    "controller_or_runtime_modified": false,
+    "source_of_power_and_energy_targets": "measured pack electrical power and its airborne integral",
+    "tb47d_soc_ocv_rc_capacity_temperature_aging": "C_NOT_CALIBRATED",
+    "wind_power_runtime_applied": false
+  },
+  "software_versions": {
+    "NumPy": "2.5.2",
+    "PyYAML": "6.0.1",
+    "Python": "3.12.3",
+    "pandas": "3.0.5"
+  },
+  "source": "Rodrigues et al., Carnegie Mellon University, https://doi.org/10.1184/R1/12683453 (CC BY 4.0)",
+  "table_sha256": {
+    "by_condition.csv": "ff097eae8db15603d420d001536f35c6e96cd564fc41564272ecfe7fb63e4b60",
+    "flight_residuals.csv": "327da9a4e5ece6bd7b006be55ef0183d60764ea6a2966a01b467912e067a560f",
+    "voltage_by_flight.csv": "e2bad14aff21f2ca3b9a896acd86e9c272f5695162ca6d024e32f1a3546b1669"
+  }
+}

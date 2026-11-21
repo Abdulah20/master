@@ -8,7 +8,7 @@
     "passed": 175
   },
   "base_stock_eligible": 0,
-  "bundle_bytes": 18804956,
+  "bundle_bytes": 18805206,
   "convergence_within_tolerance": 6,
   "counts_by_cohort": {
     "expanded": {
@@ -43,7 +43,7 @@
     "drone_nav/m100_stable_cruise_speed.py": "186a9ef028af76516b4d1e35e45342de70fa5ce47163a1fc872e2bc0e7e21087",
     "drone_nav/m100_transient_power.py": "2a91d3a3cd558412a91bfb9367b9e6de44536d7fc4ee993387d564159042f486",
     "drone_nav/m100_wind_simulation.py": "c301fe28d05368cecb721b059dc6d84d57fec13d8ce197e5e144e1c9e3fbd9e9",
-    "gazebo_batch.py": "6837933ed2db8500157c681e281c366fd21c79ad48cba7c2fe5529b3c52f1375",
+    "gazebo_batch.py": "d12531f3082c0de201cfdc5c22dbf5df6b343814452ca2435e6c8d732a2ba54e",
     "gazebo_batch_engine.cc": "372f14034766b477846b91a324dc3d3eaa18a17be302ee67db0a2f87de58782c",
     "m100_cmu_v2/model.sdf": "63d50538ec859472832c2b95db36c6ffd2b29da23286cce4ae8e9ba67b02ad54",
     "m100_cmu_v2_payload_025/model.sdf": "85cab7073d3329088b9b0f721389b7e96d68fce048510e65617ce7ecf55819a9",
@@ -52,7 +52,7 @@
     "m100_cmu_v2_payload_100/model.sdf": "40ed6ecbc91ca1d6b1022200d2e08fbc2ff6e0f216256df67e88cc51aade53ee",
     "m100_cmu_v2_payload_125/model.sdf": "134c12e27d3f31d1032b8387eea694e32e6fdabc95ec8e6cfc448b2ef2ab4409",
     "physics.json": "248100eb6505d4ef07597f072bfb8349070f3f43b3690c4ed58aaf034bc710a9",
-    "physics.py": "abc76fc7d9e33dfaf3607fb192103dd5815fecf9f9500b39169f5a7e58e908f4",
+    "physics.py": "5aa68635105c43824069946b747347408be0a404dc68bce8d762f9a783cb8dd4",
     "protocol.json": "04a087bf939d9b105f33fb5ddeacb993cdf2df31cb3252a86cd73148144c87ea"
   },
   "maximum_independent_duration_error_s": 7.105427357601002e-15,
@@ -63,13 +63,43 @@
   "motor_model_and_collision_shapes": "Preserved from the installed research airframe incl. fixed-joint payload variants",
   "numerical_reproducibility": "Externally scheduled Gazebo Transport velocity commands may shift phase boundaries by a control tick, check repeatability.csv; no repeated run is an independent training example.",
   "onboard_sensors_used_by_controller": false,
+  "original_acquisition": {
+    "base_and_fine_cases_identical_to_first_release": true,
+    "first_manifest_sha256": "78569dba04fba113b8047ae5f5120adfb72c3e4a71a5735a82e3835a36290c5b",
+    "first_release_git_commit": "8101e1263fe1f5969909605cb3b7a962c1c4311b",
+    "first_release_path": "results/m100_reaudit/gazebo_batch/study.json",
+    "input_sha256": {
+      "M100_69_experiments_summary.csv": "ea24ff674b74940b2f1ffaf12fcee49164eb5180f895ab0bdcf9bda1b060028c",
+      "drone_nav/config/m100_energy_model_v2.yaml": "725b2a54d333bc3ed40a9919d990cda48ee28d158cde87749a8ff08cda585458",
+      "drone_nav/config/m100_stable_cruise_speed_v1.yaml": "a702c1f1a4b2498e29554b10c0e10ff1f9d6541333fe82fc0b1b36736ce0f2c7",
+      "drone_nav/config/m100_transient_power_v1.yaml": "6b3c1b6a52e484849368dc568e90128596ffdf937b8e06f808aba87740b46fa1",
+      "drone_nav/config/m100_wind_simulation_v1.yaml": "f164c5948b85ff8b20e1cb7309c1e243fad42dcdce9047dc2517d2f5aabf089c",
+      "drone_nav/m100_atmosphere.py": "c55d89c71f27915f7c825dad31e2fa8590b2315b1172fa0ca7e9d92439aae77f",
+      "drone_nav/m100_contract.py": "6b964bb37e05f38f54a165d787a664496214e69a91a8eece285443fb17043ad2",
+      "drone_nav/m100_published_energy_v2.py": "e9dd6e7c2caeee7c721b4fc4a457774279a0dfe19140e8c437c6bdb668ed222a",
+      "drone_nav/m100_stable_cruise_speed.py": "186a9ef028af76516b4d1e35e45342de70fa5ce47163a1fc872e2bc0e7e21087",
+      "drone_nav/m100_transient_power.py": "2a91d3a3cd558412a91bfb9367b9e6de44536d7fc4ee993387d564159042f486",
+      "drone_nav/m100_wind_simulation.py": "c301fe28d05368cecb721b059dc6d84d57fec13d8ce197e5e144e1c9e3fbd9e9",
+      "gazebo_batch.py": "6837933ed2db8500157c681e281c366fd21c79ad48cba7c2fe5529b3c52f1375",
+      "gazebo_batch_engine.cc": "372f14034766b477846b91a324dc3d3eaa18a17be302ee67db0a2f87de58782c",
+      "m100_cmu_v2/model.sdf": "63d50538ec859472832c2b95db36c6ffd2b29da23286cce4ae8e9ba67b02ad54",
+      "m100_cmu_v2_payload_025/model.sdf": "85cab7073d3329088b9b0f721389b7e96d68fce048510e65617ce7ecf55819a9",
+      "m100_cmu_v2_payload_050/model.sdf": "4bbac163154fff2ba9a797519767f7ab95b4a916a5030ca7988dc52f773e23c8",
+      "m100_cmu_v2_payload_075/model.sdf": "7f0bff6c39719657a7bb310ab6be3a659d658b302de324d886d5b88e55eedf2f",
+      "m100_cmu_v2_payload_100/model.sdf": "40ed6ecbc91ca1d6b1022200d2e08fbc2ff6e0f216256df67e88cc51aade53ee",
+      "m100_cmu_v2_payload_125/model.sdf": "134c12e27d3f31d1032b8387eea694e32e6fdabc95ec8e6cfc448b2ef2ab4409",
+      "physics.json": "248100eb6505d4ef07597f072bfb8349070f3f43b3690c4ed58aaf034bc710a9",
+      "physics.py": "abc76fc7d9e33dfaf3607fb192103dd5815fecf9f9500b39169f5a7e58e908f4",
+      "protocol.json": "04a087bf939d9b105f33fb5ddeacb993cdf2df31cb3252a86cd73148144c87ea"
+    }
+  },
   "original_conditions": 69,
   "output_table_sha256": {
     "before_after.csv": "85b262f0b519dcff5d2cf000f25dcb2afd39ea212dd44d4dd422b0cbe9a767b8",
     "cases.csv": "9d4b8a7e4f7432189bbf6a99e8e251d0b04105bed7be2e9fc5855904b49c20fd",
     "convergence.csv": "f6c170ba03a2f940e1cd1467a8e07afeae6ed1d9d9032676231ede4799c55cc4",
     "phases.csv": "8749d64e3e0488907ea1727411c599468512baf935ad657098cfd8e6b266df1b",
-    "repeatability.csv": "ffb5f3d9a7d7eadadeb646a11645d42ff99ea36d80ac4e047c700d04b5ee0b68",
+    "repeatability.csv": "4ea87b5a1b5213cb79b643b45f21424154ed0a1d2bc402342935cb34fdefc42e",
     "scenario_plan.csv": "0908d11185546974296c15b6028470708ae2e792f80dc0d8788ab9279dce3956",
     "training_research.csv": "72f407c2ccee2ada013bacdeb98f286d6ba212e5e7786bf328967b1197b4c5fe",
     "training_stock.csv": "733f97213996d33699488f5d96d976d44904669445fffb5fecdee0c303228507"

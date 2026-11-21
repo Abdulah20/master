@@ -1,3 +1,3 @@
 case_id,seed,step_s,base_status,repeat_status,repeat_trace_sha256,repeated_sample_rows,raw_byte_identical,measurement_delta_W,measurement_delta_Wh,mission_delta_Wh,airborne_delta_s,within_declared_limits
-case_001,0,0.008,passed,passed,b672cd763c82e863638cb7443335310a7c390d89d37ca8b84715e0a2c0058e8b,1171,False,-1.9970304379e-06,-2.7758722432e-08,-0.00011742591451,0,True
-exp_023,0,0.008,passed,passed,47b8055b20f7c43e13cc1cf81ce0ca242d5b6c2e432677403948849d59ad3429,677,False,-2.2360827757e-05,-1.9429074705e-07,5.7459043248e-06,0,True
+case_001,0,0.008,passed,passed,23bbdae8f1e76c274b1426054c9e0cd49e4d2f838ffd55315e2243d9cdc5fbaa,1171,False,-3.8779004967e-06,-5.3902816433e-08,-0.0052688568564,-0.04,True
+exp_023,0,0.008,passed,passed,589f8527934662f55b5d76a4729d49e7fc9065f808859295ef9c18875723b338,677,False,3.7627120264e-06,3.2693787233e-08,-4.5415745607e-05,0,True

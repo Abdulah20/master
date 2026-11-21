@@ -36,6 +36,8 @@ BUDGET_ATOL_WH = 1e-7
 DURATION_ATOL_S = 1e-7
 CONVERGENCE_POWER_W = 2.0
 CONVERGENCE_ENERGY_REL = 0.04
+FIRST_RELEASE = "8101e1263fe1f5969909605cb3b7a962c1c4311b"
+FIRST_MANIFEST_SHA256 = "78569dba04fba113b8047ae5f5120adfb72c3e4a71a5735a82e3835a36290c5b"
 
 
 def research_study(explicit=None):
@@ -601,6 +603,20 @@ def record_design(study, out):
     write_table(pd.DataFrame(rows),out/'scenario_plan.csv')
 
 
+def original_acquisition(out):
+    """Bind this generation to the original study only when the base/fine case records match."""
+    relative = "results/m100_reaudit/gazebo_batch/study.json"
+    # The saved copy also supports portable archives distributed without Git history.
+    archive = Path(__file__).with_name("gazebo_batch_first_manifest.json")
+    if sha(archive) != FIRST_MANIFEST_SHA256:
+        raise ValueError("registered first Gazebo campaign manifest was changed")
+    first = json.loads(archive.read_text())
+    return {"first_release_git_commit": FIRST_RELEASE, "first_release_path": relative,
+            "first_manifest_sha256": FIRST_MANIFEST_SHA256, "input_sha256": first["input_sha256"],
+            "base_and_fine_cases_identical_to_first_release":
+                first["output_table_sha256"]["cases.csv"] == sha(out/"cases.csv")}
+
+
 def summarize(study, assets, cache,out, jobspec):
     out.mkdir(parents=True,exist_ok=True)
     model=Model.load()
@@ -671,6 +687,7 @@ def summarize(study, assets, cache,out, jobspec):
                       'energy_check_abs_Wh':BUDGET_ATOL_WH,'duration_abs_s':DURATION_ATOL_S,
                       'convergence_measurement_mean_abs_W':CONVERGENCE_POWER_W,'convergence_energy_relative':CONVERGENCE_ENERGY_REL},
         'input_sha256':source_hashes,
+        'original_acquisition':original_acquisition(out),
         'output_table_sha256':{name:sha(out/name) for name in tables},
         'original_conditions':int((base.cohort=='original').sum()),'additional_conditions':int((base.cohort=='expanded').sum()),
         'base_statuses':base.status.value_counts().to_dict(),

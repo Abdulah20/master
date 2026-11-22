@@ -1,0 +1,206 @@
+{
+  "attempt": 1,
+  "audit": {
+    "attempt": 1,
+    "budget_reason": "DISCONTINUOUS_PX4_LAND_SEQUENCE",
+    "calibration_id": "CMU_TRANSIENT_AIRBORNE_V1:831973dc40cdc338b7086a1ba824c57c8670bdeff90f7fcdf806a56905ff02a9",
+    "case_id": "case_011",
+    "direct_row_sha256": "1e23bc2b7a77c87dda7baec19e9da948892b6bd53a22e22ba353b5e67415e14e",
+    "downsampled_VI_diagnostic": {
+      "eligible_intervals": 2236,
+      "eligible_seconds": 116.22399999999999,
+      "published_VI_trapezoids_Wh": 17.11686724403115,
+      "published_minus_native_Wh": -0.00011709233671552965,
+      "same_intervals_native_Wh": 17.116984336367864
+    },
+    "duration_s": 184.248,
+    "entity_epochs": [
+      2
+    ],
+    "estimated_airborne_energy_Wh": null,
+    "flight_csv": {
+      "brackets_ulog_airborne_window": true,
+      "clock": "energy_timestamp_s",
+      "first_timestamp_s": 10.84,
+      "last_timestamp_s": 201.872,
+      "missed_windows": 0,
+      "rows": 192,
+      "rows_with_blank_electrical_power": 2,
+      "rows_within_ulog_airborne_window": 185,
+      "sha256": "a61a130c1d8a0da00baef5260531feb6d9dc4900d8c7a002afbe1089e516c639",
+      "size_bytes": 36822,
+      "target_hz": 1.0
+    },
+    "mission_outcome": "COMPLETE",
+    "native_budget_status": "INCOMPLETE",
+    "native_covered_s": 0,
+    "native_end_s": null,
+    "native_known_Wh": 0,
+    "native_source_time_partition_verified": false,
+    "native_start_s": 12.684,
+    "native_uncovered_s": null,
+    "original_trace_sha256": "ff111cd687292407d33b3e6834124606f88b7e18a1de6f8a59403ad9ef856b2a",
+    "pack_fit_airborne_diagnostics": {
+      "charge_fit_exhaustion_observed": false,
+      "first_charge_fit_exhaustion_s": null,
+      "last_accounted_discharge_Ah": 0.8290680416001673,
+      "publications": 3547
+    },
+    "published_ledger_checks": {
+      "checked_publications": 3396,
+      "max_energy_subtotal_residual_Wh": 3.552713678800501e-15,
+      "max_time_partition_residual_s": 1.4210854715202004e-14
+    },
+    "rejected_gate_observations": {
+      "native_land_and_budget_transitions": [
+        {
+          "budget_reason": "",
+          "budget_status": "WAITING_FOR_TAKEOFF",
+          "detector_stamp_s": 10.124,
+          "landed": true,
+          "native_publication_s": 10.936,
+          "previous_publication_s": null,
+          "sequence": 1,
+          "transition_s": 3.396
+        },
+        {
+          "budget_reason": "",
+          "budget_status": "AIRBORNE",
+          "detector_stamp_s": 12.684,
+          "landed": false,
+          "native_publication_s": 12.692,
+          "previous_publication_s": 12.664,
+          "sequence": 2,
+          "transition_s": 12.684
+        },
+        {
+          "budget_reason": "DISCONTINUOUS_PX4_LAND_SEQUENCE",
+          "budget_status": "INCOMPLETE",
+          "detector_stamp_s": 189.12,
+          "landed": false,
+          "native_publication_s": 189.128,
+          "previous_publication_s": 189.1,
+          "sequence": 4,
+          "transition_s": 189.12
+        },
+        {
+          "budget_reason": "DISCONTINUOUS_PX4_LAND_SEQUENCE",
+          "budget_status": "INCOMPLETE",
+          "detector_stamp_s": 196.932,
+          "landed": true,
+          "native_publication_s": 196.98,
+          "previous_publication_s": 196.928,
+          "sequence": 5,
+          "transition_s": 196.932
+        }
+      ],
+      "ulog_land_edges": [
+        {
+          "landed": true,
+          "timestamp_us": 3780000
+        },
+        {
+          "landed": false,
+          "timestamp_us": 12684000
+        },
+        {
+          "landed": true,
+          "timestamp_us": 196932000
+        }
+      ]
+    },
+    "run_id": "m100_20261122T153640Z",
+    "source_bins": {
+      "cmu_local": {
+        "energy_Wh": 0,
+        "seconds": 0
+      },
+      "cmu_pooled": {
+        "energy_Wh": 0,
+        "seconds": 0
+      },
+      "native_pack_model": {
+        "energy_Wh": 0,
+        "seconds": 0
+      },
+      "recorded_manager": {
+        "energy_Wh": 0,
+        "seconds": 0
+      }
+    },
+    "source_sum_Wh": 0.0,
+    "source_sum_s": 0.0,
+    "trace_records": 3678,
+    "training_eligible": false,
+    "training_row_matches_recorder_and_terminal_native_budget": true,
+    "training_status": "INCOMPLETE",
+    "ulog_airborne_armed_s": 184.248,
+    "ulog_airborne_failsafe_s": 0.0,
+    "ulog_and_native_edges_match": false,
+    "ulog_dropout_events": 0,
+    "ulog_landing_us": 196932000,
+    "ulog_sha256": "9bd3c885d3ea6801a40d258c90a9e72613fa2b656000089b8945d6e44caf4ece",
+    "ulog_takeoff_us": 12684000,
+    "uncovered_event_brackets": []
+  },
+  "case_id": "case_011",
+  "metrics": {
+    "airborne_covered_s": null,
+    "airborne_distance_source": "ULOG_SIMULATED_GROUND_TRUTH_XY",
+    "airborne_duration_s": 184.248,
+    "airborne_horizontal_distance_m": 4.741853437069944,
+    "airborne_known_subtotal_Wh": null,
+    "airborne_manager_fallback_Wh": null,
+    "airborne_manager_fallback_s": null,
+    "airborne_mean_power_W": null,
+    "attempt": 1,
+    "case_id": "case_011",
+    "charge_fit_exhaustion_observed": false,
+    "data_quality": "PASS",
+    "direct_row_sha256": "1e23bc2b7a77c87dda7baec19e9da948892b6bd53a22e22ba353b5e67415e14e",
+    "energy_evidence_status": "UNAVAILABLE_UNSUPPORTED_FLIGHT_PHASE",
+    "energy_per_distance_Wh_per_km": null,
+    "estimated_airborne_energy_Wh": null,
+    "first_charge_fit_exhaustion_s": null,
+    "ideal_steady_endurance_min": 11.836907155694668,
+    "ideal_steady_range_km": null,
+    "label_source": "unavailable",
+    "last_accounted_discharge_Ah": 0.8290680416001673,
+    "legacy_wind_power_runtime_applied": false,
+    "manager_power_rows_with_vi": 190,
+    "manager_power_rows_without_vi": 0,
+    "mean_segment_power_definition": "TIME_WEIGHTED_ONE_HZ_MEASUREMENT_PHASE",
+    "measurement_distance_m": null,
+    "measurement_energy_Wh": 8.452582821532241,
+    "measurement_frozen": true,
+    "mission_outcome": "COMPLETE",
+    "nameplate_Wh": 99.9,
+    "native_VI_coverage_s": 116.22399999999999,
+    "nominal_energy_remaining_percent": 72.62671054812127,
+    "nominal_energy_remaining_percent_after_airborne": null,
+    "rejection_reason": "DISCONTINUOUS_PX4_LAND_SEQUENCE",
+    "run_id": "m100_20261122T153640Z",
+    "sampled_mean_altitude_m": 99.99989171116862,
+    "sampled_mean_ground_speed_mps": 0.02004735302582772,
+    "sampled_mean_power_W": 506.3822771572827,
+    "sampled_measurement_span_s": 59.064,
+    "supported_phase_mission_energy_Wh": 27.34591616242685,
+    "training_eligible": false,
+    "training_status": "INCOMPLETE",
+    "uncovered_s": null,
+    "wind_model_classification": "C_NOT_CALIBRATED",
+    "wind_vector_application_verified": true
+  },
+  "protocol_sha256": "45344af837975d119a056519ddec22983a78c4775dd498c05620600084ce4f58",
+  "sources": {
+    "acquisition_exit_sha256": "e441017c61a8a936d9ade875acb0e51475ed2572da32218417ec5b27ce04ffb9",
+    "flight.csv": "a61a130c1d8a0da00baef5260531feb6d9dc4900d8c7a002afbe1089e516c639",
+    "original_ulog": "state/rootfs/log/2026-11-22/15_36_33.ulg",
+    "provenance.json": "d58e1f3fbb04e2c0c28cce5041d03e07dd943731c6c26247dc9a3485ea88a143",
+    "raw_pack_drive_jsonl_sha256": "ff111cd687292407d33b3e6834124606f88b7e18a1de6f8a59403ad9ef856b2a",
+    "receipt.json": "9616217987e0fcbcbc91b327a2537375e473580c232d716584fe39cdca048275",
+    "receipt_sha256": "9616217987e0fcbcbc91b327a2537375e473580c232d716584fe39cdca048275",
+    "training.csv": "1e23bc2b7a77c87dda7baec19e9da948892b6bd53a22e22ba353b5e67415e14e",
+    "ulog_sha256": "9bd3c885d3ea6801a40d258c90a9e72613fa2b656000089b8945d6e44caf4ece"
+  }
+}

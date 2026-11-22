@@ -25,11 +25,20 @@ def measurements(case, flight_path, provenance):
     with flight_path.open(newline="") as source:
         rows = list(csv.DictReader(source))
     phase = "CRUISE" if case["cruise_speed_mps"] else "HOVER"
-    points = [(float(r["energy_timestamp_s"]), float(r["electrical_power_W"]))
-              for r in rows if r["flight_phase"] == phase and r["electrical_power_W"]]
-    span = points[-1][0] - points[0][0] if len(points) >= 2 else None
-    mean = (math.fsum((a[1] + b[1]) * 0.5 * (b[0] - a[0]) for a, b in zip(points, points[1:])) / span
-            if span and span > 0 else None)
+    points = [r for r in rows if r["flight_phase"] == phase and r["electrical_power_W"]]
+    times = [float(r["energy_timestamp_s"]) for r in points]
+    span = times[-1] - times[0] if len(times) >= 2 else None
+
+    def sample_mean(field):
+        if not span or span <= 0 or any(r[field] == "" for r in points):
+            return None
+        values = [float(r[field]) for r in points]
+        if not all(math.isfinite(v) for v in values):
+            return None
+        return math.fsum((a + b) * 0.5 * (right - left) for a, b, left, right
+                         in zip(values, values[1:], times, times[1:])) / span
+
+    mean = sample_mean("electrical_power_W")
     segment = energy["measurement_window_energy_wh"]
     distance = energy["measurement_window_distance_m"] if phase == "CRUISE" else None
     rate = energy["measurement_energy_per_distance_wh_per_km"] if distance else None
@@ -69,10 +78,14 @@ def measurements(case, flight_path, provenance):
         "ideal_steady_range_km": nominal/rate if rate else None,
         "nominal_energy_remaining_percent": 100 * max(0, 1 - mission/nominal),
         "measurement_distance_m": distance, "sampled_measurement_span_s": span,
+        "sampled_mean_ground_speed_mps": sample_mean("actual_horizontal_speed_mps"),
+        "sampled_mean_altitude_m": sample_mean("actual_altitude_m"),
         "measurement_frozen": energy["measurement_frozen"], "nameplate_Wh": nominal,
         "manager_power_rows_with_vi": available, "manager_power_rows_without_vi": missing,
         "mean_segment_power_definition": "TIME_WEIGHTED_ONE_HZ_MEASUREMENT_PHASE",
         "legacy_wind_power_runtime_applied": energy["wind_power_runtime_applied"],
+        "wind_model_classification": provenance["wind_simulation_model"]["classification"],
+        "wind_vector_application_verified": provenance["wind_environment_application"]["verified"],
         "data_quality": quality, "energy_evidence_status": provenance["config"]["energy_calibration_status"],
     }
 
@@ -137,6 +150,15 @@ def mission_summary(raw, case, attempt, hashes):
     evidence.confirm(run and receipt["landed"] and not receipt["armed"], "Missing disarmed landing")
     provenance_path = raw / f"{run}.provenance.json"
     doc = evidence.json_file(provenance_path)
+    wind = doc["wind_environment_application"]
+    speed = case["wind_speed_mps"]
+    heading = math.radians(case["wind_direction_toward_deg_ENU"])
+    expected_wind = (speed * math.cos(heading), speed * math.sin(heading), 0.0)
+    actual_wind = wind["wind_vector_enu_mps"]
+    evidence.confirm(wind["verified"] is True and wind["method"] == "APPLIED_GAZEBO_FORCE_PARAMETERS_SERVICE_RESPONSE"
+                     and len(actual_wind) == 3 and all(math.isclose(a, b, abs_tol=1e-12)
+                         for a, b in zip(actual_wind, expected_wind)),
+                     "Applied Gazebo aerodynamic wind differs from the registered ENU vector")
     row = doc["airborne_training"]
     wire = raw / f"{run}.pack_drive.jsonl"
     pack_trace = doc["native_pack_drive"]["trace"]
@@ -164,13 +186,15 @@ def mission_summary(raw, case, attempt, hashes):
     metrics.update(measurements(case, sources["flight.csv"], doc))
     energy = audit[evidence.TARGET]
     duration = audit["duration_s"]
+    bracketed = audit["native_source_time_partition_verified"]
     metrics.update({
         evidence.TARGET: energy, "training_status": audit["training_status"], "training_eligible": audit["training_eligible"],
         "label_source": row["label_source"], "airborne_duration_s": duration, "uncovered_s": audit["native_uncovered_s"],
-        "airborne_covered_s": audit["native_covered_s"], "airborne_known_subtotal_Wh": audit["native_known_Wh"],
+        "airborne_covered_s": audit["native_covered_s"] if bracketed else None,
+        "airborne_known_subtotal_Wh": audit["native_known_Wh"] if bracketed else None,
         "airborne_mean_power_W": energy*3600/duration if energy is not None else None,
-        "airborne_manager_fallback_s": audit["source_bins"]["recorded_manager"]["seconds"],
-        "airborne_manager_fallback_Wh": audit["source_bins"]["recorded_manager"]["energy_Wh"],
+        "airborne_manager_fallback_s": audit["source_bins"]["recorded_manager"]["seconds"] if bracketed else None,
+        "airborne_manager_fallback_Wh": audit["source_bins"]["recorded_manager"]["energy_Wh"] if bracketed else None,
         "native_VI_coverage_s": audit["downsampled_VI_diagnostic"]["eligible_seconds"],
         "nominal_energy_remaining_percent_after_airborne": 100*max(0, 1 - energy/metrics["nameplate_Wh"]) if energy is not None else None,
         "direct_row_sha256": row["sha256"], "airborne_horizontal_distance_m": distance,

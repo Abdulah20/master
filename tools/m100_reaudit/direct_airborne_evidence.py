@@ -153,6 +153,32 @@ def gate_from_ulog(path):
     return start, end, armed_us, failsafe_us
 
 
+def rejected_gate_observations(samples, ulog_states):
+    """Retain the original land-detector and published budget transitions for a rejected label."""
+    px4_edges = []
+    with ulog_states.open(newline="", encoding="utf-8") as source:
+        for row in csv.DictReader(source):
+            if row["topic"] == "vehicle_land_detected":
+                landed = bool(int(row["landed"]))
+                if not px4_edges or landed != px4_edges[-1]["landed"]:
+                    px4_edges.append({"timestamp_us": int(row["timestamp_us"]), "landed": landed})
+    publications = []
+    last = object()
+    previous = None
+    for native in samples:
+        budget = native["airborne_budget"]
+        state = (native["px4_land_sequence"], native["px4_landed"], native["px4_land_transition_s"],
+                 budget["status"], budget["reason"])
+        if state != last:
+            publications.append({"native_publication_s": native["time_s"], "previous_publication_s": previous,
+                                 "detector_stamp_s": native["px4_land_time_s"], "sequence": state[0],
+                                 "landed": state[1], "transition_s": state[2], "budget_status": state[3],
+                                 "budget_reason": state[4]})
+        last = state
+        previous = native["time_s"]
+    return {"ulog_land_edges": px4_edges, "native_land_and_budget_transitions": publications}
+
+
 def flight_telemetry(folder, doc, case, start, end):
     path = folder / "flight.csv"
     csv_info = doc["csv"]
@@ -269,7 +295,7 @@ def uncovered_events(records, run):
     return gaps
 
 
-def audit_flight(folder, case, protocol_hashes):
+def audit_flight(folder, case, protocol_hashes, *, raw_trace_path=None):
     manifest, receipt, doc = [json_file(folder / name) for name in ("manifest.json", "receipt.json", "provenance.json")]
     for name, sha in manifest["files_sha256"].items():
         confirm(digest(folder / name) == sha, f"Archived digest mismatch: {folder / name}")
@@ -299,15 +325,21 @@ def audit_flight(folder, case, protocol_hashes):
     for col, key, config_key in (
             ("payload_kg", "payload_kg", "payload_kg"), ("commanded_speed_mps", "cruise_speed_mps", "cruise_speed_mps"),
             ("commanded_altitude_agl_m", "altitude_m", "altitude_m"),
-            ("planned_outbound_measurement_m", "measurement_distance_m", "route_length_m"),
             ("commanded_wind_mps", "wind_speed_mps", "wind_speed_mps"),
             ("commanded_wind_direction_deg", "wind_direction_toward_deg_ENU", "wind_direction_deg"),
             ("ambient_reference_C", "temperature_c", "temperature_c")):
         confirm(float(row[col]) == case[key] == config[config_key], f"Recorded condition differs for {col}")
+    confirm(config["route_length_m"] == case["measurement_distance_m"]
+            and config["hover_duration_s"] == case["hover_duration_s"], "Changed mission plan")
+    cruise = case["cruise_speed_mps"] != 0
+    confirm(float(row["planned_outbound_measurement_m"]) == (case["measurement_distance_m"] if cruise else 0)
+            and (row["planned_hover_duration_s"] == "" if cruise else
+                 float(row["planned_hover_duration_s"]) == case["hover_duration_s"]), "Changed measurement mode")
     info = direct["native_budget"]
     confirm(info["run_id"] == run and row["calibration_id"] == info["calibration_id"] == pack["airborne_calibration_id"] == CALIBRATION_ID
             and info["boundary_source"] == BOUNDARY_SOURCE, "Different native gate or fit")
-    with gzip.open(folder / "pack_drive.jsonl.gz", "rb") as stream:
+    with (raw_trace_path.open("rb") if raw_trace_path is not None else
+          gzip.open(folder / "pack_drive.jsonl.gz", "rb")) as stream:
         wire_sha = hashlib.sha256()
         records, epochs = [], set()
         for line in stream:
@@ -353,7 +385,19 @@ def audit_flight(folder, case, protocol_hashes):
                 "Native source energies do not add up to a fully covered direct target")
     else:
         confirm(target is None and example is None, "An incomplete native budget was exported as a target")
-    return {"case_id": cid, "run_id": run, "attempt": manifest["attempt"],
+    model_coverage = {}
+    if raw_trace_path is not None:
+        if status != "COMPLETE":
+            model_coverage["rejected_gate_observations"] = rejected_gate_observations(samples, folder / "ulog_states.csv")
+        in_air = [s for s in samples if start <= s["time_s"] <= end]
+        exhausted = [s["time_s"] for s in in_air if s["q_domain_exhausted"]]
+        model_coverage["pack_fit_airborne_diagnostics"] = {
+            "publications": len(in_air),
+            "charge_fit_exhaustion_observed": bool(exhausted) if in_air else None,
+            "first_charge_fit_exhaustion_s": exhausted[0] if exhausted else None,
+            "last_accounted_discharge_Ah": in_air[-1]["discharged_ah"] if in_air else None,
+        }
+    return {**model_coverage, "case_id": cid, "run_id": run, "attempt": manifest["attempt"],
             "mission_outcome": receipt["outcome"], "native_budget_status": status,
             "training_status": row["training_status"], "budget_reason": info["reason"], "training_eligible": example is not None,
             "direct_row_sha256": direct["sha256"], "original_trace_sha256": pack["trace"]["sha256"],

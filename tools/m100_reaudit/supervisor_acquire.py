@@ -63,6 +63,31 @@ def check_model(case):
         raise ValueError(f'Unregistered model for {case["case_id"]}')
 
 
+def register_retry(cid, attempt, reason):
+    if attempt < 2 or not reason:
+        raise ValueError('Register the previous failed outcome and a reason before repeating it')
+    previous = WORK / cid / f'attempt_{attempt-1}' / 'acquisition_exit.json'
+    failed = read(previous)
+    if failed['outcome'] == 'COMPLETE' and failed['direct_energy_Wh'] is not None:
+        raise ValueError(f'{cid} already has a directly recorded label')
+    base = RELEASE / 'protocol.json'
+    protocol = read(base)
+    case = next(c for c in protocol['cases'] if c['case_id'] == cid)
+    protocol.update(schema='M100_SUPERVISOR_NATIVE_REPLACEMENT_V1', planned_utc=now(),
+                    cases=[case], attempt=attempt, planned_replacement_cases=[cid],
+                    original_protocol_sha256=hashlib.sha256(base.read_bytes()).hexdigest(),
+                    previous_attempt=failed, previous_exit_sha256=hashlib.sha256(previous.read_bytes()).hexdigest(),
+                    trigger=reason, workers=1)
+    protocol['groups'] = {key: [cid] for key, members in protocol['groups'].items() if cid in members}
+    folder = RELEASE / 'retries'
+    folder.mkdir(exist_ok=True)
+    dest = folder / f'{cid}_attempt_{attempt}.json'
+    with dest.open('x') as out:
+        json.dump(protocol, out, indent=2)
+        out.write('\n')
+    print(dest)
+
+
 def record_exit(cid, attempt, protocol, code):
     directory = WORK / cid / f'attempt_{attempt}'
     directory.mkdir(parents=True, exist_ok=True)
@@ -117,7 +142,7 @@ def schedule(protocol_path, workers):
                 else:
                     queued.append(cid)
             setting = WORK / 'max_workers'
-            slots = int(setting.read_text()) if setting.exists() else workers
+            slots = (int(setting.read_text()) if setting.exists() else workers) if attempt == 1 else 1
             if not 1 <= slots <= 8:
                 raise ValueError('Expected a positive local worker budget up to eight')
             free_gib = shutil.disk_usage(WORK).free / 2**30
@@ -135,9 +160,35 @@ def schedule(protocol_path, workers):
             time.sleep(3)
 
 
+def drain_registered_retries():
+    initial = read(RELEASE / 'protocol.json')
+    while any(not (WORK / case['case_id'] / 'attempt_1/acquisition_exit.json').exists() for case in initial['cases']):
+        time.sleep(5)
+    for protocol_path in sorted((RELEASE / 'retries').glob('case_*_attempt_*.json')):
+        protocol = read(protocol_path)
+        cid, = protocol['planned_replacement_cases']
+        if (WORK / cid / f'attempt_{protocol["attempt"]}/acquisition_exit.json').exists():
+            continue
+        while True:
+            try:
+                schedule(protocol_path, 1)
+                break
+            except BlockingIOError:
+                time.sleep(3)
+
+
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--protocol', type=Path, default=RELEASE / 'protocol.json')
     parser.add_argument('--workers', type=int, default=2)
+    parser.add_argument('--register-retry', metavar='CASE')
+    parser.add_argument('--attempt', type=int, default=2, help='Attempt to preregister')
+    parser.add_argument('--reason', help='Reason for repeating an incomplete acquisition')
+    parser.add_argument('--drain-registered-retries', action='store_true', help='Wait for first pass, then run only preregistered replacements serially')
     args = parser.parse_args()
-    schedule(args.protocol.resolve(), args.workers)
+    if args.register_retry:
+        register_retry(args.register_retry, args.attempt, args.reason)
+    elif args.drain_registered_retries:
+        drain_registered_retries()
+    else:
+        schedule(args.protocol.resolve(), args.workers)

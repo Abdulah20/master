@@ -31,6 +31,7 @@ MEASURES = (
     'airborne_known_subtotal_Wh', 'airborne_manager_fallback_s', 'airborne_manager_fallback_Wh', 'native_VI_coverage_s',
     'charge_fit_exhaustion_observed', 'first_charge_fit_exhaustion_s', 'last_accounted_discharge_Ah',
     'measurement_distance_m', 'sampled_measurement_span_s', 'energy_per_distance_Wh_per_km',
+    'sampled_mean_ground_speed_mps', 'sampled_mean_altitude_m',
     'ideal_steady_endurance_min', 'ideal_steady_range_km',
     'nominal_energy_remaining_percent', 'nominal_energy_remaining_percent_after_airborne',
 )
@@ -74,8 +75,13 @@ def select_attempts(out, cases):
         energy = m[AIRBORNE]
         if energy is not None and (not math.isfinite(energy) or energy <= 0 or m['uncovered_s'] != 0):
             raise ValueError(f'Unqualified full-flight energy in {path}')
-        if complete(m) and (not m.get('run_id') or not m.get('direct_row_sha256')):
-            raise ValueError(f'Missing recorder identity for full-flight energy in {path}')
+        if complete(m):
+            audit, sources = doc['audit'], doc['sources']
+            if not (m.get('run_id') and m['run_id'] == audit['run_id']
+                    and m.get('direct_row_sha256') and m['direct_row_sha256'] == audit['direct_row_sha256'] == sources['training.csv']
+                    and energy == audit[AIRBORNE] and m['airborne_duration_s'] == audit['duration_s']
+                    and audit['training_row_matches_recorder_and_terminal_native_budget'] and audit['ulog_and_native_edges_match']):
+                raise ValueError(f'Direct recorder row or takeoff-to-landing audit disagrees in {path}')
         attempts[cid].append((i, m, str(path.relative_to(out))))
     chosen = {}
     for cid, takes in attempts.items():
@@ -95,11 +101,15 @@ def make_row(case, groups, take, count, old):
         'training_status': metrics['training_status'], 'label_source': metrics.get('label_source'),
         'training_eligible': metrics.get('training_eligible'), **{k: case[k] for k in PLAN_FIELDS},
         'wind_relative_to_outbound': orientation,
+        'wind_model_classification': metrics.get('wind_model_classification'),
+        'wind_vector_application_verified': metrics.get('wind_vector_application_verified'),
+        'manager_wind_power_runtime_applied': metrics.get('legacy_wind_power_runtime_applied'),
         'planned_outbound_measurement_m': case['measurement_distance_m'] if case['cruise_speed_mps'] else None,
         'planned_hover_duration_s': None if case['cruise_speed_mps'] else case['hover_duration_s'],
         **{k: metrics.get(k) for k in MEASURES},
         'data_quality': metrics.get('data_quality'), 'energy_evidence_status': metrics.get('energy_evidence_status'),
         'rejection_reason': metrics.get('rejection_reason'),
+        'nominal_airborne_energy_margin_Wh': metrics['nameplate_Wh'] - metrics[AIRBORNE] if finished else None,
         'historical_run_id': old['run_id'],
         'historical_measurement_energy_Wh': old[SEGMENT], 'delta_measurement_energy_Wh': None,
         'delta_measurement_energy_pct': None, 'observed_unfinished_mission_airborne_Wh': None,
@@ -227,12 +237,60 @@ def report(rows, attempts):
         if 'experiment_1_payload' in r['study_groups'].split('|'):
             lines.append(f"| {r['payload_kg']:g} | {format_number(r[SEGMENT])} | {format_number(r['delta_measurement_energy_Wh'])} | "
                          f"{format_number(r[AIRBORNE])} | {format_number(r['airborne_duration_s'])} |")
+    speed_rows = {(r['payload_kg'], r['cruise_speed_mps']): r[AIRBORNE] for r in rows.values()
+                  if 'experiment_2_payload_velocity' in r['study_groups'].split('|')}
+    speeds = sorted({speed for _, speed in speed_rows})
+    lines += ['', '## تجربة الحمولة والسرعة', '',
+              'تبيّن الخلايا طاقة المهمة من الإقلاع إلى الهبوط بوحدة Wh. في عمود التحويم تقضي الطائرة '
+              '60 ثانية عند نقطة القياس. تقطع الطائرة في أعمدة السرعة الأخرى مقطع ذهاب مأمورًا طوله 500 م قبل العودة.',
+              '', '| الحمولة (كغ) | ' + ' | '.join('تحويم' if s == 0 else f'{s:g} م/ث' for s in speeds) + ' |',
+              '|' + '---:|' * (len(speeds) + 1)]
+    for payload in sorted({p for p, _ in speed_rows}):
+        lines.append(f'| {payload:g} | ' + ' | '.join(format_number(speed_rows[payload, s]) for s in speeds) + ' |')
+    wind_rows = {(r['payload_kg'], r['wind_relative_to_outbound'], r['wind_speed_mps']): r[AIRBORNE]
+                 for r in rows.values() if 'experiment_3_payload_wind' in r['study_groups'].split('|')}
+    winds = sorted({wind for _, _, wind in wind_rows})
+    directions = {'headwind': 'أمامي', 'tailwind': 'خلفي', 'crosswind': 'جانبي'}
+    lines += ['', '## تجربة الحمولة والرياح', '',
+              'طاقة المهمة الكاملة بوحدة Wh حسب سرعة الرياح المأمورة واتجاهها بالنسبة إلى مقطع الذهاب. '
+              'عند عكس المسار في العودة تصبح الرياح الأمامية خلفية والعكس، وتصل الرياح الجانبية من الجانب المقابل. '
+              'عند سرعة رياح صفرية تتشارك الاتجاهات الثلاثة الرحلة المرجعية نفسها لكل حمولة.', '',
+              'تؤكد استجابة خدمة Gazebo تطبيق متجه الرياح المسجّل في `wind_environment_application`. '
+              'لجميع سرعات الرياح غير الصفرية، بما فيها 3 م/ث، يمثل السحب الهوائي وتغيّر القدرة الكهربائية '
+              'نقلًا نظريًا مصنّفًا `C_NOT_CALIBRATED` في `wind_simulation_model`. يُطبّق المحاكي قوة سحب على الهيكل، '
+              'ويستخدم مدير الرحلة مقدار السرعة بالنسبة للهواء لحساب تغيّر القدرة بالنموذج الكهربائي. '
+              'يوثّق `manager_wind_power_runtime_applied` تفعيل هذه المعالجة لكل حالة. '
+              'يقارن الجدول استجابة هذا النموذج للرياح المأمورة، ويتطلب تقدير دقته قياسات رياح محيطة '
+              'واستهلاك كهربائي متزامنة في الطيران الحقيقي.',
+              '', '| الحمولة (كغ) | الاتجاه | ' + ' | '.join(f'{w:g} م/ث' for w in winds) + ' |',
+              '|---:|---|' + '---:|' * len(winds)]
+    for payload in sorted({p for p, _, _ in wind_rows}):
+        for direction in WIND_SLOTS:
+            values = (wind_rows[payload, direction if w else 'calm', w] for w in winds)
+            lines.append(f'| {payload:g} | {directions[direction]} | ' + ' | '.join(map(format_number, values)) + ' |')
+    calm, head, tail = (rows[c] for c in ('case_001', 'case_037', 'case_038'))
+    if all(r[AIRBORNE] is not None and r[SEGMENT] is not None for r in (calm, head, tail)):
+        lines += ['', f'دون حمولة بلغت طاقة مقطع الذهاب {calm[SEGMENT]:.2f} Wh في الهدوء، و{head[SEGMENT]:.2f} Wh '
+                  f'مع رياح أمامية بسرعة 9 م/ث، و{tail[SEGMENT]:.2f} Wh مع رياح خلفية بنفس السرعة. '
+                  f'بلغت طاقة المهمة كاملة في الحالات الثلاث بالترتيب {calm[AIRBORNE]:.2f} و{head[AIRBORNE]:.2f} '
+                  f'و{tail[AIRBORNE]:.2f} Wh. يصف الترتيب استجابة منحنى القدرة النظري على المسار المحاكى.']
+    observed_motion = [r for r in full if r['sampled_mean_ground_speed_mps'] is not None and r['sampled_mean_altitude_m'] is not None]
+    if observed_motion:
+        max_speed = max(observed_motion, key=lambda r: abs(r['sampled_mean_ground_speed_mps'] - r['cruise_speed_mps']))
+        max_altitude = max(observed_motion, key=lambda r: abs(r['sampled_mean_altitude_m'] - r['altitude_m']))
+        lines.extend(['', '## السرعة والارتفاع أثناء مقطع القياس', '',
+                      f'توافرت متوسطات السرعة الأرضية والارتفاع الموزونة بالزمن لعدد {len(observed_motion)} رحلة. '
+                      f'كان أكبر فرق مطلق لمتوسط السرعة عن الأمر في `{max_speed["case_id"]}` '
+                      f'بتسجيل {max_speed["sampled_mean_ground_speed_mps"]:.2f} م/ث لأمر {max_speed["cruise_speed_mps"]:g} م/ث. '
+                      f'وكان أكبر فرق لمتوسط الارتفاع في `{max_altitude["case_id"]}` '
+                      f'بتسجيل {max_altitude["sampled_mean_altitude_m"]:.2f} م لأمر {max_altitude["altitude_m"]:g} م. '
+                      'تغطي هذه المتوسطات التحويم أو مقطع الذهاب فقط.'])
     lines.extend([
         '', '## السيناريوهات A وB وC', '',
         'اتجاه الرياح أمامي أثناء مقطع الذهاب كما في بروتوكول الحملة السابقة. '
         'الزمن الفعلي هنا هو المدة بين الإقلاع والهبوط. التحمل والمدى المثاليان إسقاطان عند استهلاك المقطع '
         'وباستخدام الطاقة الاسمية 99.9 واط·ساعة. النسبة في العمود الأخير تعبّر عن رصيد طاقة اسمي بعد الرحلة '
-        'على أساس بدء كل حالة برصيد 100% من هذه القيمة. '
+        'على أساس بدء كل حالة برصيد 100% من هذه القيمة وبحد أدنى صفر. '
         'تحتاج حالة الشحن الكهروكيميائية الحقيقية وزمن الفصل إلى قياس مستقل لبطارية TB47D.',
         '', '| الحالة | طاقة الإقلاع إلى الهبوط (Wh) | زمن الطيران (دقيقة) | المسار الأفقي الفعلي في المحاكي (م) | التحمل المثالي (دقيقة) | المدى المثالي (كم) | المتبقي الاسمي بعد الرحلة (%) |',
         '|---|---:|---:|---:|---:|---:|---:|',
@@ -277,13 +335,20 @@ def report(rows, attempts):
         'خانات الاتجاهات الثلاثة إلى رحلة واحدة.',
         '- تقارن أعمدة `delta_measurement_energy` طاقة مقطع الذهاب ذي الـ500 م أو التحويم ذي الـ60 ث بالمقطع المناظر في نوفمبر 2026. '
         'في التحويم يظل المدى المبني على مسافة فارغًا. يُقاس زمن المقارنة المنشور على العينات المتاحة لنفس المقطع.',
+        '- استعملت الرحلات التمهيدية الثلاث سرعة 6 م/ث وارتفاع 25 م وذهابًا بطول 100 م. '
+        'تخص المقارنة مع رحلات CMU المقاسة ذلك البروتوكول. '
+        '[أوامر الرحلات التمهيدية وقياساتها المرجعية](../supervisor_readiness/verified_pilot_results.csv)',
         '- يحتفظ `supported_phase_mission_energy_Wh` بتكامل القدرات التي يدعمها مدير الرحلة وفق تعريف الملف السابق. '
         'النسبة `nominal_energy_remaining_percent` مشتقة من هذا العمود. النسبة '
-        '`nominal_energy_remaining_percent_after_airborne` تستخدم هدف الرحلة الكاملة.',
+        '`nominal_energy_remaining_percent_after_airborne` تستخدم هدف الرحلة الكاملة. يحفظ '
+        '`nominal_airborne_energy_margin_Wh` الفرق الموقّع بين 99.9 واط·ساعة وهدف الرحلة، وتوضح القيمة السالبة مقدار التجاوز.',
         '- تسجل `native_VI_coverage_s` زمن فحص عينات الجهد والتيار المتاحة، ويُظهر '
         '`airborne_manager_fallback_s` الجزء المغطى بتقدير مدير الرحلة. جميع قيم الجهد والتيار والطاقة في هذه الحملة محاكاة.',
-        '- تبقى آثار الرياح القوية والحمولات فوق 0.5 كغ وسرعات 15 و20 م/ث ضمن التجارب الاستكشافية. '
+        '- تبقى آثار الرياح غير الصفرية والحمولات فوق 0.5 كغ وسرعات 15 و20 م/ث ضمن التجارب الاستكشافية. '
         'يطبّق التحويم مهمة مختلفة عن الطيران لمسافة ثابتة، لذلك يظهر عند سرعة صفر كحالة مستقلة.',
+        '- تمثل كل حالة فريدة مسارًا محاكى واحدًا مختارًا وفق البروتوكول. يعتمد تقدير تفاوت الطاقة بين '
+        'التكرارات أو خطأ التنبؤ في الطيران الحقيقي على بيانات إضافية مستقلة. عند تقسيم هذه النتائج للتدريب '
+        'والتقييم، تُجمع جميع مواضع المقارنة ذات معرّف الرحلة الواحد في المجموعة نفسها.',
         '', '## حالة صفوف المسجّل', '',
     ])
     lines.extend(f'- `{k}` — {v}' for k, v in sorted(counts.items()))
@@ -297,7 +362,11 @@ def publish_locked(out, final):
     old = read_json(ORIGINAL / 'protocol.json')
     if hashlib.sha256((ORIGINAL / 'protocol.json').read_bytes()).hexdigest() != protocol['previous_protocol_sha256']:
         raise ValueError('Original supervisor protocol hash differs')
-    hist = read_json(ORIGINAL / 'results.json')
+    archived = (ORIGINAL / 'results.json').read_bytes()
+    previous_export = read_json(ORIGINAL / 'M100_69_experiments_summary.csv.export.json')
+    if hashlib.sha256(archived).hexdigest() != previous_export['results_sha256']:
+        raise ValueError('Archived comparison results differ from their original export register')
+    hist = json.loads(archived)
     cases = {c['case_id']: c for c in protocol['cases']}
     groups = protocol['groups']
     if list(cases) != [c['case_id'] for c in old['cases']] or groups != old['groups'] or len(cases) != 69:

@@ -122,12 +122,16 @@
     "nominal_energy_remaining_percent_after_airborne": 43.71157118260507,
     "rejection_reason": "",
     "run_id": "m100_20261122T151723Z",
+    "sampled_mean_altitude_m": 99.98652524821611,
+    "sampled_mean_ground_speed_mps": 10.02902574335197,
     "sampled_mean_power_W": 558.0953437416308,
     "sampled_measurement_span_s": 49.0,
     "supported_phase_mission_energy_Wh": 56.62444979891323,
     "training_eligible": true,
     "training_status": "COMPLETE",
-    "uncovered_s": 0
+    "uncovered_s": 0,
+    "wind_model_classification": "C_NOT_CALIBRATED",
+    "wind_vector_application_verified": true
   },
   "protocol_sha256": "45344af837975d119a056519ddec22983a78c4775dd498c05620600084ce4f58",
   "sources": {

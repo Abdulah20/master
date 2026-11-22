@@ -1,0 +1,5 @@
+case_id,attempt,run_id,mission_outcome,training_status,selected_for_training,airborne_duration_s,covered_s,uncovered_s,known_subtotal_Wh,estimated_airborne_energy_Wh,original_training_file,training_file_sha256
+load_000,1,m100_20261122T115919Z,COMPLETE,INCOMPLETE,False,136.972,136.956,0.016000000000005343,17.847534162051762,,evidence/prior_attempts/load_000/attempt_1/training.csv,e3712dd4c07564744013e85588885d3c621ea68e5575773d7d390e6c28f97beb
+load_000,2,m100_20261122T121014Z,COMPLETE,COMPLETE,True,132.384,132.38400000000001,0,17.300184591750124,17.300184591750124,evidence/load_000/training.csv,578e02393835ce64192dde7a60608ccbf03bc8afea287281e060d6df4ba8ac00
+load_025,1,m100_20261122T120404Z,COMPLETE,COMPLETE,True,132.396,132.396,0,19.155899742760447,19.155899742760447,evidence/load_025/training.csv,400f5ecd4baeb1d1b938dea4531bead6c1296d2bd44639b89b0efd556a078e08
+load_050,1,m100_20261122T120649Z,COMPLETE,COMPLETE,True,134.688,134.688,0,21.23203661788979,21.23203661788979,evidence/load_050/training.csv,efc6bfaeeb86ed64fa891a7786f862557765dff2e2188e2dc7f2fa0397ee33aa

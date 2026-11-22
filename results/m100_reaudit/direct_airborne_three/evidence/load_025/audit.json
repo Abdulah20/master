@@ -1,0 +1,79 @@
+{
+  "attempt": 1,
+  "budget_reason": "",
+  "calibration_id": "CMU_TRANSIENT_AIRBORNE_V1:831973dc40cdc338b7086a1ba824c57c8670bdeff90f7fcdf806a56905ff02a9",
+  "case_id": "load_025",
+  "direct_row_sha256": "400f5ecd4baeb1d1b938dea4531bead6c1296d2bd44639b89b0efd556a078e08",
+  "downsampled_VI_diagnostic": {
+    "eligible_intervals": 2537,
+    "eligible_seconds": 131.876,
+    "published_VI_trapezoids_Wh": 19.078927593917346,
+    "published_minus_native_Wh": 0.00040299420104261685,
+    "same_intervals_native_Wh": 19.078524599716303
+  },
+  "duration_s": 132.396,
+  "entity_epochs": [
+    2
+  ],
+  "estimated_airborne_energy_Wh": 19.155899742760447,
+  "flight_csv": {
+    "brackets_ulog_airborne_window": true,
+    "clock": "energy_timestamp_s",
+    "first_timestamp_s": 9.192,
+    "last_timestamp_s": 145.244,
+    "missed_windows": 0,
+    "rows": 137,
+    "rows_with_blank_electrical_power": 1,
+    "rows_within_ulog_airborne_window": 133,
+    "sha256": "74b32010dc0fa64d08d39e7c53e6d5a7fea0b753e93d35b7044ee2000ddc470b",
+    "size_bytes": 30012,
+    "target_hz": 1.0
+  },
+  "mission_outcome": "COMPLETE",
+  "native_budget_status": "COMPLETE",
+  "native_covered_s": 132.396,
+  "native_end_s": 143.456,
+  "native_known_Wh": 19.155899742760447,
+  "native_source_time_partition_verified": true,
+  "native_start_s": 11.06,
+  "native_uncovered_s": 0,
+  "original_trace_sha256": "ddecdd40d6c8b421462bb9df2bf204caf5217178088b3b6373e1b158e48caaf7",
+  "published_ledger_checks": {
+    "checked_publications": 2601,
+    "max_energy_subtotal_residual_Wh": 3.552713678800501e-15,
+    "max_time_partition_residual_s": 1.4210854715202004e-14
+  },
+  "run_id": "m100_20261122T120404Z",
+  "source_bins": {
+    "cmu_local": {
+      "energy_Wh": 0.32123134844959705,
+      "seconds": 2.0800000000000054
+    },
+    "cmu_pooled": {
+      "energy_Wh": 2.943222068151391,
+      "seconds": 19.955999999999992
+    },
+    "native_pack_model": {
+      "energy_Wh": 15.87610934896675,
+      "seconds": 110.252
+    },
+    "recorded_manager": {
+      "energy_Wh": 0.015336977192705742,
+      "seconds": 0.10799999999999876
+    }
+  },
+  "source_sum_Wh": 19.155899742760443,
+  "source_sum_s": 132.396,
+  "trace_records": 2635,
+  "training_eligible": true,
+  "training_row_matches_recorder_and_terminal_native_budget": true,
+  "training_status": "COMPLETE",
+  "ulog_airborne_armed_s": 132.396,
+  "ulog_airborne_failsafe_s": 0.0,
+  "ulog_and_native_edges_match": true,
+  "ulog_dropout_events": 0,
+  "ulog_landing_us": 143456000,
+  "ulog_sha256": "3885745b622ebf3a864473847c2518785643c5a18d4ad0cbb6b7c80a84d52a68",
+  "ulog_takeoff_us": 11060000,
+  "uncovered_event_brackets": []
+}

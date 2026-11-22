@@ -1,0 +1,22 @@
+{
+  "schema": "M100_DIRECT_TRAINING_SELECTION_V1",
+  "selected_utc": "2026-11-22T12:12:42.878795+00:00",
+  "criterion": "First complete directly recorded label with verified matching native and PX4 flight boundaries and zero uncovered time. Initial attempts with blank labels are retained.",
+  "cases": [
+    {
+      "case_id": "load_000",
+      "attempt": "attempt_2",
+      "run_id": "m100_20261122T121014Z"
+    },
+    {
+      "case_id": "load_025",
+      "attempt": "attempt_1",
+      "run_id": "m100_20261122T120404Z"
+    },
+    {
+      "case_id": "load_050",
+      "attempt": "attempt_1",
+      "run_id": "m100_20261122T120649Z"
+    }
+  ]
+}

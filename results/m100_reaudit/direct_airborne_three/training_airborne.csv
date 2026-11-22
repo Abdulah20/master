@@ -1,0 +1,4 @@
+case_id,run_id,label_source,payload_kg,commanded_speed_mps,commanded_altitude_agl_m,planned_outbound_measurement_m,planned_hover_duration_s,commanded_wind_mps,commanded_wind_direction_deg,ambient_reference_C,estimated_airborne_energy_Wh
+load_000,m100_20261122T121014Z,CMU_calibrated_simulation,0.0,6.0,25.0,100.0,,0.0,0.0,15.0,17.300184591750124
+load_025,m100_20261122T120404Z,CMU_calibrated_simulation,0.25,6.0,25.0,100.0,,0.0,0.0,15.0,19.155899742760447
+load_050,m100_20261122T120649Z,CMU_calibrated_simulation,0.5,6.0,25.0,100.0,,0.0,0.0,15.0,21.23203661788979

@@ -1,0 +1,799 @@
+{
+  "airborne_training": {
+    "estimated_airborne_energy_Wh": 17.300184591750124,
+    "label_source": "CMU_calibrated_simulation",
+    "native_budget": {
+      "boundary_source": "PX4_VEHICLE_LAND_DETECTED",
+      "calibration_id": "CMU_TRANSIENT_AIRBORNE_V1:831973dc40cdc338b7086a1ba824c57c8670bdeff90f7fcdf806a56905ff02a9",
+      "covered_s": 132.38400000000001,
+      "duration_s": 132.38400000000001,
+      "end_s": 144.324,
+      "estimated_airborne_energy_Wh": 17.300184591750124,
+      "known_energy_Wh": 17.300184591750124,
+      "reason": "",
+      "run_id": "m100_20261122T121014Z",
+      "sources": {
+        "cmu_local": {
+          "energy_Wh": 0.3348330727472239,
+          "seconds": 2.4440000000000026
+        },
+        "cmu_pooled": {
+          "energy_Wh": 2.6390426508574136,
+          "seconds": 20.448
+        },
+        "native_pack_model": {
+          "energy_Wh": 14.315013135768096,
+          "seconds": 109.40400000000001
+        },
+        "recorded_manager": {
+          "energy_Wh": 0.011295732377390039,
+          "seconds": 0.08799999999999741
+        }
+      },
+      "start_s": 11.94,
+      "status": "COMPLETE",
+      "uncovered_s": 0
+    },
+    "relative_path": "training/m100_20261122T121014Z.csv",
+    "schema": "M100_NATIVE_AIRBORNE_TRAINING_V1",
+    "sha256": "578e02393835ce64192dde7a60608ccbf03bc8afea287281e060d6df4ba8ac00",
+    "status": "COMPLETE",
+    "training_eligible": true
+  },
+  "atmosphere": {
+    "case": {
+      "altitude_m_msl": 25.0,
+      "density_kg_m3": 1.2220626291040002,
+      "pressure_pa": 101025.0315238535,
+      "temperature_c_at_datum": 15.0,
+      "temperature_k_at_altitude": 287.98749999999995
+    },
+    "density_ratio": 1.0,
+    "model": "DRY_HYDROSTATIC_LINEAR_LAPSE",
+    "reference": {
+      "altitude_m_msl": 25.0,
+      "density_kg_m3": 1.2220626291040002,
+      "pressure_pa": 101025.0315238535,
+      "temperature_c_at_datum": 15.0,
+      "temperature_k_at_altitude": 287.98749999999995
+    },
+    "world_datum_assumption": "GAZEBO_WORLD_DATUM_IS_0_M_MSL",
+    "world_datum_msl_m": 0.0
+  },
+  "battery_budget": {
+    "advisory_only": true,
+    "budget_quality": "FROZEN",
+    "consumed_capacity_ah": 0.7949258819682432,
+    "consumed_supported_phase_energy_wh": 17.639569381701616,
+    "dynamic_model_enabled": false,
+    "endurance_min": null,
+    "estimator_mode": "TB47D_BMS_ENERGY_BUDGET_V3",
+    "is_full_flight_energy": false,
+    "limited_hover_policy": "PUBLISHED_MEAN_IN_ITS_ENVELOPE_OR_CMU_KINEMATIC_SIMULATION_TRANSFER",
+    "pack_identity_status": "UNRESOLVED_PUBLISHED_M100_CAMPAIGN",
+    "power_source": "OPERATIONAL_AIRCRAFT_POWER_AND_M100_PUBLISHED_PACK_TERMINAL_PROXY",
+    "remaining_capacity_ah": 3.7050741180317566,
+    "remaining_nameplate_energy_wh": 82.26043061829839,
+    "run_relative_soc_percent": 82.34277339169006,
+    "safety_level": "NORMAL",
+    "scope": "RUN_RELATIVE_SUPPORTED_PHASES_ONLY",
+    "soc_source": "RUN_RELATIVE_ENERGY_COUNT_FROM_OPERATIONAL_POWER",
+    "state": "FROZEN",
+    "supported_phases": [
+      "TAKEOFF",
+      "CLIMB",
+      "CRUISE",
+      "RETURNING",
+      "LANDING",
+      "STABILIZING",
+      "RETURN_BRAKING",
+      "HOVER"
+    ],
+    "terminal_voltage_in_envelope": true,
+    "unsupported_phase_policy": "NOT_INTEGRATED_AND_CONTINUITY_IS_BROKEN",
+    "warnings": [
+      "AIRCRAFT_PHASE_MODEL_NOT_COMPONENT_PROPULSION_PHYSICS",
+      "PHASE_AVERAGE_POWER_NOT_INSTANTANEOUS_PROPULSION_DYNAMICS",
+      "SPEED_AND_WIND_NOT_EXPLICIT_MODEL_INPUTS",
+      "ROTOR_SPEED_NOT_USED_TO_ESTIMATE_POWER",
+      "UNSUPPORTED_PHASES_ARE_NOT_INTEGRATED_INTO_ENERGY_OR_BMS",
+      "PUBLISHED_REGRESSION_MASS_BASIS_DIFFERS_FROM_PHYSICAL_RUNTIME_MASS",
+      "POWER_UNAVAILABLE_FOR_PHASE_ARMING",
+      "CMU_KINEMATIC_POWER_TRANSFER_TO_LONG_TRANSIENTS_IS_SIMULATION_EXTRAPOLATION",
+      "M100_BMS_TRANSFER_ESTIMATE_NOT_PHYSICAL_TB47D_MEASUREMENT",
+      "BMS_INPUT_UNAVAILABLE"
+    ]
+  },
+  "config": {
+    "altitude_m": 25.0,
+    "cruise_speed_mps": 6.0,
+    "energy_calibration_status": "B_M100_SYSTEM_LEVEL_EMPIRICAL_PUBLISHED_MODEL",
+    "energy_calibration_warnings": [
+      "PUBLISHED_ONE_DECIMAL_COEFFICIENTS_68_FLIGHT_HOLDOUT_MARE_2P066_PERCENT",
+      "ORIGINAL_2022_FULL_PRECISION_COEFFICIENTS_NOT_PUBLISHED",
+      "PHASE_AVERAGE_NOT_INSTANTANEOUS_OR_COMPONENT_MODEL"
+    ],
+    "gazebo_model": "m100_cmu_v2",
+    "hover_duration_s": 12.0,
+    "payload_kg": 0.0,
+    "px4_target": "gz_m100_cmu_v2",
+    "route_definition": "ONE_WAY_PLUS_X_ENU_MEASUREMENT_DISTANCE",
+    "route_length_m": 100.0,
+    "temperature_c": 15.0,
+    "total_mass_kg": 3.68,
+    "wind_direction_deg": 0.0,
+    "wind_speed_mps": 0.0,
+    "wind_vector_enu_mps": [
+      0.0,
+      0.0,
+      0.0
+    ]
+  },
+  "created_utc": "2026-11-22T12:10:14.226037+00:00",
+  "csv": {
+    "cached_energy_rows_skipped": 0,
+    "distance_definition": "distance_m is recorded trajectory length; measurement_distance_m is the outbound +X ENU displacement",
+    "fields": [
+      "energy_timestamp_s",
+      "flight_phase",
+      "temperature_c",
+      "wind_speed_command_mps",
+      "wind_direction_command_deg",
+      "payload_kg",
+      "commanded_speed_mps",
+      "actual_horizontal_speed_mps",
+      "commanded_altitude_m",
+      "actual_altitude_m",
+      "distance_m",
+      "measurement_distance_m",
+      "battery_voltage_V",
+      "battery_current_A",
+      "electrical_power_W",
+      "cumulative_energy_Wh",
+      "measurement_energy_Wh",
+      "energy_per_distance_Wh_per_km"
+    ],
+    "path": "/home/abdulah/uav-energy-thesis/tmp/m100_direct_airborne_three/load_000/attempt_2/m100_20261122T121014Z.csv",
+    "sampling": {
+      "clock": "energy_timestamp_s",
+      "energy_accumulation": "UNCHANGED_HIGH_RATE_ROTOR_CALLBACK",
+      "interpolated_values": false,
+      "interval_s": 1.0,
+      "last_recorded_energy_timestamp_s": 146.232,
+      "missed_windows": 0,
+      "origin_energy_timestamp_s": 10.156,
+      "rate_limited_rows_skipped": 1231,
+      "recorded_rows": 137,
+      "selection": "FIRST_OBSERVED_SAMPLE_PER_FIXED_SIMULATION_TIME_WINDOW",
+      "target_hz": 1.0
+    },
+    "schema": "M100_CURRENT_ENERGY_CSV_V1",
+    "schema_field_count": 18,
+    "sha256": "a84a6073ded842cef2da76f7b484564dfe1ec3cd331a27abf56c1ac809d26c43",
+    "size_bytes": 30122,
+    "time_basis": "energy_timestamp_s is the strictly increasing simulation energy clock",
+    "value_source": "SIMULATION_MODEL_ESTIMATE"
+  },
+  "energy_density_source": {
+    "gazebo_force_density": "fixed at configured reference altitude",
+    "max_local_position_hold_sim_and_wall_s": 0.5,
+    "minimum_supported_height_m": -0.5,
+    "missing_height": "unavailable power breaks integration continuity",
+    "model": "DRY_HYDROSTATIC_LINEAR_LAPSE_AT_FRESH_PX4_LOCAL_HEIGHT",
+    "subground_handling": "EKF excursions down to -0.5 m use surface density",
+    "world_ground_msl_m": 0.0
+  },
+  "energy_summary": {
+    "airborne_energy_coverage": {
+      "airborne_duration_s": 132.4,
+      "complete": true,
+      "estimated_airborne_energy_wh": 17.17824687810634,
+      "integrated_power_duration_s": 132.4,
+      "power_time_coverage_percent": 100.0
+    },
+    "battery_budget_frozen": true,
+    "integrated_supported_phase_energy_wh": 17.639569381701616,
+    "is_full_flight_energy": false,
+    "measurement_energy_per_distance_wh_per_km": 21.250089530903253,
+    "measurement_frozen": true,
+    "measurement_window_distance_m": 100.12239837646484,
+    "measurement_window_energy_wh": 2.1276099295486404,
+    "measurement_window_model_id": "RODRIGUES_PATTERNS_M100_PHASE_POWER_V1",
+    "model_id": "RODRIGUES_PATTERNS_M100_PHASE_POWER_V1",
+    "payload_mass_kg": 0.0,
+    "phase_energy_by_phase_wh": {
+      "CLIMB": 3.063172599966819,
+      "CRUISE": 2.1281244664616255,
+      "LANDING": 2.9896175722696694,
+      "RETURNING": 6.593793659634177,
+      "RETURN_BRAKING": 1.4702969089943922,
+      "STABILIZING": 1.3945641743740973
+    },
+    "phase_power_model_ids": {
+      "CLIMB": [
+        "RODRIGUES_PATTERNS_M100_PHASE_POWER_V1"
+      ],
+      "CRUISE": [
+        "RODRIGUES_PATTERNS_M100_PHASE_POWER_V1"
+      ],
+      "LANDING": [
+        "RODRIGUES_PATTERNS_M100_PHASE_POWER_V1"
+      ],
+      "RETURNING": [
+        "RODRIGUES_PATTERNS_M100_PHASE_POWER_V1"
+      ],
+      "RETURN_BRAKING": [
+        "M100_CMU_TRANSIENT_POWER_V1"
+      ],
+      "STABILIZING": [
+        "M100_CMU_TRANSIENT_POWER_V1"
+      ]
+    },
+    "physical_total_mass_kg": 3.68,
+    "published_regression_mass_basis": {
+      "physical_runtime_baseline_mass_kg": 3.68,
+      "physical_runtime_equation": "physical_total_mass_kg = 3.680 + payload_mass_kg",
+      "published_regression_airframe_mass_kg": 3.08,
+      "published_regression_baseline_mass_kg": 3.715,
+      "published_regression_battery_mass_kg": 0.635,
+      "published_regression_equation": "published_regression_mass_kg = 3.715 + payload_mass_kg",
+      "source_archive_root_commit": "3d27ac92ba5db36a2fe3fc1449bbb5c422e10ca6",
+      "source_archive_sha256": "28ef18d85d58d0a14d8ca49c676d559a6b0f50fffe95744a6ecf82d7ec0675ff",
+      "source_code_expression": "payload / 1000 + 3.08 + 0.635",
+      "source_doi": "10.5281/zenodo.6726991",
+      "source_path": "inflightcomponents.py",
+      "status": "PUBLISHED_REGRESSION_MASS_3P715_KG_PLUS_PAYLOAD",
+      "warning": "PUBLISHED_REGRESSION_MASS_BASIS_DIFFERS_FROM_PHYSICAL_RUNTIME_MASS"
+    },
+    "published_regression_mass_kg": 3.715,
+    "recorded_energy_coverage": {
+      "duration_without_power_s": 0.775999999999982,
+      "integrated_power_duration_s": 135.96800000000002,
+      "power_time_coverage_percent": 99.43251623471598,
+      "recorded_span_s": 136.744,
+      "sample_clock_continuous": true,
+      "telemetry_gap_duration_s": 0.0
+    },
+    "scope": "RUN_RELATIVE_SUPPORTED_PHASES_ONLY",
+    "stable_cruise_speed_applied": false,
+    "warnings": [
+      "AIRCRAFT_PHASE_MODEL_NOT_COMPONENT_PROPULSION_PHYSICS",
+      "PHASE_AVERAGE_POWER_NOT_INSTANTANEOUS_PROPULSION_DYNAMICS",
+      "SPEED_AND_WIND_NOT_EXPLICIT_MODEL_INPUTS",
+      "ROTOR_SPEED_NOT_USED_TO_ESTIMATE_POWER",
+      "UNSUPPORTED_PHASES_ARE_NOT_INTEGRATED_INTO_ENERGY_OR_BMS",
+      "PUBLISHED_REGRESSION_MASS_BASIS_DIFFERS_FROM_PHYSICAL_RUNTIME_MASS",
+      "POWER_UNAVAILABLE_FOR_PHASE_ARMING",
+      "CMU_KINEMATIC_POWER_TRANSFER_TO_LONG_TRANSIENTS_IS_SIMULATION_EXTRAPOLATION",
+      "M100_BMS_TRANSFER_ESTIMATE_NOT_PHYSICAL_TB47D_MEASUREMENT",
+      "BMS_INPUT_UNAVAILABLE"
+    ],
+    "wind_power_empirically_calibrated": false,
+    "wind_power_runtime_applied": false
+  },
+  "finalized_utc": "2026-11-22T12:12:31.005606+00:00",
+  "native_pack_drive": {
+    "airborne_boundary_gazebo_topic": "/m100/pack_drive/land",
+    "airborne_boundary_source": "PX4_VEHICLE_LAND_DETECTED",
+    "airborne_calibration_id": "CMU_TRANSIENT_AIRBORNE_V1:831973dc40cdc338b7086a1ba824c57c8670bdeff90f7fcdf806a56905ff02a9",
+    "airborne_training_target": "estimated_airborne_energy_Wh in training/<run_id>.csv, original recording and source bins in airborne_training",
+    "cmu_development_fit_sha256": "d3413efef49a278a10f0dc404c6b34e5c6d07e42dd698ad21aae0ea00824377f",
+    "cmu_training_ranges": {
+      "commanded_altitude_agl_m": [
+        25.0,
+        100.0
+      ],
+      "commanded_speed_mps": [
+        4.0,
+        12.0
+      ],
+      "payload_kg": [
+        0.0,
+        0.5
+      ]
+    },
+    "conditions": {
+      "application": "AIRCRAFT_PHASE_MEAN_AND_CMU_TRANSIENT_TRANSFER",
+      "command_support": "WITHIN_MARGINAL_TRAINING_RANGES_JOINT_SUPPORT_UNVERIFIED",
+      "commanded_altitude_agl_m": 25.0,
+      "commanded_speed_mps": 6.0,
+      "payload_kg": 0.0,
+      "power_reference_temperature_c": 15.0,
+      "temperature_c": 15.0,
+      "temperature_support": "REFERENCE_SETTING",
+      "transient_calibrated_payload": true,
+      "wind_power_applied": false,
+      "wind_speed_mps": 0.0
+    },
+    "csv_schema": "M100_CURRENT_ENERGY_CSV_V1",
+    "demand_definition": "Phase means use 15 C density at commanded altitude. Gazebo selects the CMU transient estimate from live kinematics during supported manoeuvres. Manager fallback is a separately attributed aircraft-level estimate.",
+    "demand_topic": "/m100/pack_drive/demand",
+    "elapsed_time_source": "Measured Gazebo joint timestamps; CMU preflight duration predictions are offline only.",
+    "motor_signals": "raw_motor_rad_s and applied_motor_rad_s are requested speeds. latest_joint_observation contains simulated rotor speed magnitudes from joint velocities multiplied by the configured numerical slowdown.",
+    "native_series_in_csv": false,
+    "power_model_id": "RODRIGUES_PATTERNS_M100_PHASE_POWER_V1",
+    "state_at_recording_start": {
+      "acknowledged_request": {
+        "application": "AIRCRAFT_PHASE_MEAN_AND_CMU_TRANSIENT_TRANSFER",
+        "armed": false,
+        "command_support": "WITHIN_MARGINAL_TRAINING_RANGES_JOINT_SUPPORT_UNVERIFIED",
+        "commanded_altitude_agl_m": 25.0,
+        "commanded_speed_mps": 6.0,
+        "landed": true,
+        "manager_power_w": null,
+        "model": "m100_cmu_v2_0",
+        "payload_kg": 0.0,
+        "phase": "READY",
+        "phase_applicability": "UNAVAILABLE_UNSUPPORTED_FLIGHT_PHASE",
+        "phase_power_w": null,
+        "phase_source": "UNSUPPORTED_PHASE",
+        "power_reference_temperature_c": 15.0,
+        "power_w": 0.0,
+        "producer": "m100_experiment_manager",
+        "run_id": null,
+        "source": "DRIVE_DISARMED",
+        "temperature_c": 15.0,
+        "temperature_support": "REFERENCE_SETTING",
+        "time_s": 10.148,
+        "transient_calibrated_payload": true,
+        "wind_power_applied": false,
+        "wind_speed_mps": 0.0
+      },
+      "applied_motor_rad_s": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "armed": false,
+      "awaiting_post_reset_zero_command": false,
+      "cap_voltage_v": 20.75434796361143,
+      "command_limited": false,
+      "conditions": {
+        "application": "AIRCRAFT_PHASE_MEAN_AND_CMU_TRANSIENT_TRANSFER",
+        "command_support": "WITHIN_MARGINAL_TRAINING_RANGES_JOINT_SUPPORT_UNVERIFIED",
+        "commanded_altitude_agl_m": 25.0,
+        "commanded_speed_mps": 6.0,
+        "payload_kg": 0.0,
+        "power_reference_temperature_c": 15.0,
+        "temperature_c": 15.0,
+        "temperature_support": "REFERENCE_SETTING",
+        "transient_calibrated_payload": true,
+        "wind_power_applied": false,
+        "wind_speed_mps": 0.0
+      },
+      "covered_load_time_s": 0,
+      "current_a": null,
+      "delivered_power_w": null,
+      "demand_age_sim_s": 0.0039999999999995595,
+      "demand_fresh": true,
+      "demand_power_w": 0,
+      "demand_source": "DRIVE_DISARMED",
+      "demand_time_s": 10.148,
+      "discharged_ah": 0,
+      "effective_demand_power_w": 0,
+      "effective_demand_source": "unavailable",
+      "fit_q_ah": 0.0019523813459608292,
+      "last_request": {
+        "application": "AIRCRAFT_PHASE_MEAN_AND_CMU_TRANSIENT_TRANSFER",
+        "armed": false,
+        "command_support": "WITHIN_MARGINAL_TRAINING_RANGES_JOINT_SUPPORT_UNVERIFIED",
+        "commanded_altitude_agl_m": 25.0,
+        "commanded_speed_mps": 6.0,
+        "landed": true,
+        "manager_power_w": null,
+        "model": "m100_cmu_v2_0",
+        "payload_kg": 0.0,
+        "phase": "READY",
+        "phase_applicability": "UNAVAILABLE_UNSUPPORTED_FLIGHT_PHASE",
+        "phase_power_w": null,
+        "phase_source": "UNSUPPORTED_PHASE",
+        "power_reference_temperature_c": 15.0,
+        "power_w": 0.0,
+        "producer": "m100_experiment_manager",
+        "run_id": null,
+        "source": "DRIVE_DISARMED",
+        "temperature_c": 15.0,
+        "temperature_support": "REFERENCE_SETTING",
+        "time_s": 10.152,
+        "transient_calibrated_payload": true,
+        "wind_power_applied": false,
+        "wind_speed_mps": 0.0
+      },
+      "last_request_fresh": true,
+      "latest_joint_observation": {
+        "joint_names": [
+          "rotor_0_joint",
+          "rotor_1_joint",
+          "rotor_2_joint",
+          "rotor_3_joint"
+        ],
+        "simulated_rotor_speed_rad_s": [
+          2.0766207815772432e-26,
+          2.0533760435207719e-26,
+          1.9789999479332955e-26,
+          1.975309250151207e-26
+        ],
+        "time_s": 10.152,
+        "topic": "/m100/rotor_joint_states"
+      },
+      "loaded_charge_coverage_complete": true,
+      "model": "m100_cmu_v2_0",
+      "native_demand_fresh": true,
+      "native_status": "DISARMED_ZERO_DEMAND_CAP_HELD",
+      "omega_limit_rad_s": 760.6865827461594,
+      "q_at_lower_boundary": true,
+      "q_domain_exhausted": false,
+      "raw_command_fresh": true,
+      "raw_command_time_s": 10.148,
+      "raw_motor_rad_s": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "requested_load_voltage_v": null,
+      "requested_pack_current_a": null,
+      "state_age_sim_s": 0.004000000000001336,
+      "state_age_wall_s": 0.07267491900006462,
+      "state_fresh": true,
+      "status": "DISARMED_ZERO_DEMAND_CAP_HELD",
+      "thrust_limit_fraction": 0.689188735031459,
+      "time_s": 10.152,
+      "topic": "/m100/pack_drive/state",
+      "transient_reason": "NO_CURRENT_TRANSIENT_ESTIMATE",
+      "transient_support_flights": 0,
+      "transient_transfer_flags": [],
+      "unaccounted_load_time_s": 0,
+      "unmodelled_idle_time_s": 1.612,
+      "voltage_v": null
+    },
+    "state_topic": "/m100/pack_drive/state",
+    "trace": {
+      "filename": "m100_20261122T121014Z.pack_drive.jsonl",
+      "io_error": null,
+      "rows": 2634,
+      "sha256": "7c2419ad39c34033bcf135a3e85a1a46e224e50a98d7d889f6bfb1c7a6f0dd95"
+    },
+    "trace_clock": "Native Gazebo state timestamps; one fresh received sample per timestamp per entity epoch. Joint observations have their own joint-message stamp. Reliable latest-value subscriptions may skip updates.",
+    "trace_schema": "M100_NATIVE_PACK_DRIVE_RECORD_V1"
+  },
+  "published_energy_model": {
+    "local_reproduction": {
+      "full_precision_refit_holdout_mean_absolute_relative_error_percent": 2.0698539594489147,
+      "holdout_flights": 68,
+      "holdout_used_for_fit": false,
+      "limitation": "The full-precision refit reproduces the published one-decimal coefficients, while runtime intentionally uses those published rounded coefficients; the original 2022 full-precision coefficients, METAR responses, and software environment were not frozen byte-for-byte.",
+      "paper_doi": "10.1016/j.patter.2022.100569",
+      "report": "analysis/m100_rodrigues_official_reproduction_v1/reproduction_report_v1.json",
+      "report_sha256": "5d7548f8f26bef0a390529096aa35b4fe00d44a6c037833065769ed929c6d611",
+      "runtime_published_rounded_coefficients_holdout_mean_absolute_relative_error_percent": 2.0662458588801145,
+      "status": "PASS_NEAR_EXACT_PUBLISHED_ROUNDING",
+      "training_flights": 120,
+      "verifier": "analysis/m100_rodrigues_official_reproduction_v1/verify_official_reproduction_v1.py",
+      "verifier_sha256": "56af0fd22e6ffc6a4485802feaf8e4a680749f111e82390576167ae24b6b0773"
+    },
+    "mass_basis": {
+      "physical_runtime_baseline_mass_kg": 3.68,
+      "physical_runtime_equation": "physical_total_mass_kg = 3.680 + payload_mass_kg",
+      "published_regression_airframe_mass_kg": 3.08,
+      "published_regression_baseline_mass_kg": 3.715,
+      "published_regression_battery_mass_kg": 0.635,
+      "published_regression_equation": "published_regression_mass_kg = 3.715 + payload_mass_kg",
+      "source_archive_root_commit": "3d27ac92ba5db36a2fe3fc1449bbb5c422e10ca6",
+      "source_archive_sha256": "28ef18d85d58d0a14d8ca49c676d559a6b0f50fffe95744a6ecf82d7ec0675ff",
+      "source_code_expression": "payload / 1000 + 3.08 + 0.635",
+      "source_doi": "10.5281/zenodo.6726991",
+      "source_path": "inflightcomponents.py",
+      "status": "PUBLISHED_REGRESSION_MASS_3P715_KG_PLUS_PAYLOAD",
+      "warning": "PUBLISHED_REGRESSION_MASS_BASIS_DIFFERS_FROM_PHYSICAL_RUNTIME_MASS"
+    },
+    "model_id": "RODRIGUES_PATTERNS_M100_PHASE_POWER_V1",
+    "paper_doi": "10.1016/j.patter.2022.100569"
+  },
+  "recording_end": {
+    "armed": false,
+    "flight_state": "LANDING",
+    "landed": true,
+    "native_pack_drive": {
+      "acknowledged_request": {
+        "application": "AIRCRAFT_PHASE_MEAN_AND_CMU_TRANSIENT_TRANSFER",
+        "armed": false,
+        "command_support": "WITHIN_MARGINAL_TRAINING_RANGES_JOINT_SUPPORT_UNVERIFIED",
+        "commanded_altitude_agl_m": 25.0,
+        "commanded_speed_mps": 6.0,
+        "landed": true,
+        "manager_power_w": 438.2686773788023,
+        "model": "m100_cmu_v2_0",
+        "payload_kg": 0.0,
+        "phase": "LANDING",
+        "phase_applicability": "LIMITED_PUBLISHED_M100_PHASE_MODEL_EXTRAPOLATION",
+        "phase_power_w": 438.8242661928399,
+        "phase_source": "RODRIGUES_PATTERNS_M100_PHASE_POWER_V1",
+        "power_reference_temperature_c": 15.0,
+        "power_w": 0.0,
+        "producer": "m100_experiment_manager",
+        "run_id": "m100_20261122T121014Z",
+        "source": "DRIVE_DISARMED",
+        "temperature_c": 15.0,
+        "temperature_support": "REFERENCE_SETTING",
+        "time_s": 146.848,
+        "transient_calibrated_payload": true,
+        "wind_power_applied": false,
+        "wind_speed_mps": 0.0
+      },
+      "applied_motor_rad_s": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "armed": false,
+      "awaiting_post_reset_zero_command": false,
+      "cap_voltage_v": 22.057580563914566,
+      "command_limited": false,
+      "conditions": {
+        "application": "AIRCRAFT_PHASE_MEAN_AND_CMU_TRANSIENT_TRANSFER",
+        "command_support": "WITHIN_MARGINAL_TRAINING_RANGES_JOINT_SUPPORT_UNVERIFIED",
+        "commanded_altitude_agl_m": 25.0,
+        "commanded_speed_mps": 6.0,
+        "payload_kg": 0.0,
+        "power_reference_temperature_c": 15.0,
+        "temperature_c": 15.0,
+        "temperature_support": "REFERENCE_SETTING",
+        "transient_calibrated_payload": true,
+        "wind_power_applied": false,
+        "wind_speed_mps": 0.0
+      },
+      "covered_load_time_s": 132.32000000000002,
+      "current_a": null,
+      "delivered_power_w": null,
+      "demand_age_sim_s": 0.003999999999990678,
+      "demand_fresh": true,
+      "demand_power_w": 0,
+      "demand_source": "DRIVE_DISARMED",
+      "demand_time_s": 146.848,
+      "discharged_ah": 0.7806679952339687,
+      "effective_demand_power_w": 0,
+      "effective_demand_source": "unavailable",
+      "fit_q_ah": 0.7806679952339687,
+      "last_request": {
+        "application": "AIRCRAFT_PHASE_MEAN_AND_CMU_TRANSIENT_TRANSFER",
+        "armed": false,
+        "command_support": "WITHIN_MARGINAL_TRAINING_RANGES_JOINT_SUPPORT_UNVERIFIED",
+        "commanded_altitude_agl_m": 25.0,
+        "commanded_speed_mps": 6.0,
+        "landed": true,
+        "manager_power_w": 438.2686773788023,
+        "model": "m100_cmu_v2_0",
+        "payload_kg": 0.0,
+        "phase": "LANDING",
+        "phase_applicability": "LIMITED_PUBLISHED_M100_PHASE_MODEL_EXTRAPOLATION",
+        "phase_power_w": 438.8242661928399,
+        "phase_source": "RODRIGUES_PATTERNS_M100_PHASE_POWER_V1",
+        "power_reference_temperature_c": 15.0,
+        "power_w": 0.0,
+        "producer": "m100_experiment_manager",
+        "run_id": "m100_20261122T121014Z",
+        "source": "DRIVE_DISARMED",
+        "temperature_c": 15.0,
+        "temperature_support": "REFERENCE_SETTING",
+        "time_s": 146.9,
+        "transient_calibrated_payload": true,
+        "wind_power_applied": false,
+        "wind_speed_mps": 0.0
+      },
+      "last_request_fresh": true,
+      "latest_joint_observation": {
+        "joint_names": [
+          "rotor_0_joint",
+          "rotor_1_joint",
+          "rotor_2_joint",
+          "rotor_3_joint"
+        ],
+        "simulated_rotor_speed_rad_s": [
+          1.3221834914379735e-23,
+          7.753561239247076e-24,
+          2.1533177186550504e-23,
+          2.3788572838813835e-23
+        ],
+        "time_s": 146.9,
+        "topic": "/m100/rotor_joint_states"
+      },
+      "loaded_charge_coverage_complete": false,
+      "model": "m100_cmu_v2_0",
+      "native_demand_fresh": true,
+      "native_status": "DISARMED_ZERO_DEMAND_CAP_HELD",
+      "omega_limit_rad_s": 808.452552314855,
+      "q_at_lower_boundary": false,
+      "q_domain_exhausted": false,
+      "raw_command_fresh": true,
+      "raw_command_time_s": 146.848,
+      "raw_motor_rad_s": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "requested_load_voltage_v": null,
+      "requested_pack_current_a": null,
+      "state_age_sim_s": 0.04800000000000182,
+      "state_age_wall_s": 0.092292106000059,
+      "state_fresh": true,
+      "status": "DISARMED_ZERO_DEMAND_CAP_HELD",
+      "thrust_limit_fraction": 0.7784589765337306,
+      "time_s": 146.852,
+      "topic": "/m100/pack_drive/state",
+      "transient_reason": "NO_CURRENT_TRANSIENT_ESTIMATE",
+      "transient_support_flights": 0,
+      "transient_transfer_flags": [],
+      "unaccounted_load_time_s": 3.6799999999999873,
+      "unmodelled_idle_time_s": 2.312000000000001,
+      "voltage_v": null
+    },
+    "outcome": "COMPLETE"
+  },
+  "run_id": "m100_20261122T121014Z",
+  "schema": "M100_RUN_PROVENANCE_V2",
+  "source_files": {
+    "gazebo_drag_plugin": {
+      "path": "/home/abdulah/Master/Drone/project/ros2_ws/install/m100_gazebo_gui/lib/m100_gazebo_gui/libM100AerodynamicDrag.so",
+      "sha256": "6d96c4ea405b3ca39e91ba97696e120c5efd385dc5cd6f55211486430cfe9688"
+    },
+    "gazebo_drag_plugin_source": {
+      "path": "/home/abdulah/Master/Drone/project/ros2_ws/src/m100_gazebo_gui/aerodynamics/M100AerodynamicDrag.cc",
+      "sha256": "857d7ee91ee77601d595d91dc1a9dd139c555430d964dba93b573a53ca5e3614"
+    },
+    "gazebo_m100_pack_drive_plugin": {
+      "path": "/home/abdulah/Master/Drone/project/ros2_ws/install/m100_gazebo_gui/lib/m100_gazebo_gui/libM100PackDrive.so",
+      "sha256": "405cd45a8e48daaa25de226f302636ebfd35aff05ec59085ffcea11e7d4a8211"
+    },
+    "gazebo_server_config": {
+      "path": "/home/abdulah/PX4-Autopilot/src/modules/simulation/gz_bridge/server.config",
+      "sha256": "7e9adbefbe0cbad812e0d637f95f8b31fffe80530297444b8da12d93a85d105d"
+    },
+    "m100_airborne_training": {
+      "path": "/home/abdulah/Master/Drone/project/ros2_ws/src/drone_nav/drone_nav/m100_airborne_training.py",
+      "sha256": "df9d7a73cc16e3f90b2384bdc531708017c2aac2c5c488d3adcb99815e95758b"
+    },
+    "m100_atmosphere": {
+      "path": "/home/abdulah/Master/Drone/project/ros2_ws/src/drone_nav/drone_nav/m100_atmosphere.py",
+      "sha256": "c55d89c71f27915f7c825dad31e2fa8590b2315b1172fa0ca7e9d92439aae77f"
+    },
+    "m100_canonical_base_sdf": {
+      "path": "/home/abdulah/PX4-Autopilot/Tools/simulation/gz/models/m100_cmu_v2/model.sdf",
+      "sha256": "20cd39e2801255e75025ac0a4a214e0c10734b4457bf8a61c662b482f76bda4a"
+    },
+    "m100_contract": {
+      "path": "/home/abdulah/Master/Drone/project/ros2_ws/src/drone_nav/drone_nav/m100_contract.py",
+      "sha256": "c0d28d62e554e5cc4f30aa045106a44f0fa4eeb9856c57a13226752fe2141f04"
+    },
+    "m100_energy_v2_config": {
+      "path": "/home/abdulah/Master/Drone/project/ros2_ws/src/drone_nav/config/m100_energy_model_v2.yaml",
+      "sha256": "725b2a54d333bc3ed40a9919d990cda48ee28d158cde87749a8ff08cda585458"
+    },
+    "m100_experiment_manager": {
+      "path": "/home/abdulah/Master/Drone/project/ros2_ws/src/drone_nav/drone_nav/m100_experiment_manager.py",
+      "sha256": "6b365179d8112710e46fedb9399b4e8056df237f0048d204b5c79351c1dfc671"
+    },
+    "m100_propulsion_inventory": {
+      "path": "/home/abdulah/PX4-Autopilot/Tools/simulation/gz/models/m100_cmu_v2/m100_physical_parameters.yaml",
+      "sha256": "0ba0fd5582c389df491467cbb38b7d74c48323f34205fcaff7d94447e3683fcd"
+    },
+    "m100_propulsion_v2": {
+      "path": "/home/abdulah/Master/Drone/project/ros2_ws/src/drone_nav/drone_nav/m100_propulsion_v2.py",
+      "sha256": "5b04109c0c6bc39e4c56594a45a58db9bb3df4216f62f1afe2bd778c3762109b"
+    },
+    "m100_published_energy_v2": {
+      "path": "/home/abdulah/Master/Drone/project/ros2_ws/src/drone_nav/drone_nav/m100_published_energy_v2.py",
+      "sha256": "e9dd6e7c2caeee7c721b4fc4a457774279a0dfe19140e8c437c6bdb668ed222a"
+    },
+    "m100_runtime_energy_v2": {
+      "path": "/home/abdulah/Master/Drone/project/ros2_ws/src/drone_nav/drone_nav/m100_runtime_energy_v2.py",
+      "sha256": "6db4ebbc6793f11d01a1c3ab7211ac2a3ee95a36ba78ffeb7566b9b869d795fb"
+    },
+    "m100_stable_cruise_speed": {
+      "path": "/home/abdulah/Master/Drone/project/ros2_ws/src/drone_nav/drone_nav/m100_stable_cruise_speed.py",
+      "sha256": "186a9ef028af76516b4d1e35e45342de70fa5ce47163a1fc872e2bc0e7e21087"
+    },
+    "m100_stable_cruise_speed_config": {
+      "path": "/home/abdulah/Master/Drone/project/ros2_ws/src/drone_nav/config/m100_stable_cruise_speed_v1.yaml",
+      "sha256": "a702c1f1a4b2498e29554b10c0e10ff1f9d6541333fe82fc0b1b36736ce0f2c7"
+    },
+    "m100_temperature_sdf": {
+      "path": "/home/abdulah/Master/Drone/project/ros2_ws/src/drone_nav/drone_nav/m100_temperature_sdf.py",
+      "sha256": "60631a795f369666d2743a5e343c204ca540f39bf48cb854de866c2bd169cb10"
+    },
+    "m100_transient_power": {
+      "path": "/home/abdulah/Master/Drone/project/ros2_ws/src/drone_nav/drone_nav/m100_transient_power.py",
+      "sha256": "2a91d3a3cd558412a91bfb9367b9e6de44536d7fc4ee993387d564159042f486"
+    },
+    "m100_transient_power_config": {
+      "path": "/home/abdulah/Master/Drone/project/ros2_ws/src/drone_nav/config/m100_transient_power_v1.yaml",
+      "sha256": "6b3c1b6a52e484849368dc568e90128596ffdf937b8e06f808aba87740b46fa1"
+    },
+    "m100_wind_simulation": {
+      "path": "/home/abdulah/Master/Drone/project/ros2_ws/src/drone_nav/drone_nav/m100_wind_simulation.py",
+      "sha256": "c301fe28d05368cecb721b059dc6d84d57fec13d8ce197e5e144e1c9e3fbd9e9"
+    },
+    "m100_wind_simulation_config": {
+      "path": "/home/abdulah/Master/Drone/project/ros2_ws/src/drone_nav/config/m100_wind_simulation_v1.yaml",
+      "sha256": "f164c5948b85ff8b20e1cb7309c1e243fad42dcdce9047dc2517d2f5aabf089c"
+    },
+    "px4_executable_with_stamped_land_state": {
+      "path": "/home/abdulah/PX4-Autopilot/build/px4_sitl_default/bin/px4",
+      "sha256": "9ef77a90e41f8f96e58015a2c4cd8089fb79760be340be69f1792b11b3f79b18"
+    }
+  },
+  "stable_cruise_speed_model": null,
+  "temperature_application": {
+    "battery_temperature_physical": false,
+    "effect_scope": null,
+    "generated_case_sha256": null,
+    "generated_manifest_path": null,
+    "generated_manifest_sha256": null,
+    "generated_scaled_base_sdf_path": null,
+    "generated_scaled_base_sdf_sha256": null,
+    "generated_sdf_sha256": null,
+    "reference_identity": true,
+    "runtime_model": "m100_cmu_v2",
+    "runtime_model_sdf_path": "/home/abdulah/PX4-Autopilot/Tools/simulation/gz/models/m100_cmu_v2/model.sdf",
+    "runtime_model_sdf_sha256": "20cd39e2801255e75025ac0a4a214e0c10734b4457bf8a61c662b482f76bda4a"
+  },
+  "transient_power_model": {
+    "coefficients": {
+      "ascent_work_W": 0.8863929395013254,
+      "descent_work_W": 0.09615579812300472,
+      "horizontal_acceleration_work_W": 0.3797696965536418,
+      "horizontal_braking_work_W": 0.11590386250966499,
+      "horizontal_speed_cubed": 0.036004098443793424,
+      "mass_feature_times_horizontal_speed_squared": -0.15646293417159632,
+      "mass_over_density_feature": 72.23957047628086,
+      "offset": -11.5115237685645
+    },
+    "dataset_doi": "10.1184/R1/12683453",
+    "evidence_artifact": "outputs/m100_mission_energy_validation_v1/evaluation.json",
+    "evidence_sha256": "2e79a1de0723e9e793ecc2e9fb70239350fa07015dead8012c46dd1303b683de",
+    "model_id": "M100_CMU_TRANSIENT_POWER_V1",
+    "phases": [
+      "HOVER",
+      "RETURN_BRAKING",
+      "STABILIZING"
+    ],
+    "simulation_transfer_warning": "CMU_KINEMATIC_POWER_TRANSFER_TO_LONG_TRANSIENTS_IS_SIMULATION_EXTRAPOLATION",
+    "status": "LIMITED_EMPIRICAL_PROXY"
+  },
+  "wind_environment_application": {
+    "density_kg_m3": 1.2220626291040002,
+    "method": "APPLIED_GAZEBO_FORCE_PARAMETERS_SERVICE_RESPONSE",
+    "verified": true,
+    "wind_vector_enu_mps": [
+      0.0,
+      0.0,
+      0.0
+    ]
+  },
+  "wind_simulation_model": {
+    "classification": "C_NOT_CALIBRATED",
+    "electrical_power": {
+      "assumptions": "Theoretical substitution of commanded relative airspeed into a ground-speed regression; ambient wind transfer has no empirical calibration.",
+      "classification": "C_NOT_CALIBRATED",
+      "equation": "delta_P_W = P_CMU_motion(norm(v_ground - commanded_wind)) - P_CMU_motion(norm(v_ground))"
+    },
+    "horizontal_body_drag": {
+      "assumptions": "Fixed frontal area applied isotropically in the horizontal plane; transfer from the published M100 configuration to the instrumented CMU airframe.",
+      "drag_coefficient": 0.5576,
+      "equation": "F_horizontal_N = -0.5 * rho * Cd * A * norm(v_air_horizontal) * v_air_horizontal",
+      "reference_area_m2": 0.0407
+    },
+    "schema": "M100_WIND_SIMULATION_V1",
+    "source": {
+      "aircraft_configuration": "M100 with TB48D, Raspberry Pi, 3.133 kg",
+      "author": "Evan Kawamura",
+      "section": "3.4.1",
+      "title": "Integrated Targeting, Guidance, Navigation, and Control for Unmanned Aerial Vehicles",
+      "url": "https://www.academia.edu/103420569/Integrated_Targeting_Guidance_Navigation_and_Control_for_Unmanned_Aerial_Vehicles",
+      "year": 2020
+    }
+  }
+}

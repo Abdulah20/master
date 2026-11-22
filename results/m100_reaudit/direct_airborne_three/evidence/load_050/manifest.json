@@ -1,0 +1,25 @@
+{
+  "attempt": 1,
+  "case_id": "load_050",
+  "files_sha256": {
+    "acquisition_protocol.json": "297a68ea9726e2f43a97705c462f6f1837b5b0cc8356835e82bb839ba56c285c",
+    "flight.csv": "dd8e7e6d9581e5cd14eb139294e0e031ac6d29016f4acfba62c22f985face150",
+    "pack_drive.jsonl.gz": "bbba6b06e34b1b51988ec1441d04b68bebfbcf9d7267f8b83459cba06203ac6f",
+    "provenance.json": "d2f8f9c6235680f7c6ba34e698f7db705c3da078ff6f022ba6f877c75a17c77b",
+    "receipt.json": "fb223ec26df8d7c900d811153d369600f54db687f5e5a2037f77d43f1f8cf2ce",
+    "training.csv": "efc6bfaeeb86ed64fa891a7786f862557765dff2e2188e2dc7f2fa0397ee33aa",
+    "ulog_states.csv": "3e9ed02e86d37f9d5e71ed03fc632b1eec02da1ce88f2c964ded25fbd4608cbf"
+  },
+  "launcher_sha256": "1f48b4c470dc1717a3876395ef8885b1f3ee8d645f1074c3608e7d9ed00609e5",
+  "run_id": "m100_20261122T120649Z",
+  "selected_for_training": true,
+  "source_acquisition_receipt_mtime_ns": 1795349349548199746,
+  "source_provenance_mtime_ns": 1795349349520011954,
+  "source_training_mtime_ns": 1795349349514927702,
+  "source_training_relative_path": "training/m100_20261122T120649Z.csv",
+  "source_ulog_bytes": 34065417,
+  "source_ulog_relative_path": "state/rootfs/log/2026-11-22/12_06_44.ulg",
+  "source_ulog_sha256": "6b84c3ec2d28456b5afdd1c0a4ea230b3d9fbcad5ef649cf9265113c9f6e712e",
+  "ulog_columns": "Every instance-0 observation of selected vehicle_land_detected and vehicle_status fields.",
+  "ulog_dropout_events": 0
+}

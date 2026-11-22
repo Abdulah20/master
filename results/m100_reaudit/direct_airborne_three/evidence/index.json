@@ -1,0 +1,50 @@
+[
+  {
+    "acquisition_protocol_sha256": "297a68ea9726e2f43a97705c462f6f1837b5b0cc8356835e82bb839ba56c285c",
+    "attempt": 1,
+    "audit_sha256": "fa19ef536e8f4f36091ecd31912d46b0d8137aa4f168211ed589f7611d776175",
+    "case_id": "load_000",
+    "manifest_sha256": "815fd4c2a7ad4e27ef4685d17438a9748b7aa3cd040943ccfc4b70fea7ad076b",
+    "path": "prior_attempts/load_000/attempt_1",
+    "run_id": "m100_20261122T115919Z",
+    "training_eligible": false,
+    "training_status": "INCOMPLETE",
+    "ulog_sha256": "9088934ae94a907d0dc082f52d33e32975660103755d222e6f3da2b2f5892d57"
+  },
+  {
+    "acquisition_protocol_sha256": "cb0d392cd4d54b9f1ac0a6cb0d451d08617d6efa565afd853046e8985e2fa448",
+    "attempt": 2,
+    "audit_sha256": "ace34ff13bdec5b6ef50793e085bc933c288057e1386f69af26c57b74e6a1080",
+    "case_id": "load_000",
+    "manifest_sha256": "5b9f1c77d9949bcf29ba196b75b3b12e7ca90d692a1aa2a8791c4a1905970d4f",
+    "path": "load_000",
+    "run_id": "m100_20261122T121014Z",
+    "training_eligible": true,
+    "training_status": "COMPLETE",
+    "ulog_sha256": "a86bc8f3e4ca59a2a784aaa9754d1c5c27d56e814d65177bdf6b86204f2ea127"
+  },
+  {
+    "acquisition_protocol_sha256": "297a68ea9726e2f43a97705c462f6f1837b5b0cc8356835e82bb839ba56c285c",
+    "attempt": 1,
+    "audit_sha256": "f3969b56e28d5bc69f1839f9d74ac086ab5c5b2b140ba438034c477a800b786d",
+    "case_id": "load_025",
+    "manifest_sha256": "6cf4453b4104a1dc552a27be3787f3f731a7e0086ffee135c7261d2f12fdf2cf",
+    "path": "load_025",
+    "run_id": "m100_20261122T120404Z",
+    "training_eligible": true,
+    "training_status": "COMPLETE",
+    "ulog_sha256": "3885745b622ebf3a864473847c2518785643c5a18d4ad0cbb6b7c80a84d52a68"
+  },
+  {
+    "acquisition_protocol_sha256": "297a68ea9726e2f43a97705c462f6f1837b5b0cc8356835e82bb839ba56c285c",
+    "attempt": 1,
+    "audit_sha256": "4ea9add3866f6a605bc1d024d9c7fef14acf88f95d7439a8cdfc94dc1fad20b6",
+    "case_id": "load_050",
+    "manifest_sha256": "4dcbd91c3e4a1191494c0f8b7fb3234578c38031fea84f0aa4a3490c00140b18",
+    "path": "load_050",
+    "run_id": "m100_20261122T120649Z",
+    "training_eligible": true,
+    "training_status": "COMPLETE",
+    "ulog_sha256": "6b84c3ec2d28456b5afdd1c0a4ea230b3d9fbcad5ef649cf9265113c9f6e712e"
+  }
+]

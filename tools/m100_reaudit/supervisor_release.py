@@ -198,12 +198,14 @@ def draw_energy(out, rows, groups):
             ax.set_ylabel('Flight energy (Wh)')
         else:
             ax.tick_params(labelleft=False)
-    wind_panels[0].legend(frameon=False, fontsize=8)
+    wind_panels[0].legend(title='Outbound direction', title_fontsize=8, frameon=False, fontsize=8)
     for ax in (payload, *wind_panels):
         ax.grid(axis='y', lw=.65, color='#dce0e2')
         ax.set_axisbelow(True)
         ax.spines[['right', 'top']].set_visible(False)
     fig.suptitle('Matrice 100 estimated energy from takeoff to landing', fontsize=16, fontweight='bold')
+    fig.supxlabel('Nonzero wind uses a theoretical aerodynamic and electrical-power model without field calibration.',
+                  fontsize=9, color='#354550')
     with NamedTemporaryFile(dir=out, delete=False) as stream:
         tmp = Path(stream.name)
     try:
@@ -302,6 +304,13 @@ def report(rows, attempts):
             vals = (r[AIRBORNE], duration / 60 if duration is not None else None, r['airborne_horizontal_distance_m'], r['ideal_steady_endurance_min'],
                     r['ideal_steady_range_km'], r['nominal_energy_remaining_percent_after_airborne'])
             lines.append('| ' + scenario[-1] + ' | ' + ' | '.join(format_number(v) for v in vals) + ' |')
+    heavy = next(r for r in rows.values() if 'scenario_C' in r['study_groups'].split('|'))
+    if heavy[AIRBORNE] and heavy['airborne_manager_fallback_Wh'] is not None and heavy['native_VI_coverage_s'] is not None:
+        fallback = heavy['airborne_manager_fallback_Wh']
+        lines += ['', f"في السيناريو C ساهم تقدير القدرة الاحتياطي بواقع {fallback:.2f} Wh من إجمالي "
+                  f"{heavy[AIRBORNE]:.2f} Wh ({100 * fallback / heavy[AIRBORNE]:.1f}%). "
+                  f"أمكن فحص الجهد والتيار المنشورين خلال {heavy['native_VI_coverage_s']:.2f} من "
+                  f"{heavy['airborne_duration_s']:.2f} ثانية. رصيد الطاقة الاسمي المعروض مشتق من هذا التقدير الكلي."]
     vi_fraction = [100 * r['native_VI_coverage_s'] / r['airborne_duration_s']
                    for r in full if r['native_VI_coverage_s'] is not None]
     manager_fraction = [100 * r['airborne_manager_fallback_s'] / r['airborne_duration_s']

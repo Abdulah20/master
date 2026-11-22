@@ -241,6 +241,27 @@ def collect(work, out, case_id=None, attempt=None, verify=False):
                          and recorded["protocol_sha256"] == evidence.digest(acquisition)
                          and case in actual_protocol["cases"] and actual_protocol["attempt"] == attempt_number,
                          "Attempt protocol registration mismatch")
+        registered = out / "protocol.json"
+        if attempt_number > 1:
+            registered = out / "retries" / f"{cid}_attempt_{attempt_number}.json"
+            previous = raw.parent / f"attempt_{attempt_number - 1}" / "acquisition_exit.json"
+            prior_audit = out / "audits" / cid / f"attempt_{attempt_number - 1}.json"
+            previous_record = evidence.json_file(previous)
+            previous_result = evidence.json_file(prior_audit)["metrics"]
+            evidence.confirm(actual_protocol["original_protocol_sha256"] == evidence.digest(out / "protocol.json")
+                             and actual_protocol["source_sha256"] == protocol["source_sha256"]
+                             and actual_protocol["cases"] == [case] and actual_protocol["planned_replacement_cases"] == [cid]
+                             and actual_protocol["previous_exit_sha256"] == evidence.digest(previous)
+                             and actual_protocol["previous_attempt"] == previous_record
+                             and previous_result["run_id"] == previous_record["run_id"] and previous_result[evidence.TARGET] is None,
+                             "Replacement differs from the initial conditions or lacks a rejected predecessor")
+            if previous_record["direct_energy_Wh"] is not None:
+                rejected = actual_protocol["independent_audit_rejection"]
+                evidence.confirm(rejected["sha256"] == evidence.digest(prior_audit)
+                                 and rejected["reason"] == previous_result["rejection_reason"],
+                                 "Numerical predecessor lacks its registered independent audit rejection")
+        evidence.confirm(recorded["protocol_sha256"] == evidence.digest(registered),
+                         "Attempt protocol differs from its preregistered release")
         doc = mission_summary(raw, case, attempt_number, hashes_for_case(out, actual_protocol, case))
         doc["protocol_sha256"] = recorded["protocol_sha256"]
         doc["sources"]["acquisition_exit_sha256"] = evidence.digest(marker)

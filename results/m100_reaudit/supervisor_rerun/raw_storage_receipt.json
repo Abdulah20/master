@@ -1,0 +1,262 @@
+{
+  "verified_utc": "2026-11-22T18:45:04.025553+00:00",
+  "original_and_replay_root": "tmp/m100_reaudit_supervisor_rerun",
+  "secondary_storage_mounted_at": "/media/abdulah/New Volume/M100_Supervisor_Rerun_2026-11-22/raw",
+  "archived_files": 63,
+  "archived_bytes": 2370001004,
+  "scope": "Native pack JSONL, compressed flight trace, and PX4 ULog from the first attempt of cases 001 to 021. All other campaign files remain in the original physical location.",
+  "files": {
+    "case_001/attempt_1/m100_20261122T151612Z.pack_drive.jsonl": {
+      "bytes": 27823975,
+      "sha256": "1928576cd618b71e218c843b48e96296cdf0b112bf66b61935ec13658e6f64ea"
+    },
+    "case_001/attempt_1/m100_20261122T151612Z.trace.csv.gz": {
+      "bytes": 5250507,
+      "sha256": "f51d573fabb617cf8c0235bc95b54ce2e137c98071399385c151852b09f53b1e"
+    },
+    "case_001/attempt_1/state/rootfs/log/2026-11-22/15_16_07.ulg": {
+      "bytes": 86439508,
+      "sha256": "dc4830a981248319b2a53eac1be8eaf09ea7025bd6da108a54009abe08c0aa32"
+    },
+    "case_002/attempt_1/m100_20261122T151630Z.pack_drive.jsonl": {
+      "bytes": 27850600,
+      "sha256": "b02f8ac412526b6cd19d78292ef9aaffd8dafb44f8ff3fe4e02ae56f7608953d"
+    },
+    "case_002/attempt_1/m100_20261122T151630Z.trace.csv.gz": {
+      "bytes": 5180768,
+      "sha256": "a95c13d1e4a19a74752b32445aa48cd6c9a46329f418b79ee24cada3088309f7"
+    },
+    "case_002/attempt_1/state/rootfs/log/2026-11-22/15_16_25.ulg": {
+      "bytes": 86427296,
+      "sha256": "b19aaa784ddc6fb00fa529ecf0989783b52de4caefdd62cf627556fa3e66077c"
+    },
+    "case_003/attempt_1/m100_20261122T151723Z.pack_drive.jsonl": {
+      "bytes": 27890517,
+      "sha256": "18fd3014542543ee68b3ddf414a5e1895dd3b67c0de20b1ea514abe59f988beb"
+    },
+    "case_003/attempt_1/m100_20261122T151723Z.trace.csv.gz": {
+      "bytes": 5114399,
+      "sha256": "3876f0c67504b5841b97af915f4b544cfc7a3351748edc0f2b45cb54c21ede8b"
+    },
+    "case_003/attempt_1/state/rootfs/log/2026-11-22/15_17_16.ulg": {
+      "bytes": 86868820,
+      "sha256": "a205a650f9f91d89b7ce1be4a374a5be9a7240fbfadf7c04fd5b905b4a44ed0e"
+    },
+    "case_004/attempt_1/m100_20261122T152243Z.pack_drive.jsonl": {
+      "bytes": 27118791,
+      "sha256": "d51c02af36f499c700ee5403d8c6ebd418ba3f559ade89147710bb3cf2bc9b29"
+    },
+    "case_004/attempt_1/m100_20261122T152243Z.trace.csv.gz": {
+      "bytes": 5049234,
+      "sha256": "e970c669a92b08c84bc0ed463205d8e039c25fe88d3781fb5f970a6aa24ddc3a"
+    },
+    "case_004/attempt_1/state/rootfs/log/2026-11-22/15_22_37.ulg": {
+      "bytes": 86409858,
+      "sha256": "564dfa3b4fb9ac5c8fe4f74a29f90475030a903b99c931f6ca22d8aa552f89bc"
+    },
+    "case_005/attempt_1/m100_20261122T152303Z.pack_drive.jsonl": {
+      "bytes": 27264435,
+      "sha256": "2b1d181c76086e3b7f81cac3bb0869f7cbfea9af49699ecda563c90af4358b0d"
+    },
+    "case_005/attempt_1/m100_20261122T152303Z.trace.csv.gz": {
+      "bytes": 5019720,
+      "sha256": "942798242dd1647dead89900de1ccb742579a1807e84f4ff74c4a336e8ac253c"
+    },
+    "case_005/attempt_1/state/rootfs/log/2026-11-22/15_22_56.ulg": {
+      "bytes": 87089997,
+      "sha256": "2154cdd89f9baef4429b15b7174116352eba4a7478274457eea68ab439f6186f"
+    },
+    "case_006/attempt_1/m100_20261122T152354Z.pack_drive.jsonl": {
+      "bytes": 27944178,
+      "sha256": "2e22a2e33f8dfcf3807029d6519815722a7e2b9dcd038eff5b00bd19d1a178ba"
+    },
+    "case_006/attempt_1/m100_20261122T152354Z.trace.csv.gz": {
+      "bytes": 5074621,
+      "sha256": "70c7dd0683fb00fa7808e7f780079fb88dc4cd990ef40a3806a1f2468b223f9e"
+    },
+    "case_006/attempt_1/state/rootfs/log/2026-11-22/15_23_48.ulg": {
+      "bytes": 88935365,
+      "sha256": "20bcdcc5d30d5a18062f4ae37db2bb34313320e5c30129a8b4d28ff1de09f5fb"
+    },
+    "case_007/attempt_1/m100_20261122T152911Z.pack_drive.jsonl": {
+      "bytes": 13981213,
+      "sha256": "ad272fae6addb1805c58035b6b59df61843e0fd569700305640baa8167dfdb6c"
+    },
+    "case_007/attempt_1/m100_20261122T152911Z.trace.csv.gz": {
+      "bytes": 2944929,
+      "sha256": "4c5bf41fb0f8443ea2bf51719cac5385c31e7155a7491ad2b64a50548fd86122"
+    },
+    "case_007/attempt_1/state/rootfs/log/2026-11-22/15_29_04.ulg": {
+      "bytes": 45779674,
+      "sha256": "d90ca3a9adcc407390e588b59e72d08d095007a01d7df98d1785dc7b52831719"
+    },
+    "case_008/attempt_1/m100_20261122T152933Z.pack_drive.jsonl": {
+      "bytes": 30696689,
+      "sha256": "92f36441d3ad9b9123bbd0f51db7a1bdc3a7c55c798bed0d08d69058a9c9cb68"
+    },
+    "case_008/attempt_1/m100_20261122T152933Z.trace.csv.gz": {
+      "bytes": 5715677,
+      "sha256": "a66dc3f22554e5c8cd1b6ae987d7109698b0ace634fdb2fa17de3d2f89012b67"
+    },
+    "case_008/attempt_1/state/rootfs/log/2026-11-22/15_29_26.ulg": {
+      "bytes": 95792537,
+      "sha256": "86d023560d659ea98e704dc217a4bc31a5d4ab2829ae965c740deb8016915482"
+    },
+    "case_009/attempt_1/m100_20261122T153035Z.pack_drive.jsonl": {
+      "bytes": 27960610,
+      "sha256": "5a65c20c0db0ae008fc02affd55cc2bd7a51f51dffc7124be6112154aa944e8a"
+    },
+    "case_009/attempt_1/m100_20261122T153035Z.trace.csv.gz": {
+      "bytes": 5321878,
+      "sha256": "d8f60da9018c2ab43a57e26a7c52b4bce2d1a098654e5d26616dc0c04f98c751"
+    },
+    "case_009/attempt_1/state/rootfs/log/2026-11-22/15_30_28.ulg": {
+      "bytes": 88024498,
+      "sha256": "14f4fc480deb5d05f5e7c773373ebf99e0cbabfb22a39cee1b89474df09a5d74"
+    },
+    "case_010/attempt_1/m100_20261122T153245Z.pack_drive.jsonl": {
+      "bytes": 29578155,
+      "sha256": "9af586d3aa5492c744caaca4a7742e3d99277063ed534b4f8d778dcf5b37ea8d"
+    },
+    "case_010/attempt_1/m100_20261122T153245Z.trace.csv.gz": {
+      "bytes": 5595050,
+      "sha256": "f3175e3f56b9ee381362cbdb2c675b4c05efe4e90677fd35556c6818f29832ed"
+    },
+    "case_010/attempt_1/state/rootfs/log/2026-11-22/15_32_38.ulg": {
+      "bytes": 93284828,
+      "sha256": "65b75ccdd2c34db1a4e7c9dd61e0f3a6ba055ef8538e9a8f2916519031c6912f"
+    },
+    "case_011/attempt_1/m100_20261122T153640Z.pack_drive.jsonl": {
+      "bytes": 14167961,
+      "sha256": "ff111cd687292407d33b3e6834124606f88b7e18a1de6f8a59403ad9ef856b2a"
+    },
+    "case_011/attempt_1/m100_20261122T153640Z.trace.csv.gz": {
+      "bytes": 2981482,
+      "sha256": "6bcb4713d0ae077c925033b0db552233cf4dee64393d78bf1e9899b7653da58c"
+    },
+    "case_011/attempt_1/state/rootfs/log/2026-11-22/15_36_33.ulg": {
+      "bytes": 45968610,
+      "sha256": "9bd3c885d3ea6801a40d258c90a9e72613fa2b656000089b8945d6e44caf4ece"
+    },
+    "case_012/attempt_1/m100_20261122T153711Z.pack_drive.jsonl": {
+      "bytes": 30773348,
+      "sha256": "42bf5f561a6707be7b9d5d8bcbfc982e4a00de7e11cc89313a4be73dd2aa7cbb"
+    },
+    "case_012/attempt_1/m100_20261122T153711Z.trace.csv.gz": {
+      "bytes": 5650572,
+      "sha256": "6c794acf78923fc2edecf9613928116ee4ed56b210468fa962ada703d686a7c5"
+    },
+    "case_012/attempt_1/state/rootfs/log/2026-11-22/15_37_04.ulg": {
+      "bytes": 95797268,
+      "sha256": "42401fb15fb5fc036665eb6f16f4158411ea3de247f2a584a7999c0942fea3df"
+    },
+    "case_013/attempt_1/m100_20261122T153943Z.pack_drive.jsonl": {
+      "bytes": 27884308,
+      "sha256": "d83cde3575d4304b628586b186c06b7b8e4686af42ae43e349d0fe90f6428b6d"
+    },
+    "case_013/attempt_1/m100_20261122T153943Z.trace.csv.gz": {
+      "bytes": 5254414,
+      "sha256": "66d12800c502e3e0b14cfe10c031578c8916ac7f30857d51bfa11b9f89c8f9b3"
+    },
+    "case_013/attempt_1/state/rootfs/log/2026-11-22/15_39_36.ulg": {
+      "bytes": 88014830,
+      "sha256": "fe4ade450c50fc5219d6eac56d0344ff6da0ca274d471111fa82d60f224018e1"
+    },
+    "case_014/attempt_1/m100_20261122T154019Z.pack_drive.jsonl": {
+      "bytes": 29635070,
+      "sha256": "654b786554c8348242ba247bb9713b7623e693f457f4ae9eceb114f255985412"
+    },
+    "case_014/attempt_1/m100_20261122T154019Z.trace.csv.gz": {
+      "bytes": 5547537,
+      "sha256": "5c8c7eb0683c1d4f432c13f0286069697048c3890d91fd10a3415d80baff0c48"
+    },
+    "case_014/attempt_1/state/rootfs/log/2026-11-22/15_40_12.ulg": {
+      "bytes": 93693934,
+      "sha256": "dc0ed51141a0ef146ecfa31d52433b6a4dd6bafa5fa9b61855f472cf6a07af90"
+    },
+    "case_015/attempt_1/m100_20261122T154421Z.pack_drive.jsonl": {
+      "bytes": 14052033,
+      "sha256": "0fde99f38ce88a4c68bb6e75cf2d85d36df0843228c5420187395cc9db4df7dc"
+    },
+    "case_015/attempt_1/m100_20261122T154421Z.trace.csv.gz": {
+      "bytes": 2944220,
+      "sha256": "c275c2d21ca2997f9c15c5b12719a39bce90d463692dfaf0f099feb50177c784"
+    },
+    "case_015/attempt_1/state/rootfs/log/2026-11-22/15_44_13.ulg": {
+      "bytes": 45780561,
+      "sha256": "fdb10c63e3afe91e73d193cdef9aec9f7f1a7e75004f35d56a8ed8cd62e5f63d"
+    },
+    "case_016/attempt_1/m100_20261122T154620Z.pack_drive.jsonl": {
+      "bytes": 31000889,
+      "sha256": "736fc7ae8ac5b917a455623b2817ef5e5a41b282eb6c93d2309d11971ba66803"
+    },
+    "case_016/attempt_1/m100_20261122T154620Z.trace.csv.gz": {
+      "bytes": 5594636,
+      "sha256": "b1fb425e0d3e77e6cb26c0276162d49d4a452e77f0e42d85387bdaffe809b564"
+    },
+    "case_016/attempt_1/state/rootfs/log/2026-11-22/15_46_12.ulg": {
+      "bytes": 95987236,
+      "sha256": "28410245281a88b239d6cef521eabc56b71b5b05d4d4e7411dc357601146c878"
+    },
+    "case_017/attempt_1/m100_20261122T154721Z.pack_drive.jsonl": {
+      "bytes": 27877570,
+      "sha256": "7b318e4a0fbf49fe4a57357f6cc5f92f5da4160bb2a34dd7e2471774b20dbb05"
+    },
+    "case_017/attempt_1/m100_20261122T154721Z.trace.csv.gz": {
+      "bytes": 5173070,
+      "sha256": "66e639612d0f41f49870dcb093d54e90c06b17247a4d99464106e85caedceaab"
+    },
+    "case_017/attempt_1/state/rootfs/log/2026-11-22/15_47_13.ulg": {
+      "bytes": 87752527,
+      "sha256": "baaebe161843ee25d6b5e9afffbead81034ff62fea9ebe4801a3f1fe394e9a69"
+    },
+    "case_018/attempt_1/m100_20261122T154756Z.pack_drive.jsonl": {
+      "bytes": 29627875,
+      "sha256": "6303628e0b579c6007acc377ef1502bf0f8efe410edcc542643f64ef1e667ddd"
+    },
+    "case_018/attempt_1/m100_20261122T154756Z.trace.csv.gz": {
+      "bytes": 5458572,
+      "sha256": "7dbe10387c88d3505560e06be3ccac5a83aa0380eb4682b09b3d3870eb14cf6d"
+    },
+    "case_018/attempt_1/state/rootfs/log/2026-11-22/15_47_49.ulg": {
+      "bytes": 93257287,
+      "sha256": "4078d6f172c380e1cb37e1dd2159a7c2b106e46fa77302a45bca9e64bf345efe"
+    },
+    "case_019/attempt_1/m100_20261122T155332Z.pack_drive.jsonl": {
+      "bytes": 14071141,
+      "sha256": "2c26ffbe274a153d4b7d5e15494b6cd6f2aae7c6b83bc57010917a94d5074001"
+    },
+    "case_019/attempt_1/m100_20261122T155332Z.trace.csv.gz": {
+      "bytes": 2943411,
+      "sha256": "90910fafda6d8942da10f8e95f3847c2c490db57ad28e5a99eaa8948a2ba5968"
+    },
+    "case_019/attempt_1/state/rootfs/log/2026-11-22/15_53_24.ulg": {
+      "bytes": 46180604,
+      "sha256": "5692ab1ccd741d2bc30b0c1e24deeda68a85f4ef8df1f6823ce81603001b81e0"
+    },
+    "case_020/attempt_1/m100_20261122T155357Z.pack_drive.jsonl": {
+      "bytes": 30453218,
+      "sha256": "aa1547e3b5a34e39b9cc7cfdf98df474f93913a9fb0f733645a858b4fd586d91"
+    },
+    "case_020/attempt_1/m100_20261122T155357Z.trace.csv.gz": {
+      "bytes": 5583321,
+      "sha256": "f282965b4c76a64ef3627d2f6f61073d04bfde085673a366fa097a86e9e8ca37"
+    },
+    "case_020/attempt_1/state/rootfs/log/2026-11-22/15_53_49.ulg": {
+      "bytes": 96948166,
+      "sha256": "1b5c1d82cea03fbe0aab8e8d886b5db5a6d8fd3caaec46206fd62f9296a7a412"
+    },
+    "case_021/attempt_1/m100_20261122T155455Z.pack_drive.jsonl": {
+      "bytes": 27549876,
+      "sha256": "ace499a527a49f26d37d5c28a09c1b45ccb4231d1d84590234dd3cd951663323"
+    },
+    "case_021/attempt_1/m100_20261122T155455Z.trace.csv.gz": {
+      "bytes": 5116803,
+      "sha256": "0687fe8e40c46edbe71c8c40c29b2fbafcd6d4ff8140081e1a8073c967446813"
+    },
+    "case_021/attempt_1/state/rootfs/log/2026-11-22/15_54_48.ulg": {
+      "bytes": 87850327,
+      "sha256": "2368fc9a422a8ca73179edccd21d70e7e6eeca7a8faa15477d472e5cff0dc60c"
+    }
+  }
+}

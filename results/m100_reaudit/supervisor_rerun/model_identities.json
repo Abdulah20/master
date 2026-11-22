@@ -1,0 +1,31 @@
+{
+  "schema": "M100_SUPERVISOR_MODEL_IDENTITY_V1",
+  "recorded_utc": "2026-11-22T15:16:44.931180+00:00",
+  "protocol_sha256": "45344af837975d119a056519ddec22983a78c4775dd498c05620600084ce4f58",
+  "models": {
+    "m100_cmu_v2": {
+      "payload_kg": 0.0,
+      "model_sdf_sha256": "20cd39e2801255e75025ac0a4a214e0c10734b4457bf8a61c662b482f76bda4a"
+    },
+    "m100_cmu_v2_payload_025": {
+      "payload_kg": 0.25,
+      "model_sdf_sha256": "85cab7073d3329088b9b0f721389b7e96d68fce048510e65617ce7ecf55819a9"
+    },
+    "m100_cmu_v2_payload_050": {
+      "payload_kg": 0.5,
+      "model_sdf_sha256": "4bbac163154fff2ba9a797519767f7ab95b4a916a5030ca7988dc52f773e23c8"
+    },
+    "m100_cmu_v2_payload_075": {
+      "payload_kg": 0.75,
+      "model_sdf_sha256": "7f0bff6c39719657a7bb310ab6be3a659d658b302de324d886d5b88e55eedf2f"
+    },
+    "m100_cmu_v2_payload_100": {
+      "payload_kg": 1.0,
+      "model_sdf_sha256": "40ed6ecbc91ca1d6b1022200d2e08fbc2ff6e0f216256df67e88cc51aade53ee"
+    },
+    "m100_cmu_v2_payload_125": {
+      "payload_kg": 1.25,
+      "model_sdf_sha256": "134c12e27d3f31d1032b8387eea694e32e6fdabc95ec8e6cfc448b2ef2ab4409"
+    }
+  }
+}

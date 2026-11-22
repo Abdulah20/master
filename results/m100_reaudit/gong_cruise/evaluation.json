@@ -1,0 +1,369 @@
+{
+  "inputs": {
+    "samples": {
+      "path": "outputs/m100_real_dataset_v2/m100_calibration_ready_samples.csv",
+      "sha256": "d2e4536ce082eede5aaaed6a25fdc1cee9521b97fe2e16b8da6953471197404c"
+    },
+    "summary": {
+      "path": "analysis/m100_rodrigues_official_reproduction_v1/energy_summary_v1.csv",
+      "sha256": "df560db3c856ddf3bba92e889de4862c1c5b53de1a100cd7fbfa6d319aeaedb9"
+    },
+    "official_sample": {
+      "path": "analysis/m100_rodrigues_official_reproduction_v1/official_sample_v1.csv",
+      "sha256": "a5d3922846cba85047e6ecd31726cc1727bc4941a767975c12a12645415df6ea"
+    },
+    "qc": {
+      "path": "outputs/m100_real_dataset_v2/m100_flight_audit_summary.csv",
+      "sha256": "eecc926b014c9c39aecbfd9aef0ffac0cfffab57d4735611e5f8b95bf84e0c70"
+    },
+    "split": {
+      "path": "outputs/m100_cruise_speed_validation_v1/evaluation.json",
+      "sha256": "4ee30d9f70a6870dc57ed58433c69a4f4e985728651909b3842f9c976786e6f7"
+    },
+    "speed_config": {
+      "path": "ros2_ws/src/drone_nav/config/m100_stable_cruise_speed_v1.yaml",
+      "sha256": "a702c1f1a4b2498e29554b10c0e10ff1f9d6541333fe82fc0b1b36736ce0f2c7"
+    },
+    "gong_config": {
+      "path": "ros2_ws/src/drone_nav/config/m100_gong_power_model.yaml",
+      "sha256": "f62409ed5d6ebb4e2f8d844b0e5bef1a2fe44c432d34de970986dd5a71c002d3"
+    },
+    "gong_code": {
+      "path": "ros2_ws/src/drone_nav/drone_nav/gong_power_model.py",
+      "sha256": "6f7d32249066a19d4149b1f4991e6670e41fb777e9000966be3dabd3ee202473"
+    },
+    "solver": {
+      "path": "analysis/m100_energy_calibration/calibrate_gong_power_model.py",
+      "sha256": "be2099f15c3ccb816be1c216591bdad23c00dec5f69847f85a1c9b8d3f1beef4"
+    },
+    "selector": {
+      "path": "analysis/m100_energy_calibration/calibrate_aircraft_level_energy.py",
+      "sha256": "193d8b71c1f2baba6e5f8739339eff33181605eec0d648eaf1d557570779753e"
+    },
+    "old_fit": {
+      "path": "archives/m100_records_before_20261118T182538Z/project/outputs/m100_gong_model/m100_gong_summary.json",
+      "sha256": "d98406fe2026f204806e7d49daefb7b908f10943cdc752b064a51d60ab91b82d"
+    }
+  },
+  "cohorts": {
+    "fit": [
+      1,
+      3,
+      4,
+      6,
+      8,
+      16,
+      17,
+      18,
+      78,
+      82,
+      84,
+      93,
+      94,
+      96,
+      97,
+      101,
+      102,
+      105,
+      115,
+      121,
+      124,
+      135,
+      136,
+      142,
+      144,
+      148,
+      156,
+      160,
+      169,
+      170,
+      172,
+      173,
+      175,
+      179,
+      181,
+      184,
+      188,
+      195,
+      199,
+      200,
+      201,
+      203,
+      205,
+      207,
+      208,
+      209,
+      225,
+      226,
+      230,
+      231,
+      238,
+      239,
+      240,
+      242,
+      243,
+      248,
+      255,
+      257,
+      261,
+      263,
+      264
+    ],
+    "evaluation": [
+      2,
+      5,
+      7,
+      10,
+      20,
+      81,
+      87,
+      88,
+      99,
+      119,
+      127,
+      137,
+      145,
+      147,
+      154,
+      162,
+      163,
+      165,
+      166,
+      176,
+      182,
+      193,
+      206,
+      210,
+      227,
+      233,
+      237,
+      246,
+      247,
+      249,
+      251,
+      258,
+      260
+    ],
+    "evaluation_unseen_by_frozen_fit": [
+      5,
+      99,
+      127,
+      137,
+      147,
+      163,
+      176,
+      210,
+      227,
+      237,
+      249,
+      260
+    ]
+  },
+  "historical_fit_overlap": [
+    2,
+    7,
+    10,
+    20,
+    81,
+    87,
+    88,
+    119,
+    145,
+    154,
+    162,
+    165,
+    166,
+    182,
+    193,
+    206,
+    233,
+    246,
+    247,
+    251,
+    258
+  ],
+  "theta_frozen": {
+    "theta_p": 7.570337403620223,
+    "theta_T": 1e-12,
+    "theta_i": 0.6431150454896112,
+    "theta_d": 1e-12
+  },
+  "theta_refit": {
+    "theta_p": 8.822231639719414,
+    "theta_T": 1e-12,
+    "theta_i": 0.38366942952303246,
+    "theta_d": 1e-12
+  },
+  "constant_offset_W": -17.655041354677053,
+  "fit_diagnostics": {
+    "optimizer": "deterministic exhaustive active-set bounded least squares in [theta_p, theta_p*theta_T, theta_i, theta_d]",
+    "objective": "unweighted sum of squared flight-level mean-power residuals",
+    "converged": true,
+    "global_convex_solution": true,
+    "strict_positive_floor": 1e-12,
+    "theta_T_constraint_case": "THETA_T_LOWER_BOUND",
+    "linear_groups": [
+      8.822231639719414,
+      8.822231639719414e-12,
+      0.38366942952303246,
+      1e-12
+    ],
+    "sse_w2": 11639.985064745237,
+    "boundary_solution": {
+      "theta_p": false,
+      "theta_T": true,
+      "theta_i": false,
+      "theta_d": true
+    }
+  },
+  "paired_date_bootstrap_candidate_minus_reference": {
+    "refit": {
+      "rodrigues": {
+        "dates": 14,
+        "flights": 33,
+        "W": {
+          "delta_MAE": -8.39233576174221,
+          "percentile_95": [
+            -12.362889710121179,
+            -3.0088628838925753
+          ]
+        },
+        "Wh": {
+          "delta_MAE": -0.12204652052489055,
+          "percentile_95": [
+            -0.15742017111619055,
+            -0.07182306569434017
+          ]
+        }
+      },
+      "rodrigues_offset": {
+        "dates": 14,
+        "flights": 33,
+        "W": {
+          "delta_MAE": 0.07432396275400648,
+          "percentile_95": [
+            -2.156666958220922,
+            2.5889561899841422
+          ]
+        },
+        "Wh": {
+          "delta_MAE": -0.0023673465619895922,
+          "percentile_95": [
+            -0.037695960342766906,
+            0.04478029633885534
+          ]
+        }
+      },
+      "rodrigues_stable": {
+        "dates": 14,
+        "flights": 33,
+        "W": {
+          "delta_MAE": 1.461859113110341,
+          "percentile_95": [
+            0.6379838621957492,
+            2.493940544155641
+          ]
+        },
+        "Wh": {
+          "delta_MAE": 0.02428585479984288,
+          "percentile_95": [
+            0.00927936716855865,
+            0.042530400639832266
+          ]
+        }
+      },
+      "rodrigues_same_isa": {
+        "dates": 14,
+        "flights": 33,
+        "W": {
+          "delta_MAE": -8.260387371289136,
+          "percentile_95": [
+            -12.358632539696682,
+            -2.8995607719723067
+          ]
+        },
+        "Wh": {
+          "delta_MAE": -0.12929606209769273,
+          "percentile_95": [
+            -0.17821621212644911,
+            -0.07284651210826015
+          ]
+        }
+      }
+    },
+    "frozen": {
+      "rodrigues": {
+        "dates": 10,
+        "flights": 12,
+        "W": {
+          "delta_MAE": 1.3045534837573456,
+          "percentile_95": [
+            -10.684448708980199,
+            14.662412570418244
+          ]
+        },
+        "Wh": {
+          "delta_MAE": -0.02071889415182393,
+          "percentile_95": [
+            -0.16639386602429576,
+            0.12673587912389686
+          ]
+        }
+      },
+      "rodrigues_offset": {
+        "dates": 10,
+        "flights": 12,
+        "W": {
+          "delta_MAE": 3.4187230362190157,
+          "percentile_95": [
+            -4.089935990039628,
+            11.906075421925516
+          ]
+        },
+        "Wh": {
+          "delta_MAE": 0.01509891984699685,
+          "percentile_95": [
+            -0.08388226448122947,
+            0.12216578537231203
+          ]
+        }
+      },
+      "rodrigues_stable": {
+        "dates": 10,
+        "flights": 12,
+        "W": {
+          "delta_MAE": 3.7961073213414522,
+          "percentile_95": [
+            -0.1440040719532412,
+            7.975540104813797
+          ]
+        },
+        "Wh": {
+          "delta_MAE": 0.053494624011513836,
+          "percentile_95": [
+            0.0048895498707817574,
+            0.09799179118577915
+          ]
+        }
+      },
+      "rodrigues_same_isa": {
+        "dates": 10,
+        "flights": 12,
+        "W": {
+          "delta_MAE": 1.857772963223032,
+          "percentile_95": [
+            -9.573536726214982,
+            14.8602600813643
+          ]
+        },
+        "Wh": {
+          "delta_MAE": -0.01599519362056497,
+          "percentile_95": [
+            -0.15004063827123792,
+            0.1276106819410385
+          ]
+        }
+      }
+    }
+  }
+}

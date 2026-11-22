@@ -1,5 +1,5 @@
 diff --git a/ros2_ws/src/drone_nav/drone_nav/m100_experiment_manager.py b/ros2_ws/src/drone_nav/drone_nav/m100_experiment_manager.py
-index 0f34d5a381fd5052f0d748766a3d34355a5d89c2..d15baf1cfec6d4506b8f763eb599de05d4e76cde 100644
+index 0f34d5a381fd5052f0d748766a3d34355a5d89c2..ce8783db7192faa7a7a94253785679cae9771148 100644
 --- a/ros2_ws/src/drone_nav/drone_nav/m100_experiment_manager.py
 +++ b/ros2_ws/src/drone_nav/drone_nav/m100_experiment_manager.py
 @@ -73,6 +73,12 @@
@@ -63,16 +63,17 @@ index 0f34d5a381fd5052f0d748766a3d34355a5d89c2..d15baf1cfec6d4506b8f763eb599de05
  
      def _pack_time_is_current(self, stamp: float, now: float) -> bool:
          limit = self._energy_config.maximum_valid_gap_s
-@@ -785,7 +802,7 @@
+@@ -785,7 +802,8 @@
              self._pack_signal_times[key] = (received_at, stamp)
          return stamp - self._pack_signal_times[key][1] <= max_age
  
 -    def _publish_pack_demand(self, stamp, sample, velocities, phase, calibration) -> None:
-+    def _publish_pack_demand(self, stamp, sample, velocities, phase, calibration, manager_power_w=None) -> None:
++    def _publish_pack_demand(self, stamp, sample, velocities, phase, calibration,
++                             manager_power_w=None, *, configuration_committed=False) -> None:
          model = self._active_runtime_model
          now = time.monotonic()
          if not model or not self._pack_time_is_current(stamp, now):
-@@ -801,29 +818,32 @@
+@@ -801,29 +819,33 @@
                                              "simulated_rotor_speed_rad_s": [abs(v) * scale for v in velocities]}
          heartbeat_recent = self._pack_signal_fresh("heartbeat", sample.get("last_heartbeat_monotonic"), stamp, now, 2.0)
          armed = bool(sample["armed"]) if sample.get("heartbeat_fresh") and heartbeat_recent else None
@@ -82,10 +83,10 @@ index 0f34d5a381fd5052f0d748766a3d34355a5d89c2..d15baf1cfec6d4506b8f763eb599de05
 +                                                stamp, now, self._energy_config.maximum_valid_gap_s)
 +        landed = bool(sample["landed"]) if sample.get("landed_state_known") and landed_recent else None
 +        phase_power, phase_source = None, "FLIGHT_STATE_UNAVAILABLE"
-+        if (self._config is not None and self._applied_atmosphere is not None
-+                and self._power_air_state is not None and joints_valid):
-+            # The native PX4 detector may transition before the rate-limited MAVLink
-+            # message. Send a separate proposal for the pack to gate on the native clock.
++        phase_ready = configuration_committed and joints_valid
++        if phase_ready:
++            # The native pack gates this proposal with the PX4 land detector.
++            # Its density is fixed at APPLY and does not need a fresh MAVLink altitude.
 +            estimate = self._energy_config.estimate_power(
 +                phase, self._config.payload.payload_kg, self._applied_atmosphere.reference.density_kg_m3,
 +                limited_hover_eligible=calibration.use_limited_hover_mean,
@@ -93,7 +94,8 @@ index 0f34d5a381fd5052f0d748766a3d34355a5d89c2..d15baf1cfec6d4506b8f763eb599de05
 +            phase_power = estimate.power_w
 +            phase_source = ("CMU_LIMITED_HOVER_MEAN" if estimate.coefficient_phase == "limited_hover"
 +                            else estimate.model_id if phase_power is not None else "UNSUPPORTED_PHASE")
-+        else:
++        manager_air_ready = phase_ready and self._power_air_state is not None
++        if not manager_air_ready:
 +            manager_power_w = None
 +        power, source = None, "ARMED_STATE_UNKNOWN" if armed is None else "FLIGHT_STATE_UNAVAILABLE"
          if armed is False:
@@ -116,7 +118,7 @@ index 0f34d5a381fd5052f0d748766a3d34355a5d89c2..d15baf1cfec6d4506b8f763eb599de05
 -                power = estimate.power_w
 -                source = ("CMU_LIMITED_HOVER_MEAN" if estimate.coefficient_phase == "limited_hover"
 -                          else estimate.model_id if power is not None else "UNSUPPORTED_PHASE")
-+        elif armed and landed is False:
++        elif armed and landed is False and manager_air_ready:
 +            power, source = phase_power, phase_source
          request = {"model": f"{model}_0", "time_s": stamp, "power_w": power, "armed": armed,
 +                   "landed": landed, "run_id": self._run_id if self._recording else None,
@@ -125,7 +127,7 @@ index 0f34d5a381fd5052f0d748766a3d34355a5d89c2..d15baf1cfec6d4506b8f763eb599de05
                     "producer": "m100_experiment_manager", "source": source, "phase": phase,
                     "phase_applicability": calibration.status, **self._pack_command_conditions()}
          self._pack_drive_pub.publish(String(data=json.dumps(request, allow_nan=False)))
-@@ -859,6 +879,23 @@
+@@ -859,6 +881,23 @@
                      or (self._pack_state is not None and stamp <= self._pack_state["time_s"])):
                  return
              state.update(model=native["model"], status=native["status"])
@@ -149,7 +151,7 @@ index 0f34d5a381fd5052f0d748766a3d34355a5d89c2..d15baf1cfec6d4506b8f763eb599de05
              self._pack_state = state
              self._pack_state_received_at = now
              if (self._recording and self._pack_trace is not None and
-@@ -893,6 +930,8 @@
+@@ -893,6 +932,8 @@
              "conditions": self._pack_command_conditions(), "acknowledged_request": None,
              "latest_joint_observation": joint if joint and self._pack_time_is_current(joint["time_s"], now) else None,
              "last_request": request, "last_request_fresh": bool(request and self._pack_time_is_current(request["time_s"], now)),
@@ -158,7 +160,7 @@ index 0f34d5a381fd5052f0d748766a3d34355a5d89c2..d15baf1cfec6d4506b8f763eb599de05
              **dict.fromkeys((*PACK_DRIVE_NUMBERS, *PACK_DRIVE_FLAGS, *PACK_DRIVE_COMMANDS)),
          }
          if state is None or state["model"] != result["model"]:
-@@ -909,8 +948,10 @@
+@@ -909,8 +950,10 @@
                        native_demand_fresh=state["demand_fresh"], armed=state["armed"])
          # The plugin still reports its held actuator limit and charge coverage when a load is unknown.
          for key in ("discharged_ah", "fit_q_ah", "covered_load_time_s", "unaccounted_load_time_s", "unmodelled_idle_time_s",
@@ -171,7 +173,7 @@ index 0f34d5a381fd5052f0d748766a3d34355a5d89c2..d15baf1cfec6d4506b8f763eb599de05
          demand_stamp = state["demand_time_s"]
          if demand_stamp is None:
              return result
-@@ -983,8 +1024,8 @@
+@@ -983,8 +1026,8 @@
          changing_model = self._state in BUSY_CONFIGURATION_STATES or self._state == "RESETTING"
          committed = not changing_model and self._config is not None and payload is not None and atmosphere is not None
          self._power_air_state = self._air_state_for_power(sample, enu["z"], timestamp_s) if committed else None
@@ -181,16 +183,16 @@ index 0f34d5a381fd5052f0d748766a3d34355a5d89c2..d15baf1cfec6d4506b8f763eb599de05
              self._rotor_telemetry_monotonic = 0.0
              return
          power_density = (self._power_air_state.density_kg_m3
-@@ -1060,6 +1101,8 @@
+@@ -1060,6 +1103,8 @@
                  * atmosphere.density_ratio
              ),
          )
 +        self._publish_pack_demand(timestamp_s, sample, velocities, energy_phase, calibration,
-+                                  model_energy.operational_power_w)
++                                  model_energy.operational_power_w, configuration_committed=committed)
          # Keep the scientific applicability label atomic with the exact model
          # snapshot that used it.  Status/CSV readers run under the same manager
          # lock and therefore cannot pair a new lifecycle flag with an older
-@@ -1151,9 +1194,7 @@
+@@ -1151,9 +1196,7 @@
                  except Exception as error:
                      self.get_logger().error(f"{label} failed: {error}")
                      self._set_state("ERROR", f"REJECTED — {error}")
@@ -201,7 +203,7 @@ index 0f34d5a381fd5052f0d748766a3d34355a5d89c2..d15baf1cfec6d4506b8f763eb599de05
                      if label == "full-test" or self._auto_running:
                          self._safe_land_after_abort(error=True)
  
-@@ -1684,6 +1725,13 @@
+@@ -1684,6 +1727,13 @@
                      if self._auto_running:
                          self._status = "REJECTED — the automatic test owns its recording"
                          return
@@ -215,7 +217,7 @@ index 0f34d5a381fd5052f0d748766a3d34355a5d89c2..d15baf1cfec6d4506b8f763eb599de05
                      path = self._stop_recording()
                      self._status = f"CSV saved: {path}" if path else "No active CSV recording"
              elif command == "export":
-@@ -1878,7 +1926,6 @@
+@@ -1878,7 +1928,6 @@
          with self._lock:
              self._start_recording("m100")
              self._auto_running = True
@@ -223,7 +225,7 @@ index 0f34d5a381fd5052f0d748766a3d34355a5d89c2..d15baf1cfec6d4506b8f763eb599de05
          try:
              self._arm_and_takeoff(config.altitude_m)
              home = self._home_ned
-@@ -2001,9 +2048,6 @@
+@@ -2001,9 +2050,6 @@
              )
              path = self._stop_recording(outcome="COMPLETE")
              self._set_state("COMPLETE", f"COMPLETE — CSV saved: {path}")
@@ -233,7 +235,7 @@ index 0f34d5a381fd5052f0d748766a3d34355a5d89c2..d15baf1cfec6d4506b8f763eb599de05
          finally:
              if self._measurement_active:
                  try:
-@@ -2015,12 +2059,11 @@
+@@ -2015,12 +2061,11 @@
                  finally:
                      self._measurement_active = False
              with self._lock:
@@ -250,7 +252,7 @@ index 0f34d5a381fd5052f0d748766a3d34355a5d89c2..d15baf1cfec6d4506b8f763eb599de05
  
      def _precision_return_and_land(
          self,
-@@ -2204,7 +2247,6 @@
+@@ -2204,7 +2249,6 @@
              raise RuntimeError("precision return-to-home did not settle over the landing center")
  
      def _safe_land_after_abort(self, error: bool = False) -> None:
@@ -258,7 +260,7 @@ index 0f34d5a381fd5052f0d748766a3d34355a5d89c2..d15baf1cfec6d4506b8f763eb599de05
          self._manual_hold = None
          try:
              sample = self._mav.snapshot()
-@@ -2213,6 +2255,8 @@
+@@ -2213,6 +2257,8 @@
                      max(0.0, self._relative_altitude(sample))
                  )
                  self._mav.land()
@@ -267,7 +269,7 @@ index 0f34d5a381fd5052f0d748766a3d34355a5d89c2..d15baf1cfec6d4506b8f763eb599de05
                  deadline = time.monotonic() + landing_timeout_s
                  while time.monotonic() < deadline:
                      if self._mav.snapshot()["landed"]:
-@@ -2220,8 +2264,13 @@
+@@ -2220,8 +2266,13 @@
                      time.sleep(0.2)
          except Exception as landing_error:
              self.get_logger().error(f"safe landing failed: {landing_error}")
@@ -283,7 +285,7 @@ index 0f34d5a381fd5052f0d748766a3d34355a5d89c2..d15baf1cfec6d4506b8f763eb599de05
          if not error:
              self._set_state("ABORTED", "ABORTED — safe landing command completed")
  
-@@ -2337,6 +2386,14 @@
+@@ -2337,6 +2388,14 @@
  
          enu = self._enu_values(sample)
          with self._lock:
@@ -298,7 +300,7 @@ index 0f34d5a381fd5052f0d748766a3d34355a5d89c2..d15baf1cfec6d4506b8f763eb599de05
              position = (enu["x"], enu["y"], enu["z"])
              if (self._recording and sample.get("armed")
                      and sample.get("landed") is not None
-@@ -2622,6 +2679,7 @@
+@@ -2622,6 +2681,7 @@
          energy = {
              "schema": "M100_TELEMETRY_V3",
              "native_pack_drive": self._pack_drive_telemetry(),
@@ -306,7 +308,7 @@ index 0f34d5a381fd5052f0d748766a3d34355a5d89c2..d15baf1cfec6d4506b8f763eb599de05
              "recording": self._recording,
              "recorded_energy_coverage": model_energy.recorded_energy_coverage,
              "airborne_energy_coverage": model_energy.airborne_energy_coverage,
-@@ -2823,6 +2881,9 @@
+@@ -2823,6 +2883,9 @@
          with self._lock:
              if self._recording:
                  raise RuntimeError("recording is already active")
@@ -316,7 +318,7 @@ index 0f34d5a381fd5052f0d748766a3d34355a5d89c2..d15baf1cfec6d4506b8f763eb599de05
              if self._state != "READY":
                  raise RuntimeError("recording requires a committed READY configuration")
              if self._measurement_active:
-@@ -2846,6 +2907,10 @@
+@@ -2846,6 +2909,10 @@
                  csv_handle.flush()
  
                  self._pack_trace_start_s = self._gazebo_sim_time_s
@@ -327,7 +329,7 @@ index 0f34d5a381fd5052f0d748766a3d34355a5d89c2..d15baf1cfec6d4506b8f763eb599de05
                  self._pack_trace_rows, self._pack_trace_error = 0, None
                  self._sample_count = 0
                  self._last_csv_energy_timestamp_s = None
-@@ -2879,9 +2944,20 @@
+@@ -2879,9 +2946,20 @@
              self._pack_trace_error = str(error)
              self.get_logger().error(f"Native pack trace close failed: {error}")
  
@@ -348,7 +350,7 @@ index 0f34d5a381fd5052f0d748766a3d34355a5d89c2..d15baf1cfec6d4506b8f763eb599de05
                  self._energy_model.freeze_bms_session()
                  self._recording = False
                  self._close_pack_trace()
-@@ -2909,6 +2985,14 @@
+@@ -2909,6 +2987,14 @@
                          "armed": sample["armed"] if sample["fresh"] else None,
                          "native_pack_drive": self._pack_drive_telemetry(),
                      }
@@ -363,7 +365,7 @@ index 0f34d5a381fd5052f0d748766a3d34355a5d89c2..d15baf1cfec6d4506b8f763eb599de05
                  self._last_run_provenance_path = self._finalize_run_provenance(
                      self._csv_path,
                      self._run_provenance_context,
-@@ -2962,6 +3046,7 @@
+@@ -2962,6 +3048,7 @@
                  ).resolve(),
                  "m100_stable_cruise_speed_config": self._stable_cruise_config_path,
                  "m100_transient_power": Path(__file__).with_name("m100_transient_power.py").resolve(),
@@ -371,7 +373,7 @@ index 0f34d5a381fd5052f0d748766a3d34355a5d89c2..d15baf1cfec6d4506b8f763eb599de05
                  "m100_transient_power_config": self._transient_config_path,
                  "m100_wind_simulation": Path(__file__).with_name("m100_wind_simulation.py").resolve(),
                  "m100_wind_simulation_config": self._wind_config_path,
-@@ -2978,6 +3063,7 @@
+@@ -2978,6 +3065,7 @@
          package_root = Path(get_package_share_directory("m100_gazebo_gui")).parents[1]
          for name, path in {
              "gazebo_m100_pack_drive_plugin": package_root / "lib/m100_gazebo_gui/libM100PackDrive.so",
@@ -379,7 +381,7 @@ index 0f34d5a381fd5052f0d748766a3d34355a5d89c2..d15baf1cfec6d4506b8f763eb599de05
              "m100_canonical_base_sdf": PX4_MODELS_ROOT / "m100_cmu_v2/model.sdf",
          }.items():
              sources[name] = {"path": str(path), "sha256": self._sha256_path(path) if path.is_file() else None}
-@@ -2995,7 +3081,11 @@
+@@ -2995,7 +3083,11 @@
                  "conditions": self._pack_command_conditions(),
                  "cmu_training_ranges": {"payload_kg": [0.0, 0.5], "commanded_speed_mps": [4.0, 12.0],
                                          "commanded_altitude_agl_m": [25.0, 100.0]},

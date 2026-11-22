@@ -202,8 +202,9 @@ def flight_telemetry(folder, doc, case, start, end):
             "Flight telemetry commands differ from the frozen acquisition")
     return {"sha256": csv_info["sha256"], "size_bytes": csv_info["size_bytes"], "rows": len(times), "clock": clock,
             "first_timestamp_s": times[0], "last_timestamp_s": times[-1], "target_hz": sampling["target_hz"],
-            "missed_windows": sampling["missed_windows"], "brackets_ulog_airborne_window": times[0] <= start < end <= times[-1],
-            "rows_within_ulog_airborne_window": sum(start <= t < end for t in times),
+            "missed_windows": sampling["missed_windows"],
+            "brackets_ulog_airborne_window": start is not None and times[0] <= start < end <= times[-1],
+            "rows_within_ulog_airborne_window": sum(start <= t < end for t in times) if start is not None else None,
             "rows_with_blank_electrical_power": sum(not r["electrical_power_W"] for r in rows)}
 
 
@@ -357,25 +358,40 @@ def audit_flight(folder, case, protocol_hashes, *, raw_trace_path=None):
             "Nonmonotonic or mixed native entity epochs")
     budgets = [s["airborne_budget"] for s in samples if s["airborne_budget"]["run_id"] == run]
     confirm(budgets and budgets[-1] == info, "Final recorder receipt does not match the terminal Gazebo budget")
-    start_us, end_us, armed_us, failsafe_us = gate_from_ulog(folder / "ulog_states.csv")
-    start, end = start_us / 1e6, end_us / 1e6
+    ulog_issues = []
+    model_coverage = {}
+    try:
+        start_us, end_us, armed_us, failsafe_us = gate_from_ulog(folder / "ulog_states.csv")
+    except ValueError as error:
+        if raw_trace_path is None:
+            raise
+        ulog_issues.append("ULOG_NO_SINGLE_BRACKETED_AIRBORNE_EPISODE")
+        model_coverage["ulog_gate_error_detail"] = str(error)
+        start_us = end_us = armed_us = failsafe_us = None
+    start = start_us / 1e6 if start_us is not None else None
+    end = end_us / 1e6 if end_us is not None else None
     status = info["status"]
-    expected_duration = (end_us-start_us)/1e6
+    expected_duration = (end_us-start_us)/1e6 if start_us is not None else None
     source_s = math.fsum(b["seconds"] for b in info["sources"].values())
     source_wh = math.fsum(b["energy_Wh"] for b in info["sources"].values())
     target = float(row[TARGET]) if row[TARGET] else None
     if receipt["outcome"] == "COMPLETE":
         confirm(receipt["landed"] and not receipt["armed"] and
                 doc["recording_end"]["landed"] and not doc["recording_end"]["armed"], "Landing confirmation missing")
-        confirm(armed_us == end_us-start_us, "Aircraft was not continuously armed in the PX4 window")
+        if armed_us is not None and armed_us != end_us-start_us:
+            ulog_issues.append("ULOG_AIRBORNE_WINDOW_NOT_CONTINUOUSLY_ARMED")
     bracketed = info["start_s"] is not None and info["end_s"] is not None
+    edges_match = bracketed and round(info["start_s"] * 1e6) == start_us and round(info["end_s"] * 1e6) == end_us
+    if bracketed and not edges_match:
+        ulog_issues.append("NATIVE_EDGES_DIFFER_FROM_PX4_ULOG")
+    if raw_trace_path is None:
+        confirm(not ulog_issues, f"PX4 airborne verification failed: {ulog_issues}")
     if bracketed:
-        confirm(round(info["start_s"] * 1e6) == start_us and round(info["end_s"] * 1e6) == end_us,
-                f"Native edges differ from PX4 ULog {start_us},{end_us}: {info['start_s']},{info['end_s']}")
+        native_duration = info["end_s"] - info["start_s"]
         confirm(info["uncovered_s"] == float(row["uncovered_s"]) and
-                all(abs(v-expected_duration) < 1e-8 for v in (info["covered_s"] + info["uncovered_s"],
+                all(abs(v-native_duration) < 1e-8 for v in (info["covered_s"] + info["uncovered_s"],
                       info["duration_s"], float(row["airborne_duration_s"]), source_s + info["uncovered_s"])),
-                "Native sources plus uncovered time do not partition PX4 airborne time")
+                "Native sources plus uncovered time do not partition the recorder's airborne window")
         confirm(abs(source_wh-info["known_energy_Wh"]) < 1e-10 and set(info["sources"]) == set(POWER_SOURCES) and
                 all(abs(float(row[f"{key}_s"]) - val["seconds"]) < 1e-10 for key, val in info["sources"].items()),
                 "Native known subtotal or source coverage in training row differs")
@@ -385,11 +401,14 @@ def audit_flight(folder, case, protocol_hashes, *, raw_trace_path=None):
                 "Native source energies do not add up to a fully covered direct target")
     else:
         confirm(target is None and example is None, "An incomplete native budget was exported as a target")
-    model_coverage = {}
     if raw_trace_path is not None:
-        if status != "COMPLETE":
+        if ulog_issues:
+            model_coverage["independent_ulog_rejection"] = ulog_issues
+            model_coverage["recorder_airborne_energy_Wh"] = target
+            model_coverage["recorder_training_status"] = row["training_status"]
+        if status != "COMPLETE" or ulog_issues:
             model_coverage["rejected_gate_observations"] = rejected_gate_observations(samples, folder / "ulog_states.csv")
-        in_air = [s for s in samples if start <= s["time_s"] <= end]
+        in_air = [s for s in samples if start <= s["time_s"] <= end] if start is not None else []
         exhausted = [s["time_s"] for s in in_air if s["q_domain_exhausted"]]
         model_coverage["pack_fit_airborne_diagnostics"] = {
             "publications": len(in_air),
@@ -399,21 +418,25 @@ def audit_flight(folder, case, protocol_hashes, *, raw_trace_path=None):
         }
     return {**model_coverage, "case_id": cid, "run_id": run, "attempt": manifest["attempt"],
             "mission_outcome": receipt["outcome"], "native_budget_status": status,
-            "training_status": row["training_status"], "budget_reason": info["reason"], "training_eligible": example is not None,
+            "training_status": "REJECTED_ULOG_AIRBORNE_GATE" if ulog_issues else row["training_status"],
+            "budget_reason": info["reason"], "training_eligible": not ulog_issues and example is not None,
             "direct_row_sha256": direct["sha256"], "original_trace_sha256": pack["trace"]["sha256"],
             "calibration_id": info["calibration_id"], "trace_records": len(samples), "entity_epochs": sorted(epochs),
             "ulog_sha256": manifest["source_ulog_sha256"], "ulog_dropout_events": manifest["ulog_dropout_events"],
-            "ulog_takeoff_us": start_us, "ulog_landing_us": end_us, "ulog_airborne_armed_s": armed_us / 1e6,
-            "ulog_airborne_failsafe_s": failsafe_us / 1e6, "native_start_s": info["start_s"], "native_end_s": info["end_s"],
-            "ulog_and_native_edges_match": bracketed, "native_source_time_partition_verified": bracketed,
+            "ulog_takeoff_us": start_us, "ulog_landing_us": end_us,
+            "ulog_airborne_armed_s": armed_us / 1e6 if armed_us is not None else None,
+            "ulog_airborne_failsafe_s": failsafe_us / 1e6 if failsafe_us is not None else None,
+            "native_start_s": info["start_s"], "native_end_s": info["end_s"],
+            "ulog_and_native_edges_match": edges_match,
+            "native_source_time_partition_verified": edges_match and not ulog_issues,
             "training_row_matches_recorder_and_terminal_native_budget": True,
             "duration_s": expected_duration, "native_covered_s": info["covered_s"], "native_uncovered_s": info["uncovered_s"],
             "source_bins": info["sources"], "source_sum_s": source_s, "source_sum_Wh": source_wh,
-            "native_known_Wh": info["known_energy_Wh"], TARGET: target,
+            "native_known_Wh": info["known_energy_Wh"], TARGET: None if ulog_issues else target,
             "flight_csv": flight_telemetry(folder, doc, case, start, end),
             "published_ledger_checks": publication_partitions(samples, run),
             "uncovered_event_brackets": uncovered_events(records, run),
-            "downsampled_VI_diagnostic": vi_integral(samples, start, end)}
+            "downsampled_VI_diagnostic": vi_integral(samples, start, end) if start is not None else None}
 
 
 def reference_cases(protocol):

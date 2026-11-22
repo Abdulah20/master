@@ -1,0 +1,396 @@
+{
+  "attempt": 1,
+  "audit": {
+    "attempt": 1,
+    "budget_reason": "MISSING_AIRBORNE_POWER",
+    "calibration_id": "CMU_TRANSIENT_AIRBORNE_V1:831973dc40cdc338b7086a1ba824c57c8670bdeff90f7fcdf806a56905ff02a9",
+    "case_id": "case_056",
+    "direct_row_sha256": "a4bed5d5196fd5ef17fb8c0365332f268c0a1d38219bd67ddb71cb14c357705d",
+    "downsampled_VI_diagnostic": {
+      "eligible_intervals": 3004,
+      "eligible_seconds": 165.612,
+      "published_VI_trapezoids_Wh": 31.468827209709083,
+      "published_minus_native_Wh": -4.728661906483467e-12,
+      "same_intervals_native_Wh": 31.46882720971381
+    },
+    "duration_s": 357.24,
+    "entity_epochs": [
+      2
+    ],
+    "estimated_airborne_energy_Wh": null,
+    "flight_csv": {
+      "brackets_ulog_airborne_window": true,
+      "clock": "energy_timestamp_s",
+      "first_timestamp_s": 11.12,
+      "last_timestamp_s": 372.12,
+      "missed_windows": 4,
+      "rows": 358,
+      "rows_with_blank_electrical_power": 1,
+      "rows_within_ulog_airborne_window": 354,
+      "sha256": "5cd67ffa066ceaed1d0b7d06a9eb243cb73f5b521091cdcd75ca50c698ad06aa",
+      "size_bytes": 75858,
+      "target_hz": 1.0
+    },
+    "mission_outcome": "COMPLETE",
+    "native_budget_status": "INCOMPLETE",
+    "native_covered_s": 351.424,
+    "native_end_s": 370.152,
+    "native_known_Wh": 63.89583248712902,
+    "native_source_time_partition_verified": true,
+    "native_start_s": 12.912,
+    "native_uncovered_s": 5.816000000000022,
+    "original_trace_sha256": "fae61dcd1e4f8ad7f63a64c075ce4ac05de813e5474c3d038b1a769a5e8ace4c",
+    "pack_fit_airborne_diagnostics": {
+      "charge_fit_exhaustion_observed": true,
+      "first_charge_fit_exhaustion_s": 207.044,
+      "last_accounted_discharge_Ah": 1.5018077402863415,
+      "publications": 6519
+    },
+    "published_ledger_checks": {
+      "checked_publications": 6562,
+      "max_energy_subtotal_residual_Wh": 0.0,
+      "max_time_partition_residual_s": 5.684341886080802e-14
+    },
+    "rejected_gate_observations": {
+      "native_land_and_budget_transitions": [
+        {
+          "budget_reason": "",
+          "budget_status": "WAITING_FOR_RECORDING",
+          "detector_stamp_s": 10.328,
+          "landed": true,
+          "native_publication_s": 11.14,
+          "previous_publication_s": null,
+          "sequence": 1,
+          "transition_s": 3.604
+        },
+        {
+          "budget_reason": "",
+          "budget_status": "WAITING_FOR_TAKEOFF",
+          "detector_stamp_s": 10.328,
+          "landed": true,
+          "native_publication_s": 11.192,
+          "previous_publication_s": 11.14,
+          "sequence": 1,
+          "transition_s": 3.604
+        },
+        {
+          "budget_reason": "",
+          "budget_status": "AIRBORNE",
+          "detector_stamp_s": 12.912,
+          "landed": false,
+          "native_publication_s": 12.924,
+          "previous_publication_s": 12.904,
+          "sequence": 2,
+          "transition_s": 12.912
+        },
+        {
+          "budget_reason": "MISSING_AIRBORNE_POWER",
+          "budget_status": "INCOMPLETE",
+          "detector_stamp_s": 370.152,
+          "landed": true,
+          "native_publication_s": 370.164,
+          "previous_publication_s": 370.116,
+          "sequence": 3,
+          "transition_s": 370.152
+        }
+      ],
+      "ulog_land_edges": [
+        {
+          "landed": true,
+          "timestamp_us": 3980000
+        },
+        {
+          "landed": false,
+          "timestamp_us": 12912000
+        },
+        {
+          "landed": true,
+          "timestamp_us": 370152000
+        }
+      ]
+    },
+    "run_id": "m100_20261122T171305Z",
+    "source_bins": {
+      "cmu_local": {
+        "energy_Wh": 0,
+        "seconds": 0
+      },
+      "cmu_pooled": {
+        "energy_Wh": 0,
+        "seconds": 0
+      },
+      "native_pack_model": {
+        "energy_Wh": 31.884753218860517,
+        "seconds": 167.72021375638485
+      },
+      "recorded_manager": {
+        "energy_Wh": 32.0110792682685,
+        "seconds": 183.7037862436151
+      }
+    },
+    "source_sum_Wh": 63.89583248712902,
+    "source_sum_s": 351.424,
+    "trace_records": 6596,
+    "training_eligible": false,
+    "training_row_matches_recorder_and_terminal_native_budget": true,
+    "training_status": "INCOMPLETE",
+    "ulog_airborne_armed_s": 357.24,
+    "ulog_airborne_failsafe_s": 0.0,
+    "ulog_and_native_edges_match": true,
+    "ulog_dropout_events": 31,
+    "ulog_landing_us": 370152000,
+    "ulog_sha256": "dd507b2b3a7981a3cfab6fd1737890dcb114d6a3b6f757980758cfcb98ef582f",
+    "ulog_takeoff_us": 12912000,
+    "uncovered_event_brackets": [
+      {
+        "endpoints": [
+          {
+            "clipped": false,
+            "effective_source": "native_pack_model",
+            "manager_power_w": 745.5716025520571,
+            "native_status": "LOADED_FIT",
+            "phase": "CLIMB",
+            "phase_source": "RODRIGUES_PATTERNS_M100_PHASE_POWER_V1",
+            "raw_fresh": true,
+            "time_s": 15.256
+          },
+          {
+            "clipped": false,
+            "effective_source": "native_pack_model",
+            "manager_power_w": 744.9261287443032,
+            "native_status": "LOADED_FIT",
+            "phase": "CLIMB",
+            "phase_source": "RODRIGUES_PATTERNS_M100_PHASE_POWER_V1",
+            "raw_fresh": true,
+            "time_s": 15.84
+          }
+        ],
+        "newly_uncovered_s": 0.08799999999999919,
+        "next_publish_s": 15.84,
+        "previous_publish_s": 15.256
+      },
+      {
+        "endpoints": [
+          {
+            "clipped": false,
+            "effective_source": "native_pack_model",
+            "manager_power_w": 747.4999236162301,
+            "native_status": "LOADED_FIT",
+            "phase": "CLIMB",
+            "phase_source": "RODRIGUES_PATTERNS_M100_PHASE_POWER_V1",
+            "raw_fresh": true,
+            "time_s": 38.296
+          },
+          {
+            "clipped": false,
+            "effective_source": "native_pack_model",
+            "manager_power_w": 747.649860134785,
+            "native_status": "LOADED_FIT",
+            "phase": "CLIMB",
+            "phase_source": "RODRIGUES_PATTERNS_M100_PHASE_POWER_V1",
+            "raw_fresh": true,
+            "time_s": 39.672
+          }
+        ],
+        "newly_uncovered_s": 0.8799999999999955,
+        "next_publish_s": 39.672,
+        "previous_publish_s": 38.296
+      },
+      {
+        "endpoints": [
+          {
+            "clipped": false,
+            "effective_source": "native_pack_model",
+            "manager_power_w": 707.7395300007245,
+            "native_status": "LOADED_FIT",
+            "phase": "CRUISE",
+            "phase_source": "RODRIGUES_PATTERNS_M100_PHASE_POWER_V1",
+            "raw_fresh": true,
+            "time_s": 92.744
+          },
+          {
+            "clipped": false,
+            "effective_source": "native_pack_model",
+            "manager_power_w": 707.7009156535413,
+            "native_status": "LOADED_FIT",
+            "phase": "CRUISE",
+            "phase_source": "RODRIGUES_PATTERNS_M100_PHASE_POWER_V1",
+            "raw_fresh": true,
+            "time_s": 94.084
+          }
+        ],
+        "newly_uncovered_s": 0.8440000000000083,
+        "next_publish_s": 94.084,
+        "previous_publish_s": 92.744
+      },
+      {
+        "endpoints": [
+          {
+            "clipped": false,
+            "effective_source": "unavailable",
+            "manager_power_w": 655.9312004995211,
+            "native_status": "POWER_UNAVAILABLE_CAP_HELD",
+            "phase": "RETURN_BRAKING",
+            "phase_source": "UNSUPPORTED_PHASE",
+            "raw_fresh": true,
+            "time_s": 122.348
+          },
+          {
+            "clipped": false,
+            "effective_source": "unavailable",
+            "manager_power_w": null,
+            "native_status": "STALE_DEMAND_CAP_HELD",
+            "phase": null,
+            "phase_source": null,
+            "raw_fresh": true,
+            "time_s": 123
+          }
+        ],
+        "newly_uncovered_s": 0.1599999999999966,
+        "next_publish_s": 123,
+        "previous_publish_s": 122.348
+      },
+      {
+        "endpoints": [
+          {
+            "clipped": false,
+            "effective_source": "unavailable",
+            "manager_power_w": null,
+            "native_status": "STALE_DEMAND_CAP_HELD",
+            "phase": null,
+            "phase_source": null,
+            "raw_fresh": true,
+            "time_s": 123
+          },
+          {
+            "clipped": false,
+            "effective_source": "unavailable",
+            "manager_power_w": 651.528192831182,
+            "native_status": "POWER_UNAVAILABLE_CAP_HELD",
+            "phase": "RETURN_BRAKING",
+            "phase_source": "UNSUPPORTED_PHASE",
+            "raw_fresh": true,
+            "time_s": 123.028
+          }
+        ],
+        "newly_uncovered_s": 0.028000000000005798,
+        "next_publish_s": 123.028,
+        "previous_publish_s": 123
+      },
+      {
+        "endpoints": [
+          {
+            "clipped": false,
+            "effective_source": "unavailable",
+            "manager_power_w": 644.3639841466377,
+            "native_status": "POWER_UNAVAILABLE_CAP_HELD",
+            "phase": "RETURN_BRAKING",
+            "phase_source": "UNSUPPORTED_PHASE",
+            "raw_fresh": true,
+            "time_s": 126.72
+          },
+          {
+            "clipped": false,
+            "effective_source": "unavailable",
+            "manager_power_w": 646.4766395956208,
+            "native_status": "POWER_UNAVAILABLE_CAP_HELD",
+            "phase": "RETURN_BRAKING",
+            "phase_source": "UNSUPPORTED_PHASE",
+            "raw_fresh": true,
+            "time_s": 130.52
+          }
+        ],
+        "newly_uncovered_s": 3.3040000000000163,
+        "next_publish_s": 130.52,
+        "previous_publish_s": 126.72
+      },
+      {
+        "endpoints": [
+          {
+            "clipped": false,
+            "effective_source": "native_pack_model",
+            "manager_power_w": 621.3846727041117,
+            "native_status": "LOADED_FIT",
+            "phase": "RETURNING",
+            "phase_source": "RODRIGUES_PATTERNS_M100_PHASE_POWER_V1",
+            "raw_fresh": true,
+            "time_s": 157.812
+          },
+          {
+            "clipped": false,
+            "effective_source": "native_pack_model",
+            "manager_power_w": 621.388273761896,
+            "native_status": "LOADED_FIT",
+            "phase": "RETURNING",
+            "phase_source": "RODRIGUES_PATTERNS_M100_PHASE_POWER_V1",
+            "raw_fresh": true,
+            "time_s": 158.82
+          }
+        ],
+        "newly_uncovered_s": 0.5120000000000005,
+        "next_publish_s": 158.82,
+        "previous_publish_s": 157.812
+      }
+    ]
+  },
+  "case_id": "case_056",
+  "metrics": {
+    "airborne_covered_s": 351.424,
+    "airborne_distance_source": "GROUND_TRUTH_GAP_OR_ORIGIN_RESET",
+    "airborne_duration_s": 357.24,
+    "airborne_horizontal_distance_m": null,
+    "airborne_known_subtotal_Wh": 63.89583248712902,
+    "airborne_manager_fallback_Wh": 32.0110792682685,
+    "airborne_manager_fallback_s": 183.7037862436151,
+    "airborne_mean_power_W": null,
+    "attempt": 1,
+    "case_id": "case_056",
+    "charge_fit_exhaustion_observed": true,
+    "data_quality": "EXCLUDE_GAPS_OR_INCOMPLETE",
+    "direct_row_sha256": "a4bed5d5196fd5ef17fb8c0365332f268c0a1d38219bd67ddb71cb14c357705d",
+    "energy_evidence_status": "LIMITED_PUBLISHED_M100_PHASE_MODEL_EXTRAPOLATION",
+    "energy_per_distance_Wh_per_km": 19.137659516470432,
+    "estimated_airborne_energy_Wh": null,
+    "first_charge_fit_exhaustion_s": 207.044,
+    "ideal_steady_endurance_min": 8.468011891398708,
+    "ideal_steady_range_km": 5.2200740594231565,
+    "label_source": "unavailable",
+    "last_accounted_discharge_Ah": 1.5018077402863415,
+    "legacy_wind_power_runtime_applied": true,
+    "manager_power_rows_with_vi": 250,
+    "manager_power_rows_without_vi": 107,
+    "mean_segment_power_definition": "TIME_WEIGHTED_ONE_HZ_MEASUREMENT_PHASE",
+    "measurement_distance_m": 500.2771854400635,
+    "measurement_energy_Wh": 9.574134438810074,
+    "measurement_frozen": true,
+    "mission_outcome": "COMPLETE",
+    "nameplate_Wh": 99.9,
+    "native_VI_coverage_s": 165.612,
+    "nominal_energy_remaining_percent": 36.00905553827582,
+    "nominal_energy_remaining_percent_after_airborne": null,
+    "rejection_reason": "MISSING_AIRBORNE_POWER",
+    "run_id": "m100_20261122T171305Z",
+    "sampled_mean_altitude_m": 100.0009447491044,
+    "sampled_mean_ground_speed_mps": 10.035527240335563,
+    "sampled_mean_power_W": 707.8402908347756,
+    "sampled_measurement_span_s": 49.02799999999999,
+    "supported_phase_mission_energy_Wh": 63.92695351726247,
+    "training_eligible": false,
+    "training_status": "INCOMPLETE",
+    "uncovered_s": 5.816000000000022,
+    "wind_model_classification": "C_NOT_CALIBRATED",
+    "wind_vector_application_verified": true
+  },
+  "protocol_sha256": "45344af837975d119a056519ddec22983a78c4775dd498c05620600084ce4f58",
+  "sources": {
+    "acquisition_exit_sha256": "4a3bb11173c7508a8965ab1d44da02083baa5c4e4645416b8f7a95a4a7e2a678",
+    "flight.csv": "5cd67ffa066ceaed1d0b7d06a9eb243cb73f5b521091cdcd75ca50c698ad06aa",
+    "original_ulog": "state/rootfs/log/2026-11-22/17_12_57.ulg",
+    "provenance.json": "88b2123c658ebe45669bae62ac6f03abae6350e89922f5eabae98e3a2217a167",
+    "raw_pack_drive_jsonl_sha256": "fae61dcd1e4f8ad7f63a64c075ce4ac05de813e5474c3d038b1a769a5e8ace4c",
+    "receipt.json": "9f0dfee2a0f313eed7918318c8747859192c5007dc65ca5bd318b2c898048857",
+    "receipt_sha256": "9f0dfee2a0f313eed7918318c8747859192c5007dc65ca5bd318b2c898048857",
+    "training.csv": "a4bed5d5196fd5ef17fb8c0365332f268c0a1d38219bd67ddb71cb14c357705d",
+    "ulog_sha256": "dd507b2b3a7981a3cfab6fd1737890dcb114d6a3b6f757980758cfcb98ef582f"
+  }
+}

@@ -1,0 +1,78 @@
+{
+  "schema": "M100_SUPERVISOR_NATIVE_REPLACEMENT_V1",
+  "planned_utc": "2026-11-22T17:13:04.409579+00:00",
+  "acquisition_commit": "b6d1613c7f5570eb4acaf597a89f53cd654e4c9c",
+  "previous_protocol_sha256": "04a087bf939d9b105f33fb5ddeacb993cdf2df31cb3252a86cd73148144c87ea",
+  "current_pilot_build_protocol_sha256": "cb0d392cd4d54b9f1ac0a6cb0d451d08617d6efa565afd853046e8985e2fa448",
+  "attempt": 2,
+  "source_sha256": {
+    "plugin": "405cd45a8e48daaa25de226f302636ebfd35aff05ec59085ffcea11e7d4a8211",
+    "manager": "6b365179d8112710e46fedb9399b4e8056df237f0048d204b5c79351c1dfc671",
+    "training_writer": "df9d7a73cc16e3f90b2384bdc531708017c2aac2c5c488d3adcb99815e95758b",
+    "px4_binary": "9ef77a90e41f8f96e58015a2c4cd8089fb79760be340be69f1792b11b3f79b18",
+    "controller": "9ef77a90e41f8f96e58015a2c4cd8089fb79760be340be69f1792b11b3f79b18",
+    "energy_config": "725b2a54d333bc3ed40a9919d990cda48ee28d158cde87749a8ff08cda585458",
+    "base_sdf": "20cd39e2801255e75025ac0a4a214e0c10734b4457bf8a61c662b482f76bda4a",
+    "payload025": "85cab7073d3329088b9b0f721389b7e96d68fce048510e65617ce7ecf55819a9",
+    "payload050": "4bbac163154fff2ba9a797519767f7ab95b4a916a5030ca7988dc52f773e23c8",
+    "native": "98b1ac9c05c8f466bafa839093bd48d40242af78f627446b411e358d06c255cf",
+    "launcher": "1f48b4c470dc1717a3876395ef8885b1f3ee8d645f1074c3608e7d9ed00609e5",
+    "bridge": "638b19d5968a416ab0b0c797e39b92565e1e2a40b5b7edd3c27112435275b573",
+    "fit": "d3413efef49a278a10f0dc404c6b34e5c6d07e42dd698ad21aae0ea00824377f",
+    "transient_release": "d102dc032acc4f9863f9dd170a613615d28f4cb67d8e7c2c2cf0d0113605acc8",
+    "gz_environment": "dd84056c058be0be0ebebc86f88709622e34c448d3965fe25063b9fc7ad65e10",
+    "initial_parameters": "b8374eee7f8f291a79721a85862c6d20e4e5b42eb330c5049e4d876be7a1eae5",
+    "case_guard": "4e750f69c2bfaa1f34838118550132df284c81e056e03687f7ee3e019f65b2af"
+  },
+  "cases": [
+    {
+      "case_id": "case_054",
+      "payload_kg": 0.5,
+      "cruise_speed_mps": 10,
+      "wind_speed_mps": 12,
+      "wind_direction_toward_deg_ENU": 90,
+      "altitude_m": 100,
+      "temperature_c": 15,
+      "measurement_distance_m": 500,
+      "hover_duration_s": 60,
+      "seed": 1701,
+      "physics_step_s": 0.004
+    }
+  ],
+  "groups": {
+    "experiment_3_payload_wind": [
+      "case_054"
+    ]
+  },
+  "assumptions": {
+    "temperature_c": 15,
+    "outbound_distance_m": 500,
+    "hover_duration_s": 60,
+    "scenario_wind": "HEADWIND",
+    "outbound_axis": "+X ENU",
+    "direction_convention": "TOWARD: headwind=180, tailwind=0, crosswind=90 degrees",
+    "replications_per_unique_case": 1,
+    "identical_cases": "REUSED_RUN_ID_NOT_INDEPENDENT_REPLICATION",
+    "cruise_velocity": "COMMANDED_GROUND_SPEED"
+  },
+  "selection": "Earliest complete, landed and disarmed planned mission with directly recorded complete airborne energy. Retain each rejected or partial attempt. Repeat missing or incomplete cases with the same physical inputs and seed; do not fill direct labels offline. Raw acquisition is isolated per case and attempt.",
+  "planned_replacement_cases": [
+    "case_054"
+  ],
+  "original_protocol_sha256": "45344af837975d119a056519ddec22983a78c4775dd498c05620600084ce4f58",
+  "previous_attempt": {
+    "case_id": "case_054",
+    "attempt": 1,
+    "run_id": "m100_20261122T170545Z",
+    "protocol_sha256": "45344af837975d119a056519ddec22983a78c4775dd498c05620600084ce4f58",
+    "finalized_utc": "2026-11-22T17:12:28.396686+00:00",
+    "worker_exit_code": 0,
+    "outcome": "COMPLETE",
+    "reason": "",
+    "training_status": "INCOMPLETE",
+    "direct_energy_Wh": null
+  },
+  "previous_exit_sha256": "d631fe93382164e0e85d649cc0103cb228a05dd3560f63b53af70be55cee7c90",
+  "trigger": "Airborne takeoff and landing matched the independent controller log, but intermittent stale-demand samples left 2.848 s uncovered. Thirty-two controller log dropouts were observed. Repeat alone with unchanged settings.",
+  "workers": 1
+}

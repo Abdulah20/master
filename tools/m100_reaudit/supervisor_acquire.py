@@ -68,8 +68,18 @@ def register_retry(cid, attempt, reason):
         raise ValueError('Register the previous failed outcome and a reason before repeating it')
     previous = WORK / cid / f'attempt_{attempt-1}' / 'acquisition_exit.json'
     failed = read(previous)
+    rejected_audit = None
     if failed['outcome'] == 'COMPLETE' and failed['direct_energy_Wh'] is not None:
-        raise ValueError(f'{cid} already has a directly recorded label')
+        audit_path = RELEASE / 'audits' / cid / f'attempt_{attempt-1}.json'
+        audit = read(audit_path) if audit_path.is_file() else {}
+        metrics = audit.get('metrics', {})
+        if (not metrics.get('rejection_reason') or metrics.get('estimated_airborne_energy_Wh') is not None
+                or metrics.get('run_id') != failed['run_id']
+                or audit.get('protocol_sha256') != failed['protocol_sha256']):
+            raise ValueError(f'{cid} already has a directly recorded label without an independent rejection')
+        rejected_audit = dict(path=str(audit_path.relative_to(ROOT)),
+                              sha256=hashlib.sha256(audit_path.read_bytes()).hexdigest(),
+                              reason=metrics['rejection_reason'])
     base = RELEASE / 'protocol.json'
     protocol = read(base)
     case = next(c for c in protocol['cases'] if c['case_id'] == cid)
@@ -79,6 +89,8 @@ def register_retry(cid, attempt, reason):
                     previous_attempt=failed, previous_exit_sha256=hashlib.sha256(previous.read_bytes()).hexdigest(),
                     trigger=reason, workers=1)
     protocol['groups'] = {key: [cid] for key, members in protocol['groups'].items() if cid in members}
+    if rejected_audit:
+        protocol['independent_audit_rejection'] = rejected_audit
     folder = RELEASE / 'retries'
     folder.mkdir(exist_ok=True)
     dest = folder / f'{cid}_attempt_{attempt}.json'

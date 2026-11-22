@@ -181,7 +181,9 @@ def mission_summary(raw, case, attempt, hashes):
                     "files_sha256": {}}
         evidence.write_json(directory / "manifest.json", manifest)
         audit = evidence.audit_flight(directory, case, hashes, raw_trace_path=wire)
-    distance, motion_source = horizontal_path(ulog, audit["ulog_takeoff_us"], audit["ulog_landing_us"])
+    ulog_issues = audit.get("independent_ulog_rejection", [])
+    distance, motion_source = ((None, "REJECTED_ULOG_AIRBORNE_GATE") if ulog_issues else
+                               horizontal_path(ulog, audit["ulog_takeoff_us"], audit["ulog_landing_us"]))
     evidence.confirm(ulog_sha == evidence.digest(ulog), "PX4 ULog changed during verification")
     metrics.update(measurements(case, sources["flight.csv"], doc))
     energy = audit[evidence.TARGET]
@@ -189,17 +191,23 @@ def mission_summary(raw, case, attempt, hashes):
     bracketed = audit["native_source_time_partition_verified"]
     metrics.update({
         evidence.TARGET: energy, "training_status": audit["training_status"], "training_eligible": audit["training_eligible"],
-        "label_source": row["label_source"], "airborne_duration_s": duration, "uncovered_s": audit["native_uncovered_s"],
+        "label_source": "unavailable" if ulog_issues else row["label_source"],
+        "airborne_duration_s": None if ulog_issues else duration,
+        "uncovered_s": None if ulog_issues else audit["native_uncovered_s"],
         "airborne_covered_s": audit["native_covered_s"] if bracketed else None,
         "airborne_known_subtotal_Wh": audit["native_known_Wh"] if bracketed else None,
         "airborne_mean_power_W": energy*3600/duration if energy is not None else None,
         "airborne_manager_fallback_s": audit["source_bins"]["recorded_manager"]["seconds"] if bracketed else None,
         "airborne_manager_fallback_Wh": audit["source_bins"]["recorded_manager"]["energy_Wh"] if bracketed else None,
-        "native_VI_coverage_s": audit["downsampled_VI_diagnostic"]["eligible_seconds"],
+        "native_VI_coverage_s": None if ulog_issues else audit["downsampled_VI_diagnostic"]["eligible_seconds"],
         "nominal_energy_remaining_percent_after_airborne": 100*max(0, 1 - energy/metrics["nameplate_Wh"]) if energy is not None else None,
         "direct_row_sha256": row["sha256"], "airborne_horizontal_distance_m": distance,
         "airborne_distance_source": motion_source, "rejection_reason": audit["budget_reason"] if energy is None else "",
     })
+    if ulog_issues:
+        metrics.update(recorder_airborne_energy_Wh=audit["recorder_airborne_energy_Wh"],
+                       recorder_training_status=audit["recorder_training_status"], recorder_label_source=row["label_source"],
+                       rejection_reason="|".join(filter(None, [audit["budget_reason"], *ulog_issues])))
     diag = audit["pack_fit_airborne_diagnostics"]
     for name in ("charge_fit_exhaustion_observed", "first_charge_fit_exhaustion_s", "last_accounted_discharge_Ah"):
         metrics[name] = diag[name]

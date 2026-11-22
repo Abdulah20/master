@@ -352,6 +352,15 @@ def report(rows, attempts):
         '', '## حالة صفوف المسجّل', '',
     ])
     lines.extend(f'- `{k}` — {v}' for k, v in sorted(counts.items()))
+    replaced = [(cid, i, m.get('rejection_reason') or m['training_status'], path)
+                for cid, takes in sorted(attempts.items()) for i, m, path in takes
+                if i != rows[cid]['attempt'] and not complete(m)]
+    if replaced:
+        lines += ['', '## المحاولات التي أُعيدت', '',
+                  'احتفظ سجل المراجعة بالمحاولات الأولى وسبب استبعاد كل هدف. يحتوي جدول التجارب على المحاولة '
+                  'المؤهلة المختارة مرة واحدة لكل إعداد.', '']
+        lines += [f'- `{cid}`، المحاولة {i}، السبب `{reason}`. [تدقيق المحاولة]({path})'
+                  for cid, i, reason, path in replaced]
     lines += ['', '[الرسم المقارن لطاقة الرحلات](study_energy.png) · [شروط التشغيل](protocol.json) · '
               '[مراجعة مجال المعايرة](../supervisor_readiness/report_ar.md)', '']
     return '\n'.join(lines)

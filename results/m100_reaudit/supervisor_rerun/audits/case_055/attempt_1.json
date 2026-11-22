@@ -1,0 +1,774 @@
+{
+  "attempt": 1,
+  "audit": {
+    "attempt": 1,
+    "budget_reason": "MISSING_AIRBORNE_POWER",
+    "calibration_id": "CMU_TRANSIENT_AIRBORNE_V1:831973dc40cdc338b7086a1ba824c57c8670bdeff90f7fcdf806a56905ff02a9",
+    "case_id": "case_055",
+    "direct_row_sha256": "124757d66ddeb8b2d822390b6cfc6ed20dc5db7036a1973d0f9688cf097722a3",
+    "downsampled_VI_diagnostic": {
+      "eligible_intervals": 3016,
+      "eligible_seconds": 163.42799999999994,
+      "published_VI_trapezoids_Wh": 31.03860397228448,
+      "published_minus_native_Wh": -4.686029342337861e-12,
+      "same_intervals_native_Wh": 31.038603972289167
+    },
+    "duration_s": 358.464,
+    "entity_epochs": [
+      2
+    ],
+    "estimated_airborne_energy_Wh": null,
+    "flight_csv": {
+      "brackets_ulog_airborne_window": true,
+      "clock": "energy_timestamp_s",
+      "first_timestamp_s": 11.156,
+      "last_timestamp_s": 373.236,
+      "missed_windows": 8,
+      "rows": 355,
+      "rows_with_blank_electrical_power": 1,
+      "rows_within_ulog_airborne_window": 351,
+      "sha256": "387a9dc5b779ae93b08047eee10eebb9856785602d13e2405d79eafd47086f71",
+      "size_bytes": 76259,
+      "target_hz": 1.0
+    },
+    "mission_outcome": "COMPLETE",
+    "native_budget_status": "INCOMPLETE",
+    "native_covered_s": 345.284,
+    "native_end_s": 371.44,
+    "native_known_Wh": 63.8228199001275,
+    "native_source_time_partition_verified": true,
+    "native_start_s": 12.976,
+    "native_uncovered_s": 13.18,
+    "original_trace_sha256": "051dcf2ed0f09fd5956b6efef87c5b8bf4775c3c5de6e822696daab908af51d6",
+    "pack_fit_airborne_diagnostics": {
+      "charge_fit_exhaustion_observed": true,
+      "first_charge_fit_exhaustion_s": 207.784,
+      "last_accounted_discharge_Ah": 1.5018077402863415,
+      "publications": 6247
+    },
+    "published_ledger_checks": {
+      "checked_publications": 6296,
+      "max_energy_subtotal_residual_Wh": 0.0,
+      "max_time_partition_residual_s": 1.4210854715202004e-14
+    },
+    "rejected_gate_observations": {
+      "native_land_and_budget_transitions": [
+        {
+          "budget_reason": "",
+          "budget_status": "WAITING_FOR_RECORDING",
+          "detector_stamp_s": 11.164,
+          "landed": true,
+          "native_publication_s": 11.24,
+          "previous_publication_s": null,
+          "sequence": 1,
+          "transition_s": 4.46
+        },
+        {
+          "budget_reason": "",
+          "budget_status": "WAITING_FOR_TAKEOFF",
+          "detector_stamp_s": 11.164,
+          "landed": true,
+          "native_publication_s": 11.248,
+          "previous_publication_s": 11.24,
+          "sequence": 1,
+          "transition_s": 4.46
+        },
+        {
+          "budget_reason": "",
+          "budget_status": "AIRBORNE",
+          "detector_stamp_s": 12.976,
+          "landed": false,
+          "native_publication_s": 12.988,
+          "previous_publication_s": 12.984,
+          "sequence": 2,
+          "transition_s": 12.976
+        },
+        {
+          "budget_reason": "MISSING_AIRBORNE_POWER",
+          "budget_status": "INCOMPLETE",
+          "detector_stamp_s": 371.44,
+          "landed": true,
+          "native_publication_s": 371.448,
+          "previous_publication_s": 371.416,
+          "sequence": 3,
+          "transition_s": 371.44
+        }
+      ],
+      "ulog_land_edges": [
+        {
+          "landed": true,
+          "timestamp_us": 4896000
+        },
+        {
+          "landed": false,
+          "timestamp_us": 12976000
+        },
+        {
+          "landed": true,
+          "timestamp_us": 371440000
+        }
+      ]
+    },
+    "run_id": "m100_20261122T171013Z",
+    "source_bins": {
+      "cmu_local": {
+        "energy_Wh": 0,
+        "seconds": 0
+      },
+      "cmu_pooled": {
+        "energy_Wh": 0,
+        "seconds": 0
+      },
+      "native_pack_model": {
+        "energy_Wh": 31.88698403618256,
+        "seconds": 167.82854440061286
+      },
+      "recorded_manager": {
+        "energy_Wh": 31.93583586394494,
+        "seconds": 177.45545559938714
+      }
+    },
+    "source_sum_Wh": 63.8228199001275,
+    "source_sum_s": 345.284,
+    "trace_records": 6332,
+    "training_eligible": false,
+    "training_row_matches_recorder_and_terminal_native_budget": true,
+    "training_status": "INCOMPLETE",
+    "ulog_airborne_armed_s": 358.464,
+    "ulog_airborne_failsafe_s": 0.0,
+    "ulog_and_native_edges_match": true,
+    "ulog_dropout_events": 47,
+    "ulog_landing_us": 371440000,
+    "ulog_sha256": "dbc48047dc366ab42bee0d8c28e585a6f7c80968fa71014806cfcd00789bbe95",
+    "ulog_takeoff_us": 12976000,
+    "uncovered_event_brackets": [
+      {
+        "endpoints": [
+          {
+            "clipped": false,
+            "effective_source": "native_pack_model",
+            "manager_power_w": 745.5791087473633,
+            "native_status": "LOADED_FIT",
+            "phase": "CLIMB",
+            "phase_source": "RODRIGUES_PATTERNS_M100_PHASE_POWER_V1",
+            "raw_fresh": true,
+            "time_s": 21.456
+          },
+          {
+            "clipped": false,
+            "effective_source": "native_pack_model",
+            "manager_power_w": 745.9192888907875,
+            "native_status": "LOADED_FIT",
+            "phase": "CLIMB",
+            "phase_source": "RODRIGUES_PATTERNS_M100_PHASE_POWER_V1",
+            "raw_fresh": true,
+            "time_s": 22.072
+          }
+        ],
+        "newly_uncovered_s": 0.11999999999999744,
+        "next_publish_s": 22.072,
+        "previous_publish_s": 21.456
+      },
+      {
+        "endpoints": [
+          {
+            "clipped": false,
+            "effective_source": "native_pack_model",
+            "manager_power_w": 748.0928412063023,
+            "native_status": "LOADED_FIT",
+            "phase": "CLIMB",
+            "phase_source": "RODRIGUES_PATTERNS_M100_PHASE_POWER_V1",
+            "raw_fresh": true,
+            "time_s": 45.156
+          },
+          {
+            "clipped": false,
+            "effective_source": "native_pack_model",
+            "manager_power_w": 748.2030557887329,
+            "native_status": "LOADED_FIT",
+            "phase": "CLIMB",
+            "phase_source": "RODRIGUES_PATTERNS_M100_PHASE_POWER_V1",
+            "raw_fresh": true,
+            "time_s": 46.724
+          }
+        ],
+        "newly_uncovered_s": 1.0719999999999956,
+        "next_publish_s": 46.724,
+        "previous_publish_s": 45.156
+      },
+      {
+        "endpoints": [
+          {
+            "clipped": false,
+            "effective_source": "native_pack_model",
+            "manager_power_w": 748.8910013480933,
+            "native_status": "LOADED_FIT",
+            "phase": "CLIMB",
+            "phase_source": "RODRIGUES_PATTERNS_M100_PHASE_POWER_V1",
+            "raw_fresh": true,
+            "time_s": 56.5
+          },
+          {
+            "clipped": false,
+            "effective_source": "native_pack_model",
+            "manager_power_w": 748.8426327617134,
+            "native_status": "LOADED_FIT",
+            "phase": "CLIMB",
+            "phase_source": "RODRIGUES_PATTERNS_M100_PHASE_POWER_V1",
+            "raw_fresh": true,
+            "time_s": 57.544
+          }
+        ],
+        "newly_uncovered_s": 0.5479999999999947,
+        "next_publish_s": 57.544,
+        "previous_publish_s": 56.5
+      },
+      {
+        "endpoints": [
+          {
+            "clipped": false,
+            "effective_source": "native_pack_model",
+            "manager_power_w": 599.9706648478891,
+            "native_status": "LOADED_FIT",
+            "phase": "CRUISE",
+            "phase_source": "RODRIGUES_PATTERNS_M100_PHASE_POWER_V1",
+            "raw_fresh": true,
+            "time_s": 87.928
+          },
+          {
+            "clipped": false,
+            "effective_source": "unavailable",
+            "manager_power_w": null,
+            "native_status": "STALE_DEMAND_CAP_HELD",
+            "phase": null,
+            "phase_source": null,
+            "raw_fresh": true,
+            "time_s": 88.348
+          }
+        ],
+        "newly_uncovered_s": 0.0040000000000048885,
+        "next_publish_s": 88.348,
+        "previous_publish_s": 87.928
+      },
+      {
+        "endpoints": [
+          {
+            "clipped": false,
+            "effective_source": "unavailable",
+            "manager_power_w": null,
+            "native_status": "STALE_DEMAND_CAP_HELD",
+            "phase": null,
+            "phase_source": null,
+            "raw_fresh": true,
+            "time_s": 88.348
+          },
+          {
+            "clipped": false,
+            "effective_source": "native_pack_model",
+            "manager_power_w": 599.9719310332996,
+            "native_status": "LOADED_FIT",
+            "phase": "CRUISE",
+            "phase_source": "RODRIGUES_PATTERNS_M100_PHASE_POWER_V1",
+            "raw_fresh": true,
+            "time_s": 88.352
+          }
+        ],
+        "newly_uncovered_s": 0.0040000000000048885,
+        "next_publish_s": 88.352,
+        "previous_publish_s": 88.348
+      },
+      {
+        "endpoints": [
+          {
+            "clipped": false,
+            "effective_source": "native_pack_model",
+            "manager_power_w": 599.9629104583292,
+            "native_status": "LOADED_FIT",
+            "phase": "CRUISE",
+            "phase_source": "RODRIGUES_PATTERNS_M100_PHASE_POWER_V1",
+            "raw_fresh": true,
+            "time_s": 92.096
+          },
+          {
+            "clipped": false,
+            "effective_source": "unavailable",
+            "manager_power_w": null,
+            "native_status": "STALE_DEMAND_CAP_HELD",
+            "phase": null,
+            "phase_source": null,
+            "raw_fresh": true,
+            "time_s": 92.516
+          }
+        ],
+        "newly_uncovered_s": 0.0040000000000048885,
+        "next_publish_s": 92.516,
+        "previous_publish_s": 92.096
+      },
+      {
+        "endpoints": [
+          {
+            "clipped": false,
+            "effective_source": "unavailable",
+            "manager_power_w": null,
+            "native_status": "STALE_DEMAND_CAP_HELD",
+            "phase": null,
+            "phase_source": null,
+            "raw_fresh": true,
+            "time_s": 92.516
+          },
+          {
+            "clipped": false,
+            "effective_source": "native_pack_model",
+            "manager_power_w": 599.9581116105513,
+            "native_status": "LOADED_FIT",
+            "phase": "CRUISE",
+            "phase_source": "RODRIGUES_PATTERNS_M100_PHASE_POWER_V1",
+            "raw_fresh": true,
+            "time_s": 92.54
+          }
+        ],
+        "newly_uncovered_s": 0.02400000000000091,
+        "next_publish_s": 92.54,
+        "previous_publish_s": 92.516
+      },
+      {
+        "endpoints": [
+          {
+            "clipped": false,
+            "effective_source": "native_pack_model",
+            "manager_power_w": 599.9409457862491,
+            "native_status": "LOADED_FIT",
+            "phase": "CRUISE",
+            "phase_source": "RODRIGUES_PATTERNS_M100_PHASE_POWER_V1",
+            "raw_fresh": true,
+            "time_s": 94.984
+          },
+          {
+            "clipped": false,
+            "effective_source": "unavailable",
+            "manager_power_w": null,
+            "native_status": "STALE_DEMAND_CAP_HELD",
+            "phase": null,
+            "phase_source": null,
+            "raw_fresh": true,
+            "time_s": 95.536
+          }
+        ],
+        "newly_uncovered_s": 0.055999999999997385,
+        "next_publish_s": 95.536,
+        "previous_publish_s": 94.984
+      },
+      {
+        "endpoints": [
+          {
+            "clipped": false,
+            "effective_source": "unavailable",
+            "manager_power_w": null,
+            "native_status": "STALE_DEMAND_CAP_HELD",
+            "phase": null,
+            "phase_source": null,
+            "raw_fresh": true,
+            "time_s": 95.536
+          },
+          {
+            "clipped": false,
+            "effective_source": "unavailable",
+            "manager_power_w": null,
+            "native_status": "STALE_DEMAND_CAP_HELD",
+            "phase": null,
+            "phase_source": null,
+            "raw_fresh": true,
+            "time_s": 95.588
+          }
+        ],
+        "newly_uncovered_s": 0.0519999999999925,
+        "next_publish_s": 95.588,
+        "previous_publish_s": 95.536
+      },
+      {
+        "endpoints": [
+          {
+            "clipped": false,
+            "effective_source": "unavailable",
+            "manager_power_w": null,
+            "native_status": "STALE_DEMAND_CAP_HELD",
+            "phase": null,
+            "phase_source": null,
+            "raw_fresh": true,
+            "time_s": 95.588
+          },
+          {
+            "clipped": false,
+            "effective_source": "native_pack_model",
+            "manager_power_w": 599.9544914169519,
+            "native_status": "LOADED_FIT",
+            "phase": "CRUISE",
+            "phase_source": "RODRIGUES_PATTERNS_M100_PHASE_POWER_V1",
+            "raw_fresh": true,
+            "time_s": 95.592
+          }
+        ],
+        "newly_uncovered_s": 0.0040000000000048885,
+        "next_publish_s": 95.592,
+        "previous_publish_s": 95.588
+      },
+      {
+        "endpoints": [
+          {
+            "clipped": false,
+            "effective_source": "unavailable",
+            "manager_power_w": 493.62289570184316,
+            "native_status": "POWER_UNAVAILABLE_CAP_HELD",
+            "phase": "RETURN_BRAKING",
+            "phase_source": "UNSUPPORTED_PHASE",
+            "raw_fresh": true,
+            "time_s": 117.86
+          },
+          {
+            "clipped": false,
+            "effective_source": "unavailable",
+            "manager_power_w": null,
+            "native_status": "STALE_DEMAND_CAP_HELD",
+            "phase": null,
+            "phase_source": null,
+            "raw_fresh": true,
+            "time_s": 123.716
+          }
+        ],
+        "newly_uncovered_s": 5.671999999999997,
+        "next_publish_s": 123.716,
+        "previous_publish_s": 117.86
+      },
+      {
+        "endpoints": [
+          {
+            "clipped": false,
+            "effective_source": "unavailable",
+            "manager_power_w": null,
+            "native_status": "STALE_DEMAND_CAP_HELD",
+            "phase": null,
+            "phase_source": null,
+            "raw_fresh": true,
+            "time_s": 123.716
+          },
+          {
+            "clipped": false,
+            "effective_source": "unavailable",
+            "manager_power_w": 647.5060225210343,
+            "native_status": "POWER_UNAVAILABLE_CAP_HELD",
+            "phase": "RETURN_BRAKING",
+            "phase_source": "UNSUPPORTED_PHASE",
+            "raw_fresh": true,
+            "time_s": 123.764
+          }
+        ],
+        "newly_uncovered_s": 0.04800000000000182,
+        "next_publish_s": 123.764,
+        "previous_publish_s": 123.716
+      },
+      {
+        "endpoints": [
+          {
+            "clipped": false,
+            "effective_source": "native_pack_model",
+            "manager_power_w": 673.8802798382178,
+            "native_status": "LOADED_FIT",
+            "phase": "RETURNING",
+            "phase_source": "RODRIGUES_PATTERNS_M100_PHASE_POWER_V1",
+            "raw_fresh": true,
+            "time_s": 156.132
+          },
+          {
+            "clipped": false,
+            "effective_source": "unavailable",
+            "manager_power_w": null,
+            "native_status": "STALE_DEMAND_CAP_HELD",
+            "phase": null,
+            "phase_source": null,
+            "raw_fresh": true,
+            "time_s": 156.684
+          }
+        ],
+        "newly_uncovered_s": 0.056000000000011596,
+        "next_publish_s": 156.684,
+        "previous_publish_s": 156.132
+      },
+      {
+        "endpoints": [
+          {
+            "clipped": false,
+            "effective_source": "unavailable",
+            "manager_power_w": null,
+            "native_status": "STALE_DEMAND_CAP_HELD",
+            "phase": null,
+            "phase_source": null,
+            "raw_fresh": true,
+            "time_s": 156.684
+          },
+          {
+            "clipped": false,
+            "effective_source": "native_pack_model",
+            "manager_power_w": 673.890606652646,
+            "native_status": "LOADED_FIT",
+            "phase": "RETURNING",
+            "phase_source": "RODRIGUES_PATTERNS_M100_PHASE_POWER_V1",
+            "raw_fresh": true,
+            "time_s": 156.72
+          }
+        ],
+        "newly_uncovered_s": 0.036000000000001364,
+        "next_publish_s": 156.72,
+        "previous_publish_s": 156.684
+      },
+      {
+        "endpoints": [
+          {
+            "clipped": false,
+            "effective_source": "native_pack_model",
+            "manager_power_w": 673.8905795975672,
+            "native_status": "LOADED_FIT",
+            "phase": "RETURNING",
+            "phase_source": "RODRIGUES_PATTERNS_M100_PHASE_POWER_V1",
+            "raw_fresh": true,
+            "time_s": 179.444
+          },
+          {
+            "clipped": false,
+            "effective_source": "native_pack_model",
+            "manager_power_w": 673.8516436508348,
+            "native_status": "LOADED_FIT",
+            "phase": "RETURNING",
+            "phase_source": "RODRIGUES_PATTERNS_M100_PHASE_POWER_V1",
+            "raw_fresh": true,
+            "time_s": 181.084
+          }
+        ],
+        "newly_uncovered_s": 1.171999999999997,
+        "next_publish_s": 181.084,
+        "previous_publish_s": 179.444
+      },
+      {
+        "endpoints": [
+          {
+            "clipped": false,
+            "effective_source": "native_pack_model",
+            "manager_power_w": 673.8871259807628,
+            "native_status": "DISCHARGE_DOMAIN_EXHAUSTED_CAP_HELD",
+            "phase": "RETURNING",
+            "phase_source": "RODRIGUES_PATTERNS_M100_PHASE_POWER_V1",
+            "raw_fresh": true,
+            "time_s": 230.456
+          },
+          {
+            "clipped": false,
+            "effective_source": "native_pack_model",
+            "manager_power_w": 673.9410262142723,
+            "native_status": "DISCHARGE_DOMAIN_EXHAUSTED_CAP_HELD",
+            "phase": "RETURNING",
+            "phase_source": "RODRIGUES_PATTERNS_M100_PHASE_POWER_V1",
+            "raw_fresh": true,
+            "time_s": 231.16
+          }
+        ],
+        "newly_uncovered_s": 0.2079999999999984,
+        "next_publish_s": 231.16,
+        "previous_publish_s": 230.456
+      },
+      {
+        "endpoints": [
+          {
+            "clipped": false,
+            "effective_source": "native_pack_model",
+            "manager_power_w": 673.8424900134069,
+            "native_status": "DISCHARGE_DOMAIN_EXHAUSTED_CAP_HELD",
+            "phase": "RETURNING",
+            "phase_source": "RODRIGUES_PATTERNS_M100_PHASE_POWER_V1",
+            "raw_fresh": true,
+            "time_s": 234.02
+          },
+          {
+            "clipped": false,
+            "effective_source": "native_pack_model",
+            "manager_power_w": 673.8370107273349,
+            "native_status": "DISCHARGE_DOMAIN_EXHAUSTED_CAP_HELD",
+            "phase": "RETURNING",
+            "phase_source": "RODRIGUES_PATTERNS_M100_PHASE_POWER_V1",
+            "raw_fresh": true,
+            "time_s": 235.24
+          }
+        ],
+        "newly_uncovered_s": 0.724000000000018,
+        "next_publish_s": 235.24,
+        "previous_publish_s": 234.02
+      },
+      {
+        "endpoints": [
+          {
+            "clipped": false,
+            "effective_source": "native_pack_model",
+            "manager_power_w": 673.8967398466096,
+            "native_status": "DISCHARGE_DOMAIN_EXHAUSTED_CAP_HELD",
+            "phase": "RETURNING",
+            "phase_source": "RODRIGUES_PATTERNS_M100_PHASE_POWER_V1",
+            "raw_fresh": true,
+            "time_s": 261.916
+          },
+          {
+            "clipped": false,
+            "effective_source": "native_pack_model",
+            "manager_power_w": 673.86480440767,
+            "native_status": "DISCHARGE_DOMAIN_EXHAUSTED_CAP_HELD",
+            "phase": "RETURNING",
+            "phase_source": "RODRIGUES_PATTERNS_M100_PHASE_POWER_V1",
+            "raw_fresh": true,
+            "time_s": 263.472
+          }
+        ],
+        "newly_uncovered_s": 1.0600000000000023,
+        "next_publish_s": 263.472,
+        "previous_publish_s": 261.916
+      },
+      {
+        "endpoints": [
+          {
+            "clipped": false,
+            "effective_source": "native_pack_model",
+            "manager_power_w": 673.8708502915698,
+            "native_status": "DISCHARGE_DOMAIN_EXHAUSTED_CAP_HELD",
+            "phase": "RETURNING",
+            "phase_source": "RODRIGUES_PATTERNS_M100_PHASE_POWER_V1",
+            "raw_fresh": true,
+            "time_s": 268.152
+          },
+          {
+            "clipped": false,
+            "effective_source": "native_pack_model",
+            "manager_power_w": 673.9126957827864,
+            "native_status": "DISCHARGE_DOMAIN_EXHAUSTED_CAP_HELD",
+            "phase": "RETURNING",
+            "phase_source": "RODRIGUES_PATTERNS_M100_PHASE_POWER_V1",
+            "raw_fresh": true,
+            "time_s": 270.452
+          }
+        ],
+        "newly_uncovered_s": 1.7559999999999718,
+        "next_publish_s": 270.452,
+        "previous_publish_s": 268.152
+      },
+      {
+        "endpoints": [
+          {
+            "clipped": false,
+            "effective_source": "native_pack_model",
+            "manager_power_w": 645.3359356531469,
+            "native_status": "DISCHARGE_DOMAIN_EXHAUSTED_CAP_HELD",
+            "phase": "RETURNING",
+            "phase_source": "RODRIGUES_PATTERNS_M100_PHASE_POWER_V1",
+            "raw_fresh": true,
+            "time_s": 297.856
+          },
+          {
+            "clipped": false,
+            "effective_source": "unavailable",
+            "manager_power_w": null,
+            "native_status": "DISCHARGE_DOMAIN_EXHAUSTED_CAP_HELD",
+            "phase": null,
+            "phase_source": null,
+            "raw_fresh": true,
+            "time_s": 298.872
+          }
+        ],
+        "newly_uncovered_s": 0.5240000000000009,
+        "next_publish_s": 298.872,
+        "previous_publish_s": 297.856
+      },
+      {
+        "endpoints": [
+          {
+            "clipped": false,
+            "effective_source": "unavailable",
+            "manager_power_w": null,
+            "native_status": "DISCHARGE_DOMAIN_EXHAUSTED_CAP_HELD",
+            "phase": null,
+            "phase_source": null,
+            "raw_fresh": true,
+            "time_s": 298.872
+          },
+          {
+            "clipped": false,
+            "effective_source": "native_pack_model",
+            "manager_power_w": 628.2422476616806,
+            "native_status": "DISCHARGE_DOMAIN_EXHAUSTED_CAP_HELD",
+            "phase": "LANDING",
+            "phase_source": "RODRIGUES_PATTERNS_M100_PHASE_POWER_V1",
+            "raw_fresh": true,
+            "time_s": 298.908
+          }
+        ],
+        "newly_uncovered_s": 0.036000000000001364,
+        "next_publish_s": 298.908,
+        "previous_publish_s": 298.872
+      }
+    ]
+  },
+  "case_id": "case_055",
+  "metrics": {
+    "airborne_covered_s": 345.284,
+    "airborne_distance_source": "GROUND_TRUTH_GAP_OR_ORIGIN_RESET",
+    "airborne_duration_s": 358.464,
+    "airborne_horizontal_distance_m": null,
+    "airborne_known_subtotal_Wh": 63.8228199001275,
+    "airborne_manager_fallback_Wh": 31.93583586394494,
+    "airborne_manager_fallback_s": 177.45545559938714,
+    "airborne_mean_power_W": null,
+    "attempt": 1,
+    "case_id": "case_055",
+    "charge_fit_exhaustion_observed": true,
+    "data_quality": "EXCLUDE_GAPS_OR_INCOMPLETE",
+    "direct_row_sha256": "124757d66ddeb8b2d822390b6cfc6ed20dc5db7036a1973d0f9688cf097722a3",
+    "energy_evidence_status": "LIMITED_PUBLISHED_M100_PHASE_MODEL_EXTRAPOLATION",
+    "energy_per_distance_Wh_per_km": 16.52574725413165,
+    "estimated_airborne_energy_Wh": null,
+    "first_charge_fit_exhaustion_s": 207.784,
+    "ideal_steady_endurance_min": 9.991133845471326,
+    "ideal_steady_range_km": 6.045112421468488,
+    "label_source": "unavailable",
+    "last_accounted_discharge_Ah": 1.5018077402863415,
+    "legacy_wind_power_runtime_applied": true,
+    "manager_power_rows_with_vi": 264,
+    "manager_power_rows_without_vi": 90,
+    "mean_segment_power_definition": "TIME_WEIGHTED_ONE_HZ_MEASUREMENT_PHASE",
+    "measurement_distance_m": 500.4527645111084,
+    "measurement_energy_Wh": 8.270355898942045,
+    "measurement_frozen": true,
+    "mission_outcome": "COMPLETE",
+    "nameplate_Wh": 99.9,
+    "native_VI_coverage_s": 163.42799999999994,
+    "nominal_energy_remaining_percent": 36.916765277331386,
+    "nominal_energy_remaining_percent_after_airborne": null,
+    "rejection_reason": "MISSING_AIRBORNE_POWER",
+    "run_id": "m100_20261122T171013Z",
+    "sampled_mean_altitude_m": 99.97863573010642,
+    "sampled_mean_ground_speed_mps": 10.026021148223668,
+    "sampled_mean_power_W": 599.9319089011,
+    "sampled_measurement_span_s": 48.988,
+    "supported_phase_mission_energy_Wh": 63.02015148794595,
+    "training_eligible": false,
+    "training_status": "INCOMPLETE",
+    "uncovered_s": 13.18,
+    "wind_model_classification": "C_NOT_CALIBRATED",
+    "wind_vector_application_verified": true
+  },
+  "protocol_sha256": "45344af837975d119a056519ddec22983a78c4775dd498c05620600084ce4f58",
+  "sources": {
+    "acquisition_exit_sha256": "a1ae2e65ea8d85043708e81f54d00c218d549d0533ba60d80fb534cc2f72129d",
+    "flight.csv": "387a9dc5b779ae93b08047eee10eebb9856785602d13e2405d79eafd47086f71",
+    "original_ulog": "state/rootfs/log/2026-11-22/17_10_05.ulg",
+    "provenance.json": "1639359feefd16d870dfbe5c0410e7b055f6e2a62257bab7b3eb405d235300e0",
+    "raw_pack_drive_jsonl_sha256": "051dcf2ed0f09fd5956b6efef87c5b8bf4775c3c5de6e822696daab908af51d6",
+    "receipt.json": "ed83b0508c93bd5fce405cb51affcb0c5afc9ad75ae0be40f746f4b88f7d367b",
+    "receipt_sha256": "ed83b0508c93bd5fce405cb51affcb0c5afc9ad75ae0be40f746f4b88f7d367b",
+    "training.csv": "124757d66ddeb8b2d822390b6cfc6ed20dc5db7036a1973d0f9688cf097722a3",
+    "ulog_sha256": "dbc48047dc366ab42bee0d8c28e585a6f7c80968fa71014806cfcd00789bbe95"
+  }
+}

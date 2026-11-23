@@ -1,0 +1,22 @@
+{
+  "campaign_independence": "Held-out flights of the same CMU experiment. Battery identity and absolute SOC unresolved.",
+  "cmu_route_energy_mae_Wh": 0.6374574588711545,
+  "cmu_route_mean_power_mae_W": 9.922882583787608,
+  "days_shared_with_fitting": 12,
+  "field_scope": "Aircraft energy and power refer to the CMU route protocol. No identical 150 m itinerary established.",
+  "flights": 60,
+  "flights_with_lower_2rc_mae": 33,
+  "frozen_parameter_sha256": "33c782361854cecd99562ae43cd1166e3cefd6f7f8cb95d2603a49520309b669",
+  "frozen_previous_aircraft_fit_sha256": "d3413efef49a278a10f0dc404c6b34e5c6d07e42dd698ad21aae0ea00824377f",
+  "in_domain_voltage_mae_2rc_V": 0.6101721381246957,
+  "in_domain_voltage_mae_static_V": 0.6228805789273223,
+  "mean_in_domain_fraction_time": 0.9999799357945425,
+  "retuned": false,
+  "source": "https://doi.org/10.1184/R1/12683453",
+  "test_days": 16,
+  "verification_table_sha256": "f0fa121b034ff60f435b9bb5f692cc11dae083509930826e78209a8bcd3fb130",
+  "voltage_bias_2rc_V": 0.013714087938578616,
+  "voltage_input": "Measured past and present field current. No field flight offsets were fitted.",
+  "voltage_mae_2rc_V": 0.6101753790251238,
+  "voltage_mae_static_V": 0.6228896235590572
+}

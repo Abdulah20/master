@@ -1,0 +1,670 @@
+--- a/ros2_ws/src/drone_nav/drone_nav/m100_experiment_manager.py
++++ b/ros2_ws/src/drone_nav/drone_nav/m100_experiment_manager.py
+@@ -94,7 +94,9 @@
+ from .m100_stable_cruise_speed import (
+     MODEL_STATUS as STABLE_CRUISE_MODEL_STATUS,
+     MODEL_WARNING as STABLE_CRUISE_MODEL_WARNING,
++    NATIVE_MODEL_ID as NATIVE_CRUISE_MODEL_ID,
+     StableCruiseSpeedFit,
++    profile_config_name,
+ )
+ from .m100_temperature_sdf import (
+     GeneratedTemperatureModel,
+@@ -133,7 +135,7 @@
+     _SOURCE_GONG_CONFIG if _SOURCE_GONG_CONFIG.is_file()
+     else Path(get_package_share_directory("drone_nav")) / "config" / "m100_gong_power_model.yaml"
+ )
+-_STABLE_CRUISE_CONFIG_NAME = "m100_stable_cruise_speed_v1.yaml"
++_STABLE_CRUISE_CONFIG_NAME = profile_config_name("native")
+ _SOURCE_STABLE_CRUISE_CONFIG = (
+     Path(__file__).resolve().parents[1] / "config" / _STABLE_CRUISE_CONFIG_NAME
+ )
+@@ -629,7 +631,9 @@
+         self._route_checkpoints = []
+         self._mission_leg_enu = None
+         self.declare_parameter("gong_energy_config", str(GONG_CONFIG))
+-        self.declare_parameter("stable_cruise_energy_config", str(STABLE_CRUISE_ENERGY_CONFIG))
++        profile = os.environ.get("M100_STABLE_CRUISE_PROFILE", "native")
++        self.declare_parameter("stable_cruise_energy_config", str(
++            STABLE_CRUISE_ENERGY_CONFIG.with_name(profile_config_name(profile))))
+         self._partition = str(self.get_parameter("gz_partition").value)
+         self._csv_root = Path(str(self.get_parameter("csv_root").value))
+         self._csv_root.mkdir(parents=True, exist_ok=True)
+@@ -643,16 +647,16 @@
+                 raise ValueError("M100_INITIAL_SOC_PERCENT must be in [0, 100]")
+             energy_config = replace(energy_config, bms_config=replace(
+                 energy_config.bms_config, initial_soc_percent=initial_soc))
+-        self._energy_config = energy_config
+         research_profile_path = str(self.get_parameter("battery_research_profile").value)
+         research_profile = (
+             TheveninProfile.load(research_profile_path) if research_profile_path else None
+         )
+-        self._energy_model = M100PublishedEnergyModel(energy_config, research_profile)
+         self._stable_cruise_config_path = Path(
+             str(self.get_parameter("stable_cruise_energy_config").value)
+         ).resolve()
+         self._stable_cruise_fit = StableCruiseSpeedFit.load(self._stable_cruise_config_path)
++        self._energy_config = replace(energy_config, stable_cruise_model_id=self._stable_cruise_fit.model_id)
++        self._energy_model = M100PublishedEnergyModel(self._energy_config, research_profile)
+         pack_speed_mode = os.environ.get("M100_PACK_STABLE_CRUISE_CORRECTION", "1")
+         if pack_speed_mode not in {"0", "1"}:
+             raise ValueError("M100_PACK_STABLE_CRUISE_CORRECTION must be 0 or 1")
+@@ -821,7 +825,7 @@
+ 
+     def _publish_pack_demand(self, stamp, sample, velocities, phase, calibration,
+                              manager_power_w=None, *, configuration_committed=False,
+-                             speed_adjustment_w=None) -> None:
++                             speed_adjustment_w=None, manager_speed_adjustment_w=None) -> None:
+         model = self._active_runtime_model
+         now = time.monotonic()
+         if not model or not self._pack_time_is_current(stamp, now):
+@@ -863,6 +867,8 @@
+         manager_air_ready = phase_ready and self._power_air_state is not None
+         if not manager_air_ready:
+             manager_power_w = None
++        if manager_power_w is None:
++            manager_speed_adjustment_w = None
+         power, source = None, "ARMED_STATE_UNKNOWN" if armed is None else "FLIGHT_STATE_UNAVAILABLE"
+         if armed is False:
+             power, source = 0.0, "DRIVE_DISARMED"
+@@ -875,6 +881,10 @@
+                    "stable_cruise_speed_enabled": self._pack_stable_cruise_enabled,
+                    "stable_cruise_speed_eligible_adjustment_w": eligible_delta,
+                    "stable_cruise_speed_adjustment_w": applied_delta, "stable_cruise_speed_model_id": speed_model_id,
++                   **self._stable_cruise_fit.wire_identity(),
++                   "manager_stable_cruise_speed_adjustment_w": manager_speed_adjustment_w,
++                   "manager_stable_cruise_speed_model_id": (
++                       self._stable_cruise_fit.model_id if manager_speed_adjustment_w is not None else None),
+                    "manager_power_w": manager_power_w,
+                    "producer": "m100_experiment_manager", "source": source, "phase": phase,
+                    "phase_applicability": calibration.status, **self._pack_command_conditions()}
+@@ -1138,7 +1148,8 @@
+         )
+         self._publish_pack_demand(timestamp_s, sample, velocities, energy_phase, calibration,
+                                   model_energy.operational_power_w, configuration_committed=committed,
+-                                  speed_adjustment_w=speed_adjustment_w)
++                                  speed_adjustment_w=speed_adjustment_w,
++                                  manager_speed_adjustment_w=model_energy.stable_cruise_speed_adjustment_w)
+         # Keep the scientific applicability label atomic with the exact model
+         # snapshot that used it.  Status/CSV readers run under the same manager
+         # lock and therefore cannot pair a new lifecycle flag with an older
+@@ -3168,6 +3179,9 @@
+         }.items():
+             sources[name] = {"path": str(path), "sha256": self._sha256_path(path) if path.is_file() else None}
+         speed_adjustment = self._stable_cruise_fit.adjustment_w(config)
++        if self._stable_cruise_fit.model_id == NATIVE_CRUISE_MODEL_ID:
++            evidence_path = self._stable_cruise_config_path.with_name(self._stable_cruise_fit.evidence_artifact)
++            sources["m100_stable_cruise_decision"] = {"path": str(evidence_path), "sha256": self._sha256_path(evidence_path)}
+         return {
+             "schema": "M100_RUN_PROVENANCE_V2",
+             "created_utc": datetime.now(timezone.utc).isoformat(),
+@@ -3181,6 +3195,7 @@
+                 "cmu_development_fit_sha256": CMU_FIT_SHA256,
+                 "conditions": self._pack_command_conditions(),
+                 "stable_cruise_speed_enabled": self._pack_stable_cruise_enabled,
++                **self._stable_cruise_fit.wire_identity(),
+                 "cmu_training_ranges": {"payload_kg": [0.0, 0.5], "commanded_speed_mps": [4.0, 12.0],
+                                         "commanded_altitude_agl_m": [25.0, 100.0]},
+                 "demand_definition": "Phase means use 15 C density at commanded altitude. Eligible steady outbound requests add the configured CMU speed residual when enabled. Gazebo selects the CMU transient estimate from live kinematics during supported manoeuvres. Manager fallback is a separately attributed aircraft-level estimate.",
+@@ -3268,6 +3283,7 @@
+         cruise_speed_model = context.get("stable_cruise_speed_model")
+         cruise_speed_applied = bool(
+             cruise_speed_model
++            and cruise_speed_model["model_id"] in final_energy.phase_power_model_ids.get("CRUISE", ())
+             and final_energy.phase_energy_by_phase_wh.get("CRUISE", 0.0) > 0.0
+         )
+         summary_warnings = list(dict.fromkeys([
+--- a/ros2_ws/src/drone_nav/drone_nav/m100_published_energy_v2.py
++++ b/ros2_ws/src/drone_nav/drone_nav/m100_published_energy_v2.py
+@@ -194,6 +194,7 @@
+     bms_config: BMSConfig
+     warnings: tuple[str, ...]
+     metadata: Mapping[str, Any]
++    stable_cruise_model_id: str = STABLE_CRUISE_MODEL_ID
+ 
+     @classmethod
+     def from_mapping(cls, data: Mapping[str, Any]) -> "PublishedEnergyConfig":
+@@ -724,7 +725,7 @@
+             power_w=power,
+             status=STABLE_CRUISE_MODEL_STATUS if corrected else MODEL_STATUS,
+             warnings=(STABLE_CRUISE_MODEL_WARNING,) if corrected else (),
+-            model_id=STABLE_CRUISE_MODEL_ID if corrected else self.model_id,
++            model_id=self.stable_cruise_model_id if corrected else self.model_id,
+             stable_cruise_speed_adjustment_w=stable_cruise_speed_adjustment_w,
+         )
+ 
+--- a/ros2_ws/src/drone_nav/drone_nav/m100_stable_cruise_speed.py
++++ b/ros2_ws/src/drone_nav/drone_nav/m100_stable_cruise_speed.py
+@@ -3,6 +3,8 @@
+ from __future__ import annotations
+ 
+ from dataclasses import asdict, dataclass
++import hashlib
++import json
+ import math
+ from pathlib import Path
+ import re
+@@ -13,8 +15,18 @@
+ 
+ 
+ MODEL_ID = "M100_STABLE_CRUISE_SPEED_CMU_V1"
++NATIVE_MODEL_ID = "M100_STABLE_CRUISE_SPEED_CMU_NATIVE_V2"
++NATIVE_DECISION_SHA256 = "3211c9efcf0ddbd5aea01b9bef04ea0590cd41c680674a9929f76a3de31438a2"
+ MODEL_STATUS = "B_M100_STABLE_CRUISE_SPEED_CMU_SAME_CAMPAIGN"
+ MODEL_WARNING = "STABLE_CRUISE_SPEED_EVALUATED_ON_SEPARATE_FLIGHTS_FROM_SAME_CMU_CAMPAIGN"
++
++
++def profile_config_name(profile: str) -> str:
++    if profile == "native":
++        return "m100_stable_cruise_speed_v2.yaml"
++    if profile == "legacy":
++        return "m100_stable_cruise_speed_v1.yaml"
++    raise ValueError("M100_STABLE_CRUISE_PROFILE must be native or legacy")
+ 
+ 
+ @dataclass(frozen=True)
+@@ -27,16 +39,19 @@
+     evidence_artifact: str
+     evidence_sha256: str
+     dataset_doi: str
++    model_id: str = MODEL_ID
++    config_sha256: str | None = None
+ 
+     @classmethod
+     def load(cls, path: Path) -> StableCruiseSpeedFit:
+-        data = yaml.safe_load(path.read_text(encoding="utf-8"))
+-        if (
+-            not isinstance(data, dict)
+-            or data.get("schema") != "M100_STABLE_CRUISE_SPEED_CALIBRATION_V1"
+-            or data.get("model_id") != MODEL_ID
++        content = path.read_bytes()
++        config_sha = hashlib.sha256(content).hexdigest()
++        data = yaml.safe_load(content)
++        if not isinstance(data, dict) or (data.get("schema"), data.get("model_id")) not in (
++            ("M100_STABLE_CRUISE_SPEED_CALIBRATION_V1", MODEL_ID),
++            ("M100_STABLE_CRUISE_SPEED_CALIBRATION_V2", NATIVE_MODEL_ID),
+         ):
+-            raise ValueError("unsupported M100 stable-cruise calibration")
++            raise ValueError("unsupported M100 stable-cruise schema/model pair")
+         result = cls(
+             reference_speed_mps=float(data["reference_speed_mps"]),
+             offset_w=float(data["offset_W"]),
+@@ -48,6 +63,7 @@
+             evidence_artifact=str(data["evidence_artifact"]),
+             evidence_sha256=str(data["evidence_sha256"]),
+             dataset_doi=str(data["dataset_doi"]),
++            model_id=data["model_id"], config_sha256=config_sha,
+         )
+         if not (
+             all(math.isfinite(value) for value in (result.offset_w, result.slope_w_per_mps))
+@@ -59,6 +75,18 @@
+             and result.dataset_doi
+         ):
+             raise ValueError("invalid M100 stable-cruise calibration or evidence reference")
++        if result.model_id == NATIVE_MODEL_ID:
++            evidence = path.with_name(result.evidence_artifact).read_bytes()
++            if (result.evidence_sha256 != NATIVE_DECISION_SHA256 or
++                    hashlib.sha256(evidence).hexdigest() != NATIVE_DECISION_SHA256):
++                raise ValueError("M100 native cruise promotion evidence digest differs")
++            decision = json.loads(evidence)
++            policy = decision["policy"]
++            if (result.dataset_doi != "10.1184/R1/12683453"
++                    or decision["deploy"] is not True or policy["model"] != "native_speed"
++                    or policy["enabled_payloads_kg"] != [0., .25, .5]
++                    or policy["coefficients"] != {"offset_W": result.offset_w, "slope_W_per_mps": result.slope_w_per_mps}):
++                raise ValueError("M100 native cruise configuration differs from the promoted policy")
+         return result
+ 
+     def adjustment_w(self, config: ExperimentConfig | None) -> float | None:
+@@ -77,9 +105,16 @@
+     def provenance(self, adjustment_w: float) -> dict[str, object]:
+         return {
+             **asdict(self),
+-            "model_id": MODEL_ID,
++            "model_id": self.model_id,
+             "status": MODEL_STATUS,
+             "planned_outbound_adjustment_w": adjustment_w,
+             "field_evaluation_from_independent_campaign": False,
+             "applies_to_outbound_measurement_only": True,
+         }
++
++    def wire_identity(self) -> dict[str, str | None]:
++        return {
++            "stable_cruise_speed_profile_model_id": self.model_id,
++            "stable_cruise_speed_config_sha256": self.config_sha256,
++            "stable_cruise_speed_evidence_sha256": self.evidence_sha256,
++        }
+--- a/ros2_ws/src/drone_nav/setup.py
++++ b/ros2_ws/src/drone_nav/setup.py
+@@ -12,7 +12,8 @@
+         ('share/ament_index/resource_index/packages', ['resource/' + package_name]),
+         ('share/' + package_name, ['package.xml']),
+         (os.path.join('share', package_name, 'launch'), glob('launch/*.launch.py')),
+-        (os.path.join('share', package_name, 'config'), glob('config/*.yaml')),
++        (os.path.join('share', package_name, 'config'),
++         glob('config/*.yaml') + ['config/m100_stable_cruise_decision_v2.json']),
+     ],
+     install_requires=['setuptools', 'pymavlink==2.4.50', 'PyYAML>=6.0'],
+     zip_safe=True,
+--- a/ros2_ws/src/drone_nav/test/test_m100_experiment_session_lifecycle.py
++++ b/ros2_ws/src/drone_nav/test/test_m100_experiment_session_lifecycle.py
+@@ -568,6 +568,7 @@
+     context = {"schema": "M100_RUN_PROVENANCE_V2", "run_id": "run"}
+     if speed_calibrated:
+         context["stable_cruise_speed_model"] = {"model_id": speed_model_id}
++        final_energy.phase_power_model_ids["CRUISE"] = [speed_model_id]
+ 
+     sidecar = manager._finalize_run_provenance(csv_path, context)
+     payload = json.loads(sidecar.read_text(encoding="utf-8"))
+--- a/ros2_ws/src/drone_nav/test/test_m100_pack_stable_cruise.py
++++ b/ros2_ws/src/drone_nav/test/test_m100_pack_stable_cruise.py
+@@ -1,23 +1,30 @@
+ """Exercise joint callback -> ROS pack demand with both battery treatments."""
+ 
++from dataclasses import replace
++import hashlib
+ import json
+ import time
+ from types import SimpleNamespace
+ from unittest.mock import Mock
+ 
+ import pytest
++import yaml
+ from sensor_msgs.msg import JointState
+ 
+ from drone_nav import m100_experiment_manager as runtime
+ from drone_nav.m100_atmosphere import compare_density_to_15c_reference, dry_air_state
+ from drone_nav.m100_contract import build_config
+-from drone_nav.m100_stable_cruise_speed import MODEL_ID
++from drone_nav.m100_stable_cruise_speed import MODEL_ID, NATIVE_MODEL_ID, profile_config_name
+ 
+ 
+-@pytest.fixture(scope="module")
+-def fits():
+-    return (runtime.PublishedEnergyConfig.load(runtime.ENERGY_CONFIG),
+-            runtime.StableCruiseSpeedFit.load(runtime.STABLE_CRUISE_ENERGY_CONFIG))
++@pytest.fixture(scope="module", params=("native", "legacy"))
++def fits(request):
++    path = runtime.STABLE_CRUISE_ENERGY_CONFIG.with_name(profile_config_name(request.param))
++    fit = runtime.StableCruiseSpeedFit.load(path)
++    expected_id = NATIVE_MODEL_ID if request.param == "native" else MODEL_ID
++    assert fit.model_id == expected_id
++    energy = replace(runtime.PublishedEnergyConfig.load(runtime.ENERGY_CONFIG), stable_cruise_model_id=fit.model_id)
++    return energy, fit
+ 
+ 
+ def request_for(fits, *, speed=6, enabled=True, phase="CRUISE", measuring=True,
+@@ -77,7 +84,12 @@
+     assert request["stable_cruise_speed_enabled"] is enabled
+     assert request["stable_cruise_speed_eligible_adjustment_w"] == delta
+     assert request["stable_cruise_speed_adjustment_w"] == (delta if enabled else None)
+-    assert request["stable_cruise_speed_model_id"] == (MODEL_ID if enabled else None)
++    assert request["stable_cruise_speed_model_id"] == (fit.model_id if enabled else None)
++    assert request["stable_cruise_speed_profile_model_id"] == fit.model_id
++    assert request["stable_cruise_speed_config_sha256"] == fit.config_sha256
++    assert request["stable_cruise_speed_evidence_sha256"] == fit.evidence_sha256
++    assert request["manager_stable_cruise_speed_model_id"] == (fit.model_id if local_fresh else None)
++    assert request["manager_stable_cruise_speed_adjustment_w"] == (delta if local_fresh else None)
+     assert request["phase_source"] == power.model_id
+     assert request["phase_base_power_w"] == pytest.approx(base)
+     assert request["phase_power_w"] == pytest.approx(proposed)
+@@ -107,3 +119,59 @@
+     request = request_for(fits, armed=False)
+     assert request["power_w"] == 0 and request["source"] == "DRIVE_DISARMED"
+     assert request["phase_power_w"] < request["phase_base_power_w"]
++
++
++def test_native_fit_checks_packaged_promotion_evidence_and_rejects_renamed_fit(tmp_path):
++    native = runtime.STABLE_CRUISE_ENERGY_CONFIG
++    copied = tmp_path / native.name
++    copied.write_bytes(native.read_bytes())
++    with pytest.raises(FileNotFoundError):
++        runtime.StableCruiseSpeedFit.load(copied)
++    (tmp_path / "m100_stable_cruise_decision_v2.json").write_text("{}")
++    with pytest.raises(ValueError, match="evidence digest"):
++        runtime.StableCruiseSpeedFit.load(copied)
++    copied.write_text(native.read_text().replace(NATIVE_MODEL_ID, MODEL_ID))
++    with pytest.raises(ValueError, match="schema/model pair"):
++        runtime.StableCruiseSpeedFit.load(copied)
++
++
++@pytest.mark.parametrize("profile", ("legacy", "native"))
++def test_reformatted_profile_keeps_semantics_and_records_actual_file_digest(tmp_path, profile):
++    original = runtime.STABLE_CRUISE_ENERGY_CONFIG.with_name(profile_config_name(profile))
++    prior = runtime.StableCruiseSpeedFit.load(original)
++    copied = tmp_path / original.name
++    copied.write_text("# Deployment override\n" + yaml.safe_dump(yaml.safe_load(original.read_bytes())))
++    if profile == "native":
++        (tmp_path / prior.evidence_artifact).write_bytes(original.with_name(prior.evidence_artifact).read_bytes())
++    fit = runtime.StableCruiseSpeedFit.load(copied)
++    assert fit.config_sha256 == hashlib.sha256(copied.read_bytes()).hexdigest() != prior.config_sha256
++    assert replace(fit, config_sha256=prior.config_sha256) == prior
++
++
++def test_legacy_override_keeps_valid_custom_coefficients(tmp_path):
++    original = runtime.STABLE_CRUISE_ENERGY_CONFIG.with_name(profile_config_name("legacy"))
++    data = yaml.safe_load(original.read_bytes())
++    data["offset_W"] -= 1.
++    path = tmp_path / "legacy_override.yaml"
++    path.write_text(yaml.safe_dump(data))
++    fit = runtime.StableCruiseSpeedFit.load(path)
++    assert fit.model_id == MODEL_ID and fit.offset_w == data["offset_W"]
++    assert fit.config_sha256 == hashlib.sha256(path.read_bytes()).hexdigest()
++
++
++def test_v2_rejects_substituted_decision_or_modified_coefficients(tmp_path):
++    original = runtime.STABLE_CRUISE_ENERGY_CONFIG
++    data = yaml.safe_load(original.read_bytes())
++    evidence = tmp_path / data["evidence_artifact"]
++    evidence.write_bytes(original.with_name(evidence.name).read_bytes())
++    cfg = tmp_path / original.name
++    cfg.write_text(yaml.safe_dump(dict(data, offset_W=data["offset_W"] + 1.)))
++    with pytest.raises(ValueError, match="promoted policy"):
++        runtime.StableCruiseSpeedFit.load(cfg)
++    cfg.write_text(yaml.safe_dump(dict(data, eligible_commanded_speeds_mps=[4, 6, 8, 10])))
++    with pytest.raises(ValueError, match="invalid M100 stable-cruise"):
++        runtime.StableCruiseSpeedFit.load(cfg)
++    evidence.write_bytes(evidence.read_bytes() + b"\n")
++    cfg.write_text(yaml.safe_dump(dict(data, evidence_sha256=hashlib.sha256(evidence.read_bytes()).hexdigest())))
++    with pytest.raises(ValueError, match="evidence digest"):
++        runtime.StableCruiseSpeedFit.load(cfg)
+--- /dev/null
++++ b/ros2_ws/src/drone_nav/config/m100_stable_cruise_decision_v2.json
+@@ -0,0 +1,284 @@
++{
++  "deploy": true,
++  "fit_flight_ids": [
++    1,
++    3,
++    4,
++    6,
++    8,
++    16,
++    17,
++    18,
++    78,
++    82,
++    84,
++    93,
++    94,
++    96,
++    97,
++    101,
++    102,
++    105,
++    115,
++    121,
++    124,
++    135,
++    136,
++    142,
++    144,
++    148,
++    156,
++    160,
++    169,
++    170,
++    172,
++    173,
++    175,
++    179,
++    181,
++    184,
++    188,
++    195,
++    199,
++    200,
++    201,
++    203,
++    205,
++    207,
++    208,
++    209,
++    225,
++    226,
++    230,
++    231,
++    238,
++    239,
++    240,
++    242,
++    243,
++    248,
++    255,
++    257,
++    261,
++    263,
++    264
++  ],
++  "gates": {
++    "held_mae_le_baseline": true,
++    "held_mae_lt_legacy": true,
++    "held_rmse_le_legacy": true,
++    "outer_date_mae_le_refit_legacy": true,
++    "prior_five_mae_le_legacy": true
++  },
++  "held_out_flight_ids": [
++    2,
++    5,
++    7,
++    10,
++    20,
++    81,
++    87,
++    88,
++    99,
++    119,
++    127,
++    137,
++    145,
++    147,
++    154,
++    162,
++    163,
++    165,
++    166,
++    176,
++    182,
++    193,
++    206,
++    210,
++    227,
++    233,
++    237,
++    246,
++    247,
++    249,
++    251,
++    258,
++    260
++  ],
++  "heldout": {
++    "baseline": {
++      "bias_W": 12.776080432995096,
++      "mae_W": 14.697031781538527,
++      "rmse_W": 18.765606110536552
++    },
++    "legacy": {
++      "bias_W": -6.913757982561144,
++      "mae_W": 12.884276708779353,
++      "rmse_W": 15.766740772251826
++    },
++    "selected": {
++      "bias_W": 0.19789469263781712,
++      "mae_W": 11.218277271651282,
++      "rmse_W": 14.27058156981496
++    }
++  },
++  "nested_development": {
++    "baseline": {
++      "bias_W": 10.461309166864366,
++      "mae_W": 14.62193433693976,
++      "rmse_W": 18.916839879781598
++    },
++    "legacy": {
++      "bias_W": -7.161741713678647,
++      "mae_W": 12.797049641242916,
++      "rmse_W": 16.426397126944266
++    },
++    "selected": {
++      "bias_W": 1.460412416978153,
++      "mae_W": 12.566878838786659,
++      "rmse_W": 16.252979054037407
++    }
++  },
++  "policy": {
++    "best_oof_model": "native_payload_speed",
++    "coefficients": {
++      "offset_W": -11.204467963941665,
++      "slope_W_per_mps": -4.533268662171553
++    },
++    "development_oof": {
++      "baseline": {
++        "bias_W": 10.461309166864366,
++        "mae_W": 14.62193433693976,
++        "paired_se_vs_best_W": 1.3751011424625463,
++        "rmse_W": 18.916839879781598
++      },
++      "legacy_speed": {
++        "bias_W": -7.161741713678647,
++        "mae_W": 12.797049641242916,
++        "paired_se_vs_best_W": 1.2857886291127756,
++        "rmse_W": 16.426397126944266
++      },
++      "native_offset": {
++        "bias_W": 0.09195907356995968,
++        "mae_W": 12.448430077928807,
++        "paired_se_vs_best_W": 0.8801433407899416,
++        "rmse_W": 16.152085765998375
++      },
++      "native_payload": {
++        "bias_W": 0.2264104864221143,
++        "mae_W": 11.958740556838151,
++        "paired_se_vs_best_W": 0.8817362259062516,
++        "rmse_W": 16.100098496834494
++      },
++      "native_payload_speed": {
++        "bias_W": 0.15465250221882715,
++        "mae_W": 11.325725997379967,
++        "paired_se_vs_best_W": 0.0,
++        "rmse_W": 14.911605978774553
++      },
++      "native_speed": {
++        "bias_W": 0.03173517488987093,
++        "mae_W": 11.505426475327495,
++        "paired_se_vs_best_W": 0.2701961014414793,
++        "rmse_W": 14.824241356332255
++      }
++    },
++    "enabled_payloads_kg": [
++      0.0,
++      0.25,
++      0.5
++    ],
++    "model": "native_speed",
++    "one_se_eligible": [
++      "native_payload",
++      "native_speed",
++      "native_payload_speed"
++    ],
++    "payload_gates": [
++      {
++        "baseline_oof": {
++          "bias_W": 15.40507570311023,
++          "mae_W": 19.900157042715524,
++          "rmse_W": 24.59487800353144
++        },
++        "candidate_oof": {
++          "bias_W": 4.981492192471951,
++          "mae_W": 14.589691282512161,
++          "rmse_W": 18.368165349457186
++        },
++        "dates": 9,
++        "enabled": true,
++        "n": 19,
++        "payload_kg": 0.0
++      },
++      {
++        "baseline_oof": {
++          "bias_W": 9.39122154830915,
++          "mae_W": 14.554412774966076,
++          "rmse_W": 17.488031478613888
++        },
++        "candidate_oof": {
++          "bias_W": -1.2272877185625741,
++          "mae_W": 12.367030088274577,
++          "rmse_W": 14.347264669166064
++        },
++        "dates": 9,
++        "enabled": true,
++        "n": 18,
++        "payload_kg": 0.25
++      },
++      {
++        "baseline_oof": {
++          "bias_W": 7.3500597062527975,
++          "mae_W": 10.49398253301421,
++          "rmse_W": 14.186909792666121
++        },
++        "candidate_oof": {
++          "bias_W": -2.9425552939399418,
++          "mae_W": 8.41751412659599,
++          "rmse_W": 11.707642640378614
++        },
++        "dates": 8,
++        "enabled": true,
++        "n": 24,
++        "payload_kg": 0.5
++      }
++    ]
++  },
++  "previously_inspected_five": {
++    "baseline": {
++      "bias_W": 2.0287036789451007,
++      "mae_W": 9.143271114853485,
++      "rmse_W": 11.748643521922682
++    },
++    "legacy": {
++      "bias_W": -19.826678332039954,
++      "mae_W": 19.826678332039954,
++      "rmse_W": 22.961502908079517
++    },
++    "selected": {
++      "bias_W": -12.802379214733799,
++      "mae_W": 13.591900616365944,
++      "rmse_W": 17.322904951841522
++    }
++  },
++  "previously_unmatched_28": {
++    "baseline": {
++      "bias_W": 14.695254853361167,
++      "mae_W": 15.688774757732284,
++      "rmse_W": 19.75811765898436
++    },
++    "legacy": {
++      "bias_W": -4.607879348725642,
++      "mae_W": 11.644562133197102,
++      "rmse_W": 14.1008114028579
++    },
++    "selected": {
++      "bias_W": 2.519372176097034,
++      "mae_W": 10.794415960095092,
++      "rmse_W": 13.653908735742805
++    }
++  },
++  "protocol_sha256": "afb14ed7208a6080dfc81cd182b4e76866caf1fdee06ef81250c3f8f93a79ccd",
++  "schema": "M100_NATIVE_STEADY_POWER_DECISION_V1"
++}
+--- /dev/null
++++ b/ros2_ws/src/drone_nav/config/m100_stable_cruise_speed_v2.yaml
+@@ -0,0 +1,10 @@
++schema: M100_STABLE_CRUISE_SPEED_CALIBRATION_V2
++model_id: M100_STABLE_CRUISE_SPEED_CMU_NATIVE_V2
++reference_speed_mps: 6.0
++offset_W: -11.204467963941665
++slope_W_per_mps: -4.533268662171553
++eligible_commanded_speeds_mps: [4.0, 6.0, 8.0]
++min_nominal_outbound_duration_s: 20.0
++evidence_artifact: m100_stable_cruise_decision_v2.json
++evidence_sha256: 3211c9efcf0ddbd5aea01b9bef04ea0590cd41c680674a9929f76a3de31438a2
++dataset_doi: 10.1184/R1/12683453

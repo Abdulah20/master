@@ -10,6 +10,7 @@ import os
 from pathlib import Path
 import shutil
 import subprocess
+import sys
 import threading
 import time
 import zipfile
@@ -67,6 +68,19 @@ def cases():
     return design[:1] + routes[:1] + sensitivity[-2:-1] + design[1:27] + routes[1:] + sensitivity[:-2] + sensitivity[-1:] + design[27:]
 
 
+def active_cruise_config(package):
+    # Import from the target runtime in isolation. The analysis process can
+    # already have a historical drone_nav package loaded from a frozen archive.
+    resolver = (
+        "import os; from drone_nav import m100_stable_cruise_speed as speed; "
+        "selector = getattr(speed, 'profile_config_name', None); "
+        "print(selector(os.environ.get('M100_STABLE_CRUISE_PROFILE', 'native')) "
+        "if selector is not None else 'm100_stable_cruise_speed_v1.yaml')"
+    )
+    name = subprocess.check_output([sys.executable, '-B', '-c', resolver], cwd=package, text=True).strip()
+    return package/'config'/Path(name).name
+
+
 def sources():
     src = RUNTIME/'ros2_ws/src'
     plugins = RUNTIME/'ros2_ws/install/m100_gazebo_gui/lib/m100_gazebo_gui'
@@ -79,7 +93,7 @@ def sources():
                 pack_header=src/'m100_gazebo_gui/propulsion/M100TheveninFit.hh',
                 px4_binary=PX4/'build/px4_sitl_default/bin/px4',
                 energy_config=src/'drone_nav/config/m100_energy_model_v2.yaml',
-                stable_cruise=src/'drone_nav/config/m100_stable_cruise_speed_v1.yaml',
+                stable_cruise=active_cruise_config(src/'drone_nav'),
                 wind=src/'drone_nav/config/m100_wind_simulation_v1.yaml',
                 transient=src/'drone_nav/config/m100_transient_power_v1.yaml',
                 base_sdf=models/'m100_cmu_v2/model.sdf', launcher=LAUNCH, runner=LAUNCH.with_name('native.py'),
@@ -87,6 +101,9 @@ def sources():
                 fit=OUT.parent/'cmu_calibration/fit.json')
     for suffix in ('025','050'):
         refs['payload'+suffix] = models/f'm100_cmu_v2_payload_{suffix}/model.sdf'
+    if refs['stable_cruise'].name == 'm100_stable_cruise_speed_v2.yaml':
+        refs['stable_cruise_decision'] = refs['stable_cruise'].with_name('m100_stable_cruise_decision_v2.json')
+        refs['stable_cruise_implementation'] = src/'drone_nav/drone_nav/m100_stable_cruise_speed.py'
     return {name:digest(path) for name,path in refs.items()}
 
 

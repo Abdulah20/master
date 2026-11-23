@@ -115,6 +115,11 @@ def inspect(raw, case, attempt, protocol, out):
     for key,source in [('stable_cruise','m100_stable_cruise_speed_config'),('transient','m100_transient_power_config'),
                        ('wind','m100_wind_simulation_config'),('drag_plugin','gazebo_drag_plugin')]:
         evidence.confirm(doc['source_files'][source]['sha256']==hashes[key],f'Runtime source identity differs for {source}')
+    for key,source in (('stable_cruise_implementation','m100_stable_cruise_speed'),
+                       ('stable_cruise_decision','m100_stable_cruise_decision')):
+        if key in hashes:
+            recorded = doc['source_files'].get(source, {})
+            evidence.confirm(recorded.get('sha256') == hashes[key], f'Cruise calibration identity differs for {source}')
     info=doc['airborne_training']
     wire=raw/f'{run}.pack_drive.jsonl'
     row_file=raw/info['relative_path']

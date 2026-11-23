@@ -1,0 +1,171 @@
+{
+  "altitude_m": 50,
+  "callback_check_sha256": "f6e122c82adc12b486f21a18abf36c6823930012e9205d585bb024870b90a4cc",
+  "cases": [
+    {
+      "declared_evidence_sha256": "3211c9efcf0ddbd5aea01b9bef04ea0590cd41c680674a9929f76a3de31438a2",
+      "model_id": "M100_STABLE_CRUISE_SPEED_CMU_NATIVE_V2",
+      "pack_correction_enabled": true,
+      "profile": "default",
+      "profile_filename": "m100_stable_cruise_speed_v2.yaml",
+      "profile_sha256": "08d8e42e5952bc4f18f7646f811d89ad0aea35e5b5ed8252cec73ad7c49bebae",
+      "requests": [
+        {
+          "applied_adjustment_W": -2.13793063959856,
+          "base_W": 509.47314230612324,
+          "command_mps": 4,
+          "native_requested_W": 507.3352116665247
+        },
+        {
+          "applied_adjustment_W": null,
+          "base_W": 509.47314230612324,
+          "command_mps": 5,
+          "native_requested_W": 509.47314230612324
+        },
+        {
+          "applied_adjustment_W": -11.204467963941665,
+          "base_W": 509.47314230612324,
+          "command_mps": 6,
+          "native_requested_W": 498.26867434218155
+        },
+        {
+          "applied_adjustment_W": -20.27100528828477,
+          "base_W": 509.47314230612324,
+          "command_mps": 8,
+          "native_requested_W": 489.2021370178385
+        },
+        {
+          "applied_adjustment_W": null,
+          "base_W": 509.47314230612324,
+          "command_mps": 10,
+          "native_requested_W": 509.47314230612324
+        },
+        {
+          "applied_adjustment_W": null,
+          "base_W": 509.47314230612324,
+          "command_mps": 15,
+          "native_requested_W": 509.47314230612324
+        },
+        {
+          "applied_adjustment_W": null,
+          "base_W": 509.47314230612324,
+          "command_mps": 20,
+          "native_requested_W": 509.47314230612324
+        }
+      ]
+    },
+    {
+      "declared_evidence_sha256": "4ee30d9f70a6870dc57ed58433c69a4f4e985728651909b3842f9c976786e6f7",
+      "model_id": "M100_STABLE_CRUISE_SPEED_CMU_V1",
+      "pack_correction_enabled": true,
+      "profile": "legacy",
+      "profile_filename": "m100_stable_cruise_speed_v1.yaml",
+      "profile_sha256": "a702c1f1a4b2498e29554b10c0e10ff1f9d6541333fe82fc0b1b36736ce0f2c7",
+      "requests": [
+        {
+          "applied_adjustment_W": -9.654392485520242,
+          "base_W": 509.47314230612324,
+          "command_mps": 4,
+          "native_requested_W": 499.818749820603
+        },
+        {
+          "applied_adjustment_W": null,
+          "base_W": 509.47314230612324,
+          "command_mps": 5,
+          "native_requested_W": 509.47314230612324
+        },
+        {
+          "applied_adjustment_W": -18.369385003709404,
+          "base_W": 509.47314230612324,
+          "command_mps": 6,
+          "native_requested_W": 491.10375730241384
+        },
+        {
+          "applied_adjustment_W": -27.084377521898567,
+          "base_W": 509.47314230612324,
+          "command_mps": 8,
+          "native_requested_W": 482.3887647842247
+        },
+        {
+          "applied_adjustment_W": null,
+          "base_W": 509.47314230612324,
+          "command_mps": 10,
+          "native_requested_W": 509.47314230612324
+        },
+        {
+          "applied_adjustment_W": null,
+          "base_W": 509.47314230612324,
+          "command_mps": 15,
+          "native_requested_W": 509.47314230612324
+        },
+        {
+          "applied_adjustment_W": null,
+          "base_W": 509.47314230612324,
+          "command_mps": 20,
+          "native_requested_W": 509.47314230612324
+        }
+      ]
+    },
+    {
+      "declared_evidence_sha256": "3211c9efcf0ddbd5aea01b9bef04ea0590cd41c680674a9929f76a3de31438a2",
+      "model_id": "M100_STABLE_CRUISE_SPEED_CMU_NATIVE_V2",
+      "pack_correction_enabled": false,
+      "profile": "default",
+      "profile_filename": "m100_stable_cruise_speed_v2.yaml",
+      "profile_sha256": "08d8e42e5952bc4f18f7646f811d89ad0aea35e5b5ed8252cec73ad7c49bebae",
+      "requests": [
+        {
+          "applied_adjustment_W": null,
+          "base_W": 509.47314230612324,
+          "command_mps": 4,
+          "native_requested_W": 509.47314230612324
+        },
+        {
+          "applied_adjustment_W": null,
+          "base_W": 509.47314230612324,
+          "command_mps": 5,
+          "native_requested_W": 509.47314230612324
+        },
+        {
+          "applied_adjustment_W": null,
+          "base_W": 509.47314230612324,
+          "command_mps": 6,
+          "native_requested_W": 509.47314230612324
+        },
+        {
+          "applied_adjustment_W": null,
+          "base_W": 509.47314230612324,
+          "command_mps": 8,
+          "native_requested_W": 509.47314230612324
+        },
+        {
+          "applied_adjustment_W": null,
+          "base_W": 509.47314230612324,
+          "command_mps": 10,
+          "native_requested_W": 509.47314230612324
+        },
+        {
+          "applied_adjustment_W": null,
+          "base_W": 509.47314230612324,
+          "command_mps": 15,
+          "native_requested_W": 509.47314230612324
+        },
+        {
+          "applied_adjustment_W": null,
+          "base_W": 509.47314230612324,
+          "command_mps": 20,
+          "native_requested_W": 509.47314230612324
+        }
+      ]
+    }
+  ],
+  "commanded_leg_m": 200,
+  "enabled_stage": "active stable outbound measurement",
+  "entry_point": "drone_nav.m100_experiment_manager:main",
+  "method": "Installed ROS experiment manager initialized with auto_start_stack=false. Real joint-state callback exercised with controlled telemetry using the repository regression fixture. No new Gazebo flight or field measurement.",
+  "payload_kg": 0.25,
+  "release_patch_sha256": "dc87be7cffa62ac6f3f48aa1f5aacaf2480bc4b9bb3daa48ae5dc7f73d87b7bf",
+  "runtime_manager_sha256": "4677fe638415c113f5e3bce178908f6ab73edaf9125e585e64f476db68eb1f0a",
+  "temperature_c": 15,
+  "wind_speed_mps": 0
+}

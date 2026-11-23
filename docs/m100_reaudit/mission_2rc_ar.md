@@ -39,6 +39,7 @@ release="$PWD/tools/m100_reaudit/pack_drive"
 project="$HOME/Master/Drone/project"
 git -C "$project" apply "$release/mission_2rc_ros2.patch"
 git -C "$project" apply "$release/stable_cruise_pack_ros2.patch"
+git -C "$project" apply "$release/native_cruise_v2_ros2.patch"
 install -m 0644 "$release"/{M100PackDrive.cc,M100TheveninFit.hh} "$project/ros2_ws/src/m100_gazebo_gui/propulsion/"
 install -m 0644 "$release/m100_airborne_training.py" "$project/ros2_ws/src/drone_nav/drone_nav/"
 source /opt/ros/jazzy/setup.bash
@@ -46,6 +47,8 @@ source /opt/ros/jazzy/setup.bash
 ```
 
 يستخدم طلب قدرة البطارية تصحيح السرعة المحفوظ في المشروع مرة واحدة أثناء مقطع الذهاب الأفقي المستقر عند أوامر 4 و6 و8 م/ث، ضمن شروط المعايرة. يسجّل طلب البطارية القدرة الأساسية والتصحيح المطبّق، وتسجّل إضافة Gazebo الجهد والتيار الناتجين. للمقارنة المزدوجة يمكن بدء مدير تجربة جديد بالمتغير `M100_PACK_STABLE_CRUISE_CORRECTION=0` للحصول على طلب الحزمة الأساسي. القيمة الافتراضية `1` تفعّل التصحيح.
+
+تستخدم النسخة الافتراضية `M100_STABLE_CRUISE_PROFILE=native` معاملات V2 الملائمة للكثافة التي يستعملها Gazebo. يعيد `M100_STABLE_CRUISE_PROFILE=legacy` معاملات V1. يسجِّل مدير التجربة هوية النسخة وبصمة ملف معاملاتها، وتربط نسخة V2 كل طلب بملف قرار المعايرة. بلغ متوسط الخطأ المطلق للقدرة المستقرة على 33 رحلة CMU محجوزة 11.22 واط في V2 و12.88 واط في V1. [تقييم المجموعات وفواصل عدم اليقين](../../results/m100_reaudit/cruise_power_decision/report_ar.md)
 
 تُعاد ملاءمة المعاملات من سجلات التطوير عبر `OPENBLAS_NUM_THREADS=1 python3 -m tools.m100_reaudit.thevenin_transfer`. يضم ملف المعايرة هويات الرحلات وبصمات مصادرها ومقاييس الخطأ. يحتفظ مسار القياس التاريخي بتعريفه. في مهمة الوجهة الثابتة يحدد `M100_MISSION_ROUTE` المسار المباشر أو المسار عبر نقطة وسطية، وتقاس الوجهة من موضع الإقلاع. يتحقق مراقب المسار من المسافة إلى الضلع الجاري، ويتحقق تدقيق مستقل بعد الهبوط من المسار الفعلي المسجل في PX4.
 

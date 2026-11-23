@@ -1,0 +1,11 @@
+{
+  "feature_extractor_sha256": "dd53cdb438e8aca71b01fa5697c703fabe45fae83db2be4b67007d4b947f4bca",
+  "field_data": false,
+  "input_sha256": "6e8349fc5ad1640d6608f42e393c9440d8df61725896116bd90ba742c055dc06",
+  "intervals_sha256": "8618fadaf680f6e9b4fc6b7e15b617e06738e2894ac9a96a66c593306bc079ed",
+  "preflight_sha256": "61259cebbdfb9b5e3d07026b1d5c0f7bff657989ac36df58fcbfd9cc7972e29e",
+  "recorder_bundle_sha256": "be54b952e50918e5450a659a95e11f8ccbf08867ea19f24e3f2d45bab92a68de",
+  "selected_flights": 69,
+  "simulator_revision": "prior static loaded pack",
+  "underlying_energy_labels_unchanged": true
+}

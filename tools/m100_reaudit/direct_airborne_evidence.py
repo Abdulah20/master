@@ -312,7 +312,8 @@ def audit_flight(folder, case, protocol_hashes, *, raw_trace_path=None):
     for key, source in source_names.items():
         confirm(doc["source_files"][source]["sha256"] == protocol_hashes[key], f"Different acquisition source: {source}")
     sdf = "base_sdf" if not case["payload_kg"] else f"payload{round(case['payload_kg']*100):03d}"
-    confirm(doc["temperature_application"]["runtime_model_sdf_sha256"] == protocol_hashes[sdf]
+    applied_sdf_hash = protocol_hashes.get("applied_sdf", protocol_hashes[sdf])
+    confirm(doc["temperature_application"]["runtime_model_sdf_sha256"] == applied_sdf_hash
             and manifest["launcher_sha256"] == protocol_hashes["launcher"]
             and doc["native_pack_drive"]["cmu_development_fit_sha256"] == protocol_hashes["fit"],
             "Different runtime model, launcher or voltage fit")
@@ -333,7 +334,8 @@ def audit_flight(folder, case, protocol_hashes, *, raw_trace_path=None):
     confirm(config["route_length_m"] == case["measurement_distance_m"]
             and config["hover_duration_s"] == case["hover_duration_s"], "Changed mission plan")
     cruise = case["cruise_speed_mps"] != 0
-    confirm(float(row["planned_outbound_measurement_m"]) == (case["measurement_distance_m"] if cruise else 0)
+    outbound = config.get("planned_outbound_path_m", case["measurement_distance_m"])
+    confirm(float(row["planned_outbound_measurement_m"]) == (outbound if cruise else 0)
             and (row["planned_hover_duration_s"] == "" if cruise else
                  float(row["planned_hover_duration_s"]) == case["hover_duration_s"]), "Changed measurement mode")
     info = direct["native_budget"]

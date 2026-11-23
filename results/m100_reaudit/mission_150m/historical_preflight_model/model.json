@@ -1,0 +1,186 @@
+{
+  "calibration": "SIMULATOR_SURROGATE",
+  "features": [
+    "phase_energy_Wh",
+    "kinematic_time_s",
+    "climb_height_m",
+    "payload_kg",
+    "speed_mps",
+    "speed_squared",
+    "outbound_ideal_s",
+    "return_ideal_s",
+    "hover_s",
+    "intermediate_stops",
+    "stops_times_speed",
+    "payload_times_kinematic_time",
+    "along_wind_mps",
+    "abs_cross_wind_mps",
+    "wind_squared",
+    "ambient_minus_15_C",
+    "nominal_discharge_fraction",
+    "hover_mission",
+    "outbound_air_path_delta_m",
+    "return_air_path_delta_m",
+    "outbound_crosswind_exposure_m",
+    "return_crosswind_exposure_m"
+  ],
+  "fit": {
+    "center": [
+      48.09417470369065,
+      296.52173913043475,
+      101.44927536231882,
+      0.5652173913043478,
+      10.072463768115943,
+      123.55072463768114,
+      46.13526570048308,
+      126.81159420289856,
+      5.217391304347826,
+      0.0,
+      0.0,
+      167.96497584541063,
+      -0.26086956521739124,
+      1.3043478260869565,
+      37.04347826086956,
+      0.0,
+      0.0,
+      0.08695652173913043,
+      43.861594994539495,
+      308.6048100416251,
+      65.21739130434783,
+      181.15942028985503
+    ],
+    "coefficients": [
+      [
+        0.41920451533129677,
+        1.2037584678407245
+      ],
+      [
+        0.04067319907825964,
+        1.0326416957945688
+      ],
+      [
+        -0.6208692256062064,
+        -1.0657415924034759
+      ],
+      [
+        0.35933204880008796,
+        0.011289159511880923
+      ],
+      [
+        1.243826927863632,
+        7.55709296697564
+      ],
+      [
+        2.1553649539391957,
+        13.27505944141391
+      ],
+      [
+        0.43528310901155154,
+        1.99821954036303
+      ],
+      [
+        0.028243197614989748,
+        0.6266254133544494
+      ],
+      [
+        -0.028243197615025268,
+        -0.62662541335475
+      ],
+      [
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0
+      ],
+      [
+        0.1754177912990624,
+        0.06518352086605084
+      ],
+      [
+        0.09620161469656674,
+        0.9298013471464055
+      ],
+      [
+        -0.030795634684540545,
+        -0.08031777233469942
+      ],
+      [
+        -1.3695944563363904,
+        -0.5643542623462644
+      ],
+      [
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0
+      ],
+      [
+        -0.02824319761503275,
+        -0.6266254133546524
+      ],
+      [
+        0.3422694716103223,
+        1.6502513210566947
+      ],
+      [
+        -0.5140992917244384,
+        -0.16488572398508802
+      ],
+      [
+        -0.03079563468456518,
+        -0.08031777233472824
+      ],
+      [
+        -0.030795634684549555,
+        -0.08031777233467383
+      ]
+    ],
+    "offset": [
+      7.0968540376847615,
+      54.996057971014494
+    ],
+    "penalty": 1.0,
+    "scale": [
+      10.191192672577264,
+      42.470733629298806,
+      11.95103079889177,
+      0.4227501701527856,
+      4.70065934499329,
+      101.07072229519287,
+      22.413714949647613,
+      39.13490759908128,
+      16.906280082803118,
+      1.0,
+      1.0,
+      131.2930629244136,
+      5.02357391664841,
+      3.1682498612585523,
+      49.82881850013195,
+      1.0,
+      1.0,
+      0.28177133471338517,
+      236.77498089315097,
+      523.9271381028772,
+      158.4124930629276,
+      440.03470295257665
+    ]
+  },
+  "outputs": [
+    "airborne_energy_Wh",
+    "airborne_duration_s"
+  ],
+  "power_reference": "Rodrigues phase coefficients; nominal scheduling rates 2 m/s up, 1.5 down, 0.9 times min(4, outbound speed) return; hover uses level-flight reference",
+  "schema": "M100_SIM_PREFLIGHT_RIDGE_V2",
+  "split": "Five deterministic operating-family folds. All payloads and seeds for each geometry, speed, altitude, wind, ambient temperature and initial SOC stay together.",
+  "target_units": [
+    "Wh",
+    "s"
+  ],
+  "validation_absolute_error_p90_Wh": 2.1904153661232133,
+  "validation_absolute_error_p90_s": 7.520651437889252,
+  "wind_features": "Each planned leg uses its heading, scheduled speed and the commanded ENU wind. Air-path change sums time times (airspeed minus ground speed), and crosswind exposure sums time times absolute crosswind. Outbound and return totals enter the fit separately."
+}

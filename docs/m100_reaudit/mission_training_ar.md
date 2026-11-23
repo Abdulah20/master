@@ -8,6 +8,7 @@
 |---|---|---|
 | طاقة مهمة الوجهة الثابتة ومدتها قبل الإقلاع | [رحلات 150 م](../../results/m100_reaudit/mission_150m/mission_flights.csv) | صف لكل رحلة مقبولة. الهدف الرئيس `estimated_airborne_energy_Wh` |
 | القدرة في الفترة التالية أثناء الرحلة | [الفترات الزمنية لرحلات 150 م](../../results/m100_reaudit/mission_150m/mission_intervals.csv.gz) | `future_interval_mean_power_W` و`future_interval_energy_Wh` |
+| طاقة كل مرحلة والمسافة والزمن | [مقاطع الرحلات](../../results/m100_reaudit/mission_150m/mission_phases.csv) و[مراجعة مجموعها](../../results/m100_reaudit/mission_150m/mission_phase_checks.csv) | فروق عداد الطاقة على المقاطع. تبقى الفواصل بين المراحل التي تعذرت تسميتها في المجموع |
 | إعادة تحليل رحلات المشرفة الـ69 بالإصدار السابق | [جدول الرحلات التاريخية](../../results/m100_reaudit/mission_150m/historical_preflight.csv) و[فتراتها الزمنية](../../results/m100_reaudit/mission_150m/historical_intervals.csv.gz) | التعريف نفسه لطاقة الفترة الجوية. يتبع المسار بروتوكول القياس التاريخي |
 | التحقق من سبب الاستبعاد أو إعادة الرحلة | [سجل المحاولات](../../results/m100_reaudit/mission_150m/attempt_registry.csv) | حالة كل محاولة وبصمة أرشيفها. لا تدخل المحاولات المرفوضة في جدول التدريب |
 
@@ -44,10 +45,35 @@ export OPENBLAS_NUM_THREADS=1
 python3 -m tools.m100_reaudit.mission_history
 python3 -m tools.m100_reaudit.mission_audit
 python3 -m tools.m100_reaudit.mission_release final
+python3 -m tools.m100_reaudit.mission_phases
+python3 -m tools.m100_reaudit.mission_error_breakdown --cohort all --output results/m100_reaudit/mission_150m/error_breakdown
+python3 -m tools.m100_reaudit.mission_report
 python3 -m tools.m100_reaudit.mission_selector --payload 0.25 --distance 150 --reserve 20
 ```
 
 يتطلب استخراج الفترات الأصلية أرشيفات الرحلات على هذا الجهاز بالإضافة إلى المستودع. يمكن استخدام الجداول المنشورة وتدريب النماذج منها مباشرة. تُحفظ الأرشيفات الجديدة تحت `/media/abdulah/New Volume/M100_Mission_150m_2026-11-23`، ويمكن تغيير موقع قراءتها عبر `M100_MISSION_ARCHIVE`. سجل البروتوكول يثبت البذور وهويات البرامج وهندسة المهمة. يتحقق `mission_workflow` من تطابق نسخة التشغيل قبل تنفيذ الحالات المسجلة ويعيد المحاولات المرفوضة مع حفظها. يختار المحسّن من التركيبات التي نُفذت بالفعل لنفس المهمة، ويقبل حدًا اختياريًا للمدة بالثواني عبر `--max-duration`. عندما لا تتوفر حالة مطابقة أو يستهلك كل بديل الاحتياطي المسموح، يصدر حالة عدم توفر نتيجة.
+
+يتفاوت عدد البدائل المتاحة بحسب شروط المهمة. تغطي شبكة الهدوء عند 15°م وشحن ابتدائي 100% الحمولات الثلاث والسرعات الثلاث والارتفاعات الثلاث على المسار المباشر. أما الرياح والحرارة والشحن المخفَّض فتُدرس عند 0.25 كغ و8 م/ث و50 م بمسارين. عند هذه الشروط يستطيع الباحث مقارنة المسارين، وتبقى مفاضلة السرعات والارتفاعات تحت الرياح خارج التجربة. جميع مدد التحمل والمديات المستقرأة تستخدم متوسط قدرة الرحلة ورصيد الطاقة الاسمي حتى الاحتياطي المختار.
+
+## تسجيل رحلة إضافية
+
+يستخدم هذا المثال النسخة المثبتة من PX4 وGazebo على جهاز المشروع. ينشئ مجلدًا مستقلًا لرحلة مباشرة بحمولة 0.25 كغ، وسرعة ذهاب 8 م/ث وارتفاع 50 م. عند الهبوط ينشر المسجّل صف هذه الرحلة تحت `training/` في مجلدها. يحتوي الصف على هدف `estimated_airborne_energy_Wh` وحالة قبوله. إذا تعذرت تغطية كامل الفترة الجوية يبقى الهدف فارغًا ويبيّن الصف السبب.
+
+```bash
+mkdir -p tmp
+flight_dir=$(mktemp -d "$PWD/tmp/m100-user-flight.XXXXXX")
+python3 - "$flight_dir" <<'PY'
+from pathlib import Path
+import sys
+from tools.m100_reaudit.mission_campaign import make_case, save
+
+case = make_case('additional', 0.25, 8, 50, 'direct', 3041)
+save(Path(sys.argv[1]) / 'request.json', [case])
+PY
+M100_PACK_DYNAMICS=cmu_2rc M100_MISSION_ROUTE=direct M100_INITIAL_SOC_PERCENT=100 M100_GAZEBO_SEED=3041 \
+  tools/m100_reaudit/isolated_native.sh "$flight_dir/request.json" "$flight_dir"
+ls "$flight_dir/training/"
+```
 
 ## خط الأساس من بيانات المشرفة السابقة
 

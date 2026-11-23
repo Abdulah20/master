@@ -26,7 +26,8 @@ def inputs(row):
     return x if all(math.isfinite(v) for v in x) else None
 
 
-def evaluate(path, flights, destination):
+def evaluate(path, flights, destination, *, observe_held_out=None):
+    """Optionally expose the same held-out intervals used for the saved metrics."""
     fold_by_case=dict(zip([r['case_id'] for r in flights],grouped_folds(flights),strict=True))
     runs = {r['case_id']: r['run_id'] for r in flights}
     if len(runs) != len(flights):
@@ -102,4 +103,6 @@ def evaluate(path, flights, destination):
                 phase_mean_reference_mae_W=float(np.mean([r['phase_mean_mae_W'] for r in rows])),
                 heldout_bias_W_equal_flight=float(np.mean([r['ridge_bias_W'] for r in rows])))
     save(destination/'evaluation.json',result)
+    if observe_held_out is not None:
+        observe_held_out(ids, folds, phases, dt, y, predictions, simple)
     return result

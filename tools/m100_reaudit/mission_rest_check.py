@@ -31,7 +31,7 @@ def patch_once(content, before, after):
 
 def prepare(raw, step, seed):
     confirm(raw.is_dir() and not any(raw.iterdir()), 'Choose a new empty directory for this flight')
-    confirm(step in (0.004, 0.002) and 0 <= seed <= 4294967295, 'Invalid physics step or seed')
+    confirm(step in (0.004, 0.002, 0.001) and 0 <= seed <= 4294967295, 'Invalid physics step or seed')
     case = make_case('rest_check', 0, 6, 25, 'direct', seed)
     case['case_id'] += f'_dt{round(step * 1000)}ms'
     case['physics_step_s'] = step
@@ -43,6 +43,7 @@ def prepare(raw, step, seed):
                     portable_pack_source_sha256=digest(HERE / 'pack_drive/M100PackDrive.cc'),
                     portable_pack_header_sha256=digest(HERE / 'pack_drive/M100TheveninFit.hh'),
                     parameter_sha256=fit['parameter_sha256'], parameters=fit['parameters'],
+                    battery_model_environment=os.environ.get('M100_PACK_DYNAMICS'),
                     request_sha256=digest(raw / 'request.json'), requested_topic=TOPIC,
                     temporary_launcher_sha256={})
     folder = raw / 'launchers'
@@ -324,15 +325,18 @@ def analyze(raw):
                 scope='Numerical recovery of both transferred 2-RC states, conditional on native confirmed zero load.')
 
 
-def publish_pair(coarse, fine):
-    """Publish two independently audited flights and an observed, paired step-size difference."""
+def publish_pair(coarse, fine, refined=None):
+    """Publish independently audited step-size trials and their paired changes."""
     from .mission_audit import inspect
     from .mission_campaign import ARCHIVE, archive
     from .mission_prediction import ENERGY, TIME, dataframe, number
 
     base = read(OUT / 'protocol.json')
     checked = []
-    for folder, step in ((coarse, .004), (fine, .002)):
+    experiments=[(coarse, .004), (fine, .002)]
+    if refined:
+        experiments.append((refined, .001))
+    for folder, step in experiments:
         rest = analyze(folder)
         settings = read(folder / 'rest_protocol.json')
         case = rest['case']
@@ -344,9 +348,11 @@ def publish_pair(coarse, fine):
         checked.append((folder, case, settings, rest, flight))
     ignored = {'case_id','physics_step_s'}
     reference = {k:v for k,v in checked[0][1].items() if k not in ignored}
-    confirm(reference == {k:v for k,v in checked[1][1].items() if k not in ignored}, 'Conditions differ beyond the time step')
+    confirm(all(reference == {k:v for k,v in c.items() if k not in ignored} for _,c,_,_,_ in checked[1:]),
+            'Conditions differ beyond the time step')
     hashes = checked[0][2]['source_sha256']
-    confirm(hashes == checked[1][2]['source_sha256'], 'Software changed across the paired step-size checks')
+    confirm(all(hashes == settings['source_sha256'] for _,_,settings,_,_ in checked[1:]),
+            'Software changed across the paired step-size checks')
     records = []
     for raw,case,settings,rest,flight in checked:
         key = case['case_id']
@@ -366,13 +372,24 @@ def publish_pair(coarse, fine):
              and r['mission_route']=='direct' and number(r,'payload_kg')==0 and number(r,'cruise_speed_mps')==6
              and number(r,'altitude_m')==25]
     delta = records[1]['energy_Wh'] - records[0]['energy_Wh']
+    changes=[]
+    for a,b in zip(records,records[1:]):
+        t0,t1=a['airborne_s'],b['airborne_s']
+        p0,p1=3600*a['energy_Wh']/t0,3600*b['energy_Wh']/t1
+        changes.append(dict(from_step_s=a['step_s'],to_step_s=b['step_s'],
+            delta_energy_Wh=b['energy_Wh']-a['energy_Wh'], delta_energy_percent=100*(b['energy_Wh']/a['energy_Wh']-1),
+            delta_time_s=t1-t0, delta_horizontal_distance_m=b['horizontal_m']-a['horizontal_m'],
+            delta_mean_power_W=p1-p0, change_attributable_to_time_Wh=(p1+p0)/2*(t1-t0)/3600,
+            change_attributable_to_mean_power_Wh=(t1+t0)/2*(p1-p0)/3600))
     save(OUT/'postflight_verification.json', dict(status='PASS', included_in_training=False, flights=records,
         corrected_plugin_sha256=hashes['plugin'], corrected_pack_source_sha256=hashes['pack_source'],
         corrected_pack_header_sha256=hashes['pack_header'], refinement_energy_change_Wh=delta,
         refinement_energy_change_percent=100*delta/records[0]['energy_Wh'],
         refinement_time_change_s=records[1]['airborne_s']-records[0]['airborne_s'],
-        discovery_same_setting_energies_Wh=prior,
-        interpretation='One paired full mission at two solver steps with the same Gazebo seed. Includes controller, timing and trajectory variation; does not bound global discretization error.'))
+        discovery_same_setting_energies_Wh=prior, consecutive_step_changes=changes,
+        default_pack_confirmed_in_flight=any('battery_model_environment' in s and s['battery_model_environment'] is None
+                                             for _,_,s,_,_ in checked),
+        interpretation='One native closed-loop case at successive solver steps with a common Gazebo seed. Differences include controller, timing and trajectory variation; these are not a bound on global discretization error.'))
 
 
 def self_test():
@@ -421,16 +438,17 @@ def main():
     pair = subs.add_parser('publish-pair')
     pair.add_argument('coarse', type=Path)
     pair.add_argument('fine', type=Path)
+    pair.add_argument('--refined', type=Path)
     for mode in ('prepare','check-install','monitor','analyze','self-test'):
         sub = subs.add_parser(mode)
         if mode != 'self-test':
             sub.add_argument('directory', type=Path)
         if mode == 'prepare':
-            sub.add_argument('--step', type=float, default=.004, choices=(.004,.002))
+            sub.add_argument('--step', type=float, default=.004, choices=(.004,.002,.001))
             sub.add_argument('--seed', type=int, default=3771)
     args = parser.parse_args()
     if args.mode == 'publish-pair':
-        publish_pair(args.coarse.resolve(), args.fine.resolve())
+        publish_pair(args.coarse.resolve(), args.fine.resolve(), args.refined.resolve() if args.refined else None)
         return
     if args.mode == 'self-test':
         self_test()

@@ -1,0 +1,26 @@
+{
+  "case": {
+    "altitude_m": 25,
+    "case_id": "rest_check_p000_v6_h25_direct_w0d0_t15_q100_s3771_dt1ms",
+    "cruise_speed_mps": 6,
+    "group": "rest_check",
+    "hover_duration_s": 60,
+    "initial_soc_percent": 100,
+    "measurement_distance_m": 150,
+    "mission_route": "direct",
+    "payload_kg": 0,
+    "physics_step_s": 0.001,
+    "seed": 3771,
+    "temperature_c": 15,
+    "wind_direction_toward_deg_ENU": 0,
+    "wind_speed_mps": 0
+  },
+  "conditions": "Same initial nominal SOC, geometry, control settings and Gazebo seed; airborne energy is independently audited and post-disarm rest is kept outside this target.",
+  "evidence": "Record actual energy, path, flight time and mean power, and repeat direct 8.5 s zero-demand RC rest verification. Keep original failures. No fitted coefficient or acceptance threshold depends on this outcome.",
+  "group": "ENGINEERING_ONLY",
+  "motivation": "Follow up the observed 4 to 2 ms difference and independently exercise the ordinary native default after installation.",
+  "previous_delta_energy_Wh": -0.4808881281482691,
+  "previous_delta_time_s": -3.5420000000000016,
+  "prior_native_binary_sha256": "105f6722ce56d6f98d7be62da917c2ddfc7d81a4c416db18442a5f7fc3808b30",
+  "registered_utc": "2026-11-23T16:37:22.545837+00:00"
+}

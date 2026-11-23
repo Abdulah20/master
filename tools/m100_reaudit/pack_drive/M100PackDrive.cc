@@ -123,12 +123,19 @@ struct Inputs
   std::optional<Raw> raw;
   std::optional<LandReport> land;
   std::uint64_t discontinuity{0};
+  // Zero commands separate loaded intervals but can confirm one continuous rest.
+  std::uint64_t restDiscontinuity{0};
   bool awaitingZero{false};
 };
 
 bool Fresh(double now, double stamp, double maxAge)
 {
   return stamp <= now + kClockEpsilon && now - stamp <= maxAge + kClockEpsilon;
+}
+
+bool AllMotorsZero(const Speeds &speed)
+{
+  return std::all_of(speed.begin(), speed.end(), [](double x) { return x == 0.0; });
 }
 
 Number Nonnegative(const QJsonValue &value)
@@ -198,6 +205,8 @@ class Inbox
         (next.armed == false && !nativeArmedInAir) || !(next.power.value_or(0) > 0 ||
                                 next.phasePower.value_or(0) > 0 || next.Transient()))
       ++this->latest.discontinuity;
+    if (next.armed != false || next.power != 0.0 || (prev && next.time - prev->time > this->maxAge))
+      ++this->latest.restDiscontinuity;
     this->latest.demand = next;
   }
 
@@ -223,6 +232,8 @@ class Inbox
         *time > *this->clock + this->maxAge ||
         (old && (next.time < old->time || (next.time == old->time && next.sequence < old->sequence))))
       return;
+    if (!next.landed || next.armed.value_or(false) || (old && next.sequence != old->sequence))
+      ++this->latest.restDiscontinuity;
     this->latest.land = next;
   }
 
@@ -252,10 +263,13 @@ class Inbox
     {
       this->latest.raw.reset();
       ++this->latest.discontinuity;
+      ++this->latest.restDiscontinuity;
       return;
     }
     std::copy(message.velocity().begin(), message.velocity().end(), speed.begin());
     const auto peak = *std::max_element(speed.begin(), speed.end());
+    if (!AllMotorsZero(speed) || (this->latest.raw && stamp - this->latest.raw->time > this->maxAge))
+      ++this->latest.restDiscontinuity;
     if (this->latest.awaitingZero && peak > 0)
       return;
     if (peak <= 0 || (this->latest.raw && stamp - this->latest.raw->time > this->maxAge))
@@ -271,6 +285,41 @@ class Inbox
   private: Number firstClock;
   private: Number lastSourceStamp;
   private: Inputs latest;
+};
+
+void AdvanceBranches(double &fast, double &slow, double current, double seconds)
+{
+  fast += -std::expm1(-seconds / rcfit::tau1) * (rcfit::r1 * current - fast);
+  slow += -std::expm1(-seconds / rcfit::tau2) * (rcfit::r2 * current - slow);
+}
+
+struct PackRest
+{
+  std::optional<std::uint64_t> previousEpoch;
+  double seconds{0};
+
+  void Observe(const Inputs &in, double now, double maxAge, bool contiguous, double elapsed,
+               double &fast, double &slow)
+  {
+    std::optional<std::uint64_t> epoch;
+    // These are simulated drive-power requests, including an explicit zero.
+    // A missing request or stale rotor telemetry cannot establish an idle pack.
+    if (in.demand && in.demand->armed == false && in.demand->power == 0.0 &&
+        Fresh(now, in.demand->time, maxAge) && in.raw && !in.awaitingZero &&
+        Fresh(now, in.raw->time, maxAge) && AllMotorsZero(in.raw->speed))
+    {
+      const bool nativeActive = in.land && Fresh(now, in.land->time, kLandReportAge) &&
+                                (!in.land->landed || in.land->armed.value_or(false));
+      if (!nativeActive)
+        epoch = in.restDiscontinuity;
+    }
+    if (contiguous && epoch && epoch == this->previousEpoch)
+    {
+      AdvanceBranches(fast, slow, 0., elapsed);
+      this->seconds += elapsed;
+    }
+    this->previousEpoch = epoch;
+  }
 };
 
 enum class Source { Pack, Local, Pooled, Manager, Missing };
@@ -525,6 +574,7 @@ class PackDrive final : public gz::sim::System,
     this->previousState = State{};
     this->previousLoad = false;
     this->previousIdle = false;
+    this->rest.previousEpoch.reset();
     this->lastPublish.reset();
     this->body = gz::sim::kNullEntity;
     this->groundZ.reset();
@@ -548,11 +598,13 @@ class PackDrive final : public gz::sim::System,
       this->UpdateMotion(inputs, now, ecm);
     auto state = this->Evaluate(inputs, now);
     const double elapsed = this->lastStep ? now - *this->lastStep : 0;
+    const bool contiguous = elapsed > 0 && !info.paused && dt > 0 && elapsed <= this->fit.maxAge &&
+                            std::abs(elapsed - dt) <= kClockEpsilon;
+    if (this->dynamicPack)
+      this->rest.Observe(inputs, now, this->fit.maxAge, contiguous, elapsed, this->polarFast, this->polarSlow);
     if (elapsed > 0)
     {
       double covered = 0;
-      const bool contiguous = !info.paused && dt > 0 && elapsed <= this->fit.maxAge &&
-                              std::abs(elapsed - dt) <= kClockEpsilon;
       // Only bridge consecutive supported endpoints with the same input
       // history. Never fill missing power, stale commands, or rotor saturation.
       if (contiguous && this->previousBreak == inputs.discontinuity && this->previousCurrent &&
@@ -565,12 +617,6 @@ class PackDrive final : public gz::sim::System,
         this->coveredSeconds += covered;
         this->AdvancePolarization(*this->previousCurrent, covered);
       }
-      // A declared zero-power disarmed interval allows relaxation. A missing
-      // sample, saturated rotor or unobserved interval never implies zero load.
-      if (contiguous && this->previousBreak == inputs.discontinuity && this->previousIdle &&
-          this->previousState.demandFresh && this->previousState.effectivePower == 0.0 &&
-          state.knownIdle && state.demandFresh && state.effectivePower == 0.0)
-        this->AdvancePolarization(0, elapsed);
       this->IntegratePower(*this->lastStep, now, covered, contiguous, state);
       if (covered > 0)
         state = this->Evaluate(inputs, now);
@@ -814,8 +860,7 @@ class PackDrive final : public gz::sim::System,
   {
     if (!this->dynamicPack || duration <= 0)
       return;
-    this->polarFast += -std::expm1(-duration / rcfit::tau1) * (rcfit::r1 * current - this->polarFast);
-    this->polarSlow += -std::expm1(-duration / rcfit::tau2) * (rcfit::r2 * current - this->polarSlow);
+    AdvanceBranches(this->polarFast, this->polarSlow, current, duration);
   }
 
   private: void Publish(const Inputs &in, const State &s, double now)
@@ -855,6 +900,7 @@ class PackDrive final : public gz::sim::System,
     {
       json["polarization_fast_v"] = this->polarFast;
       json["polarization_slow_v"] = this->polarSlow;
+      json["polarization_confirmed_rest_s"] = this->rest.seconds;
       json["reference_source_v"] = this->fit.Voltage(0, std::clamp(this->q, this->fit.minQ, this->fit.maxQ));
       json["polarization_load_history_complete"] = this->uncoveredSeconds == 0;
     }
@@ -905,6 +951,7 @@ class PackDrive final : public gz::sim::System,
   private: bool dynamicPack{true};
   private: double initialQ{0}, initialSoc{100};
   private: double polarFast{0}, polarSlow{0};
+  private: PackRest rest;
   private: transient::Predictor predictor;
   private: transient::Prediction prediction;
   private: Number predictionAt, predictionPayload, groundZ;

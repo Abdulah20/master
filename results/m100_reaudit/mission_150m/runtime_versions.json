@@ -1,0 +1,35 @@
+{
+  "archive_sha256": "161cdfaf758a8ec6abd99401354d7e7a6390a6e9922446f897e21216f40e3acc",
+  "archived_files": {
+    "manager": {
+      "archive_member": "ros2_ws/src/drone_nav/drone_nav/m100_experiment_manager.py",
+      "sha256": "8d23c3fb78cc7d615b87973beb030a228969d8b927ba58915dc5d37ff13e2d9e"
+    },
+    "pack_header": {
+      "archive_member": "ros2_ws/src/m100_gazebo_gui/propulsion/M100TheveninFit.hh",
+      "sha256": "9d730a925f9146f552f47a5a6491929713ddd0f85abd904298f237d780bcc36b"
+    },
+    "pack_source": {
+      "archive_member": "ros2_ws/src/m100_gazebo_gui/propulsion/M100PackDrive.cc",
+      "sha256": "1732fd9cb4580a31bb65bfe6c2ca82aa3387ac428612030a0e9aab89610d48f4"
+    },
+    "plugin": {
+      "archive_member": "ros2_ws/install/m100_gazebo_gui/lib/m100_gazebo_gui/libM100PackDrive.so",
+      "sha256": "239d074b5953f203c1dc0c46d31f2672578f420203c89042cdb8b58ecb2a0aac"
+    },
+    "training_writer": {
+      "archive_member": "ros2_ws/src/drone_nav/drone_nav/m100_airborne_training.py",
+      "sha256": "8de1d787b1e9e0463058cfbd8f50ee2dd72803d871ff867541a7c8dd999b5786"
+    },
+    "trajectory_guard": {
+      "archive_member": "analysis/m100_high_speed_stability/run_one_stability_case.py",
+      "sha256": "2c876504321b1d6aa72b1badcc4dbb791e8c828985623348b159d378558e8af8"
+    }
+  },
+  "campaign_source_commit": "7a78efa",
+  "fresh_pack_per_case": true,
+  "native_research_build": "239d074b5953f203c1dc0c46d31f2672578f420203c89042cdb8b58ecb2a0aac",
+  "native_research_source": "1732fd9cb4580a31bb65bfe6c2ca82aa3387ac428612030a0e9aab89610d48f4",
+  "postflight_rest_enters_airborne_energy_label": false,
+  "source_and_binary_archive": "software/discovery_runtime.zip"
+}

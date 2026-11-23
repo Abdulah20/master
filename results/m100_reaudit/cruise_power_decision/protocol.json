@@ -1,0 +1,30 @@
+{
+  "schema": "M100_NATIVE_STEADY_POWER_DECISION_V1",
+  "registered_utc": "2026-11-23T20:15:41Z",
+  "parent_git_commit": "467743671c62d86ee1f5358baa3102abd04c34d3",
+  "primary_endpoint": "Time-weighted mean battery terminal voltage times current in existing CMU stable periods per flight (W); equal weight per flight. Stable selection and minimum aggregate 20 s unchanged.",
+  "fixed_sources_sha256": {
+    "gong_cruise/flights.csv": "3c60db29857350e6b650e5325ecad3004a67add1d994fdd2e447db3521449795",
+    "speed_pack_link/native_flights.csv": "760eba394c586308c08aeaa1c4b5778bceda201f3a776114550d0b862fd10f91",
+    "speed_pack_link/field_heldout_flights.csv": "9627f3cfdb2fa3ad2fe3a9aa5e2055f246b6bc7e35c665aa364abd1e018f9c5e",
+    "speed_pack_link/protocol.json": "83b53bb5375ad93feb8e3f0284788b144c8bcfef75f65d22058fe9668b94d365"
+  },
+  "locked_original_split_sha256": "4ee30d9f70a6870dc57ed58433c69a4f4e985728651909b3842f9c976786e6f7",
+  "fit_count": 61,
+  "evaluation_count": 33,
+  "previously_inspected_matching_flights": [20, 127, 154, 251, 258],
+  "prior_knowledge": "The archived 33-flight field-density study and the five matched native comparisons were already inspected. All 14 dates are shared across the original flight split. No independent campaign or new measurements.",
+  "inputs": "Native phase baseline uses the actual Gazebo APPLY reference density at command altitude, 15 C, zero commanded wind, and published regression mass. Field wind, temperature, MSL datum, trajectory and aircraft conditions are not matched by these inputs.",
+  "domain": "Existing outbound stable measurement gate, nominal >=20 s; commanded 4/6/8 m/s, observed payloads 0/0.25/0.50 kg, command heights in the existing 25-100 m envelope. No extension to supervisor 5/10/15/20, hover, return, wind or temperature.",
+  "candidates": {
+    "baseline": "Native Rodrigues phase power, no correction.",
+    "native_offset": "OLS native residual on intercept.",
+    "native_payload": "OLS native residual on intercept and payload minus 0.25 kg.",
+    "legacy_speed": "Replicate V1: OLS measured minus field-feature Rodrigues on intercept and command speed minus 6, applied on top of native baseline. Refit on training dates in every fold to avoid reusing development labels.",
+    "native_speed": "OLS native residual on intercept and command speed minus 6 m/s.",
+    "native_payload_speed": "OLS native residual on intercept, speed minus 6 and payload minus 0.25. No interaction or cell-specific fitting."
+  },
+  "selection": "Development flights only. Predict each complete held-out date; rank full-rank candidates by flight-weighted MAE. Choose fewest parameters among candidates within one paired date-cluster standard error of the best MAE, then smaller MAE. Within each supported payload use chosen residual only if its OOF MAE and RMSE are both <= baseline and at least two fit dates occur. All other payloads use base. Repeat the entire selection+gate inside each outer omitted fit date to evaluate the full procedure.",
+  "promotion": "Compare the frozen policy without further adjustment. On the 33 held-out flights require MAE <= baseline and strictly < installed legacy, RMSE <= installed legacy, plus outer-date development MAE <= fold-refit legacy. Also require previously inspected five-flight MAE <= installed legacy. Failure keeps the incumbent version and documents the limitation. No hold-out refit, rescue cell selection or iterative candidate search.",
+  "outputs": "Fold predictions, per-flight powers, per-condition counts/errors and paired date-cluster uncertainty. Report original 5, remaining 28, and all 33 separately. Inference concerns steady pack W only; whole-mission Wh and component losses are not validation endpoints."
+}

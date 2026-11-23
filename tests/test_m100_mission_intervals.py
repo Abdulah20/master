@@ -7,6 +7,7 @@ import pytest
 
 from tools.m100_reaudit import mission_observations as obs
 from tools.m100_reaudit import mission_online
+from tools.m100_reaudit import mission_release as release
 
 
 CONDITIONS = dict(payload_kg=0.25, cruise_speed_mps=8, altitude_m=50, wind_speed_mps=0,
@@ -118,3 +119,49 @@ def test_power_training_rejects_intervals_belonging_to_another_attempt(tmp_path,
     monkeypatch.setattr(mission_online, 'grouped_folds', lambda rows: [0, 1])
     with pytest.raises(ValueError, match='different flight'):
         mission_online.evaluate(inputs, flights, tmp_path)
+
+
+@pytest.mark.parametrize('fault', ['none','gap','wrong_run','wrong_power','missing_last_interval'])
+def test_published_interval_join_and_energy_closure(tmp_path, monkeypatch, fault):
+    monkeypatch.setattr(release,'OUT',tmp_path)
+    row=dict(case_id='case_a',run_id='flight',estimated_airborne_energy_Wh=.25,source_audit='audit.json')
+    obs.table(tmp_path/'mission_flights.csv',[row])
+    release.save(tmp_path/'audit.json',dict(case_id='case_a',run_id='flight',accepted=True,
+        checks=dict(px4_takeoff_us=10_000_000,px4_landing_us=12_000_000,recorder_energy_Wh=.25)))
+    slices=[dict(case_id='case_a',run_id='flight',interval_start_sim_s=10+i,interval_end_sim_s=11+i,
+                 interval_s=1,cumulative_airborne_Wh_at_start=i*.125,cumulative_airborne_Wh_at_end=(i+1)*.125,
+                 future_interval_energy_Wh=.125,future_interval_mean_power_W=450,causal_features_available=True)
+            for i in range(2)]
+    if fault=='gap':
+        slices[1]['interval_start_sim_s']+=.1
+    elif fault=='wrong_run':
+        slices[1]['run_id']='prior_attempt'
+    elif fault=='wrong_power':
+        slices[1]['future_interval_mean_power_W']=400
+    elif fault=='missing_last_interval':
+        slices.pop()
+    with gzip.open(tmp_path/'mission_intervals.csv.gz','wt',newline='') as file:
+        writer=csv.DictWriter(file,fieldnames=list(slices[0]))
+        writer.writeheader()
+        writer.writerows(slices)
+    if fault=='none':
+        counts=release.verify_published_intervals([row])
+        assert counts['interval_rows']==counts['interval_rows_with_causal_features']==2
+    else:
+        with pytest.raises(ValueError,match='Published|unselected'):
+            release.verify_published_intervals([row])
+
+
+def test_online_prediction_uses_only_features_available_at_the_left_edge():
+    names=mission_online.FEATURE_NAMES
+    slopes=[[1.] if k=='horizontal_speed_mps' else [0.] for k in names]
+    model=dict(features=names,target='following_interval_mean_pack_power_W',
+               fit=dict(center=[0.]*len(names),scale=[1.]*len(names),coefficients=slopes,offset=[450.]))
+    row={key:1. for key in mission_online.NUMERIC}
+    row.update(horizontal_speed_mps=8.,causal_features_available=True,px4_mode='OFFBOARD',flight_phase='CRUISE')
+    assert mission_online.predict(row,model)==458.
+    assert mission_online.predict(dict(row,starting_pack_voltage_V=25.,future_interval_mean_power_W=999.),model)==458.
+    assert mission_online.predict(dict(row,px4_mode=None),model) is None
+    assert mission_online.predict(dict(row,causal_features_available=False),model) is None
+    with pytest.raises(ValueError,match='Unsupported online'):
+        mission_online.predict(row,dict(model,features=names[:-1]))

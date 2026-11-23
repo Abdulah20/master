@@ -37,7 +37,11 @@ def acquire(planned,path,workers):
         if not queue:
             audit_closed()
             continue
-        with ThreadPoolExecutor(max_workers=workers) as pool:
+        # A replacement uses the original seed and settings. Reduce simultaneous
+        # launches on successive attempts so a tight host cannot repeatedly
+        # starve the native power or PX4 telemetry streams.
+        simultaneous=max(1,workers-number+1)
+        with ThreadPoolExecutor(max_workers=simultaneous) as pool:
             futures={pool.submit(run_one,c,path,number) for c in queue}
             count=-1
             while futures:

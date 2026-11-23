@@ -1,6 +1,8 @@
 """Build verified M100 training tables and register or score independent recommendation flights."""
 import argparse
 from collections import defaultdict
+import csv
+import gzip
 import math
 from pathlib import Path
 
@@ -26,8 +28,13 @@ def inventory(planned):
         selected=[a for a in audits if a['accepted']]
         confirm(len(selected)<=1,'A scenario has more than one accepted attempt')
         for a in audits:
-            attempts.append(dict(case_id=cid,attempt=a['attempt'],run_id=a.get('run_id'),
-                status='ACCEPTED' if a['accepted'] else 'REJECTED',reason=a['reason'],archive_sha256=a['archive_sha256']))
+            receipt=read(OUT/'acquisition'/cid/f"attempt_{a['attempt']}.json")
+            confirm(receipt['case_id']==cid and receipt['attempt']==a['attempt'] and receipt['archive_sha256']==a['archive_sha256']
+                    and (a.get('run_id') is None or receipt.get('run_id')==a['run_id']),
+                    'Attempt register disagrees with the original acquisition receipt')
+            attempts.append(dict(case_id=cid,attempt=a['attempt'],run_id=receipt.get('run_id'),
+                status='ACCEPTED' if a['accepted'] else 'REJECTED',reason=a['reason'],
+                native_outcome=receipt.get('outcome'),raw_archive=receipt['archive'],archive_sha256=a['archive_sha256']))
         if selected:
             accepted.append(selected[0])
         else:
@@ -58,6 +65,46 @@ def release_tables(selected,attempts):
     combine_intervals(files,OUT/'mission_intervals.csv.gz')
     table(OUT/'attempt_registry.csv',attempts)
     return rows
+
+
+def verify_published_intervals(rows):
+    """Read the shipped CSVs and match their joins, timestamps and energies to the original PX4/recorder audit."""
+    direct={}
+    last={}
+    counts=defaultdict(int)
+    eligible=0
+    preflight=dataframe(OUT/'mission_flights.csv')
+    confirm(len(preflight)==len(rows),'Published preflight row count differs from the accepted cohort')
+    for row in preflight:
+        key=(row['case_id'],row['run_id'])
+        audit=read(OUT/row['source_audit'])
+        checks=audit['checks']
+        confirm(key not in direct and (audit['case_id'],audit['run_id'])==key and audit['accepted']
+                and number(row,ENERGY)==checks['recorder_energy_Wh'],'Published energy or selected run differs from its recorder')
+        direct[key]=(checks['px4_takeoff_us']/1e6,checks['px4_landing_us']/1e6,checks['recorder_energy_Wh'])
+    confirm(set(direct)=={(r['case_id'],r['run_id']) for r in rows},'Flight CSV identifiers differ from the accepted cohort')
+    with gzip.open(OUT/'mission_intervals.csv.gz','rt',newline='') as stream:
+        for item in csv.DictReader(stream):
+            key=(item['case_id'],item['run_id'])
+            confirm(key in direct,'Published interval belongs to an unselected run')
+            start_s,end_s,duration_s=(float(item[k]) for k in ('interval_start_sim_s','interval_end_sim_s','interval_s'))
+            start_Wh,end_Wh,delta_Wh=(float(item[k]) for k in ('cumulative_airborne_Wh_at_start','cumulative_airborne_Wh_at_end','future_interval_energy_Wh'))
+            previous_s,previous_Wh=last.get(key,(direct[key][0],0.))
+            confirm(abs(start_s-previous_s)<5e-7 and abs(start_Wh-previous_Wh)<1e-9 and duration_s>0 and delta_Wh>0
+                    and abs(end_s-start_s-duration_s)<1e-8 and abs(end_Wh-start_Wh-delta_Wh)<1e-9
+                    and abs(3600*delta_Wh/duration_s-float(item['future_interval_mean_power_W']))<1e-7,
+                    'Published intervals have a gap, overlap or incompatible energy, power or duration')
+            last[key]=(end_s,end_Wh)
+            counts[key]+=1
+            confirm(item['causal_features_available'] in ('True','False'),'Invalid feature availability flag')
+            eligible+=item['causal_features_available']=='True'
+    confirm(last.keys()==direct.keys(),'A published flight is missing its interval data')
+    for key,(_,landing,target) in direct.items():
+        stamp,total=last[key]
+        confirm(abs(stamp-landing)<5e-7 and abs(total-target)<1e-9,'Published intervals do not close at the recorder target and the PX4 landing edge')
+    return dict(interval_rows=sum(counts.values()),interval_rows_with_causal_features=eligible,
+                unique_joined_flights=len(last),smallest_interval_count_per_flight=min(counts.values()),
+                largest_interval_count_per_flight=max(counts.values()))
 
 
 def factorial_contrasts(rows):
@@ -301,10 +348,11 @@ def build(stage):
     confirm(power_scored.isdisjoint(no_power) and power_scored.union(no_power)==expected_reference,
             'Power evaluation membership does not match the reference discovery flights')
     checks=confirm_results(rows,confirm_plan)
+    release_counts=verify_published_intervals(rows)
     counts={k:sum(r['group']==k for r in rows) for k in ('factorial','route','sensitivity','confirmation')}
     save(OUT/'verification.json',dict(registered=len(protocol['cases'])+len(confirm_plan['cases']),accepted=len(rows),
         attempts=sum(r['status']!='PENDING' for r in attempts),excluded_after_retries=[c['case_id'] for c in pending],
-        counts=counts,paired_confirmation_rows=checks['observed_distinct_seed_pairs'],
+        counts=counts,published_interval_checks=release_counts,paired_confirmation_rows=checks['observed_distinct_seed_pairs'],
         confirmation_coverage=checks['coverage'],eligible_paired_confirmation_rows=checks['pairs_satisfying_nominal_constraints'],
         expected_paired_confirmation_rows=checks['expected_distinct_seed_pairs'],new_preflight_csv_sha256=digest(OUT/'mission_flights.csv'),
         new_series_sha256=digest(OUT/'mission_intervals.csv.gz'),model_sha256=confirm_plan['model_sha256'],

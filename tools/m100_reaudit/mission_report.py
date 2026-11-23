@@ -116,15 +116,18 @@ def write():
     matches=dataframe(OUT/'field_command_context.csv')
     charts(conds,env,OUT)
     counts=verify['counts']
+    intervals=verify['published_interval_checks']
     reasons=Counter(a['reason'] for a in attempts if a['status']=='REJECTED')
     rate=np.array([number(c,'recorded_manager_energy_Wh')/number(c,'estimated_airborne_energy_Wh') for c in flights])*100
     exhausted=sum(r['low_charge_domain_exhausted']=='True' for r in flights)
+    supported=[r for r in flights if number(r,'native_vi_publications')>0]
     lines=['# نتائج مهمة Matrice 100 إلى وجهة على بُعد 150 م ثم العودة','',
            f"اجتازت **{verify['accepted']} رحلة محاكاة** التحقق من طاقة الإقلاع إلى الهبوط والوصول إلى الوجهة والعودة. "
            f"سجّلت الحملة {verify['attempts']} محاولة لعدد {verify['registered']} حالة وبذرة مسجّلة. "
            f"من الرحلات المقبولة، {counts['factorial']} لتجربة الحمولة والسرعة والارتفاع، و{counts['route']} لبديل المسار، "
            f"و{counts['sensitivity']} للرياح وحرارة الهواء وشحن البداية، و{counts['confirmation']} للتحقق المنفصل من الاختيارات. "
-           "تحتفظ الجداول بطاقات المسجّل الخام. [ملف الرحلات](mission_flights.csv) · [سجل المحاولات](attempt_registry.csv)",'',
+           f"تضم الجداول {intervals['interval_rows']:,} فترة زمنية، توفرت مدخلات الملاحة السابقة للتنبؤ في {intervals['interval_rows_with_causal_features']:,} منها. "
+           "تحتفظ الجداول بطاقة الرحلة التي كتبها المسجّل عند الهبوط. [ملف الرحلات](mission_flights.csv) · [فترات القدرة والطاقة](mission_intervals.csv.gz) · [سجل المحاولات](attempt_registry.csv)",'',
            '## اختيار السرعة والارتفاع والمسار','',
            'استُخدمت وجهة تبعد 150 م شرقًا عن نقطة الإقلاع والعودة إلى النقطة نفسها بالحمولة نفسها. استُخدم احتياطي اسمي قابل للتغيير قدره 20%، ولم يحدد للمهمة موعد وصول. جُرّبت سرعات ذهاب 6 و8 و10 م/ث وارتفاعات 25 و50 و100 م. يتبع المسار البديل نقطة وسطية، فيبلغ طوله المخطط مع العودة 317.71 م مقابل 300 م للمباشر. بقيت سرعة العودة محدودة بأربعة م/ث في كلا المسارين.','',
            '| الحمولة | اختيار المتنبئ | الطاقة المتوقعة | الطاقة المرصودة للتحقق | زمن المهمة المرصود | شحن الهبوط الاسمي | الوفر عن المباشر عند 8 م/ث و50 م |',
@@ -174,6 +177,24 @@ def write():
             "[جدول التأثيرات](environment_and_soc.csv) · [الفروق المقترنة للحمولة والسرعة والارتفاع](factorial_paired_effects.csv)",'']
     if env:
         lines+=['![فروق الطاقة عن المرجع عند تغيير الرياح والحرارة وشحن البداية](environment_sensitivity.png)','']
+        low=next((r for r in env if r['route']=='direct' and number(r,'nominal_initial_soc_percent')==80),None)
+        if low and low['minimum_supported_pack_voltage_V'] and low['reference_minimum_supported_voltage_V']:
+            lines+=[f"في المسار المباشر عند شحن ابتدائي اسمي 80%، بلغ أدنى جهد مدعوم {number(low,'minimum_supported_pack_voltage_V'):.2f} V "
+                    f"مقابل {number(low,'reference_minimum_supported_voltage_V'):.2f} V عند 100%. "
+                    f"بلغت طاقة المهمة {number(low,'airborne_Wh'):.2f} Wh مقابل {number(low,'reference_Wh'):.2f} Wh للمرجع، "
+                    f"وغطّى تقدير قدرة الطائرة البديل {100*number(low,'fallback_share_of_energy'):.1f}% من طاقة رحلة 80%. "
+                    "هذه مقارنة لبذرة واحدة ضمن نموذج البطارية المنقول من CMU.",'']
+    if supported:
+        minimum=min(number(r,'min_supported_load_voltage_V') for r in supported)
+        peak=max(number(r,'max_supported_current_A') for r in supported)
+        thrust=min(number(r,'min_supported_available_thrust_fraction') for r in supported)
+        clipped=sum(number(r,'motor_command_limited_publications')>0 for r in flights)
+        lines+=['## أثر الجهد في التيار والدفع داخل المحاكي','',
+                f"بلغ أدنى جهد مدعوم تحت الحمل {minimum:.2f} V، وأعلى تيار مدعوم {peak:.2f} A عبر الرحلات. "
+                f"وصل سقف الدفع المتاح المحسوب من مربع نسبة سرعة المحرك إلى {100*thrust:.1f}% من السقف الاسمي. "
+                f"في {clipped} من {len(flights)} رحلة احتوت الرسائل المنشورة على أمر محرك مقصوص عند السقف. "
+                "يتعلق هذا السقف بأقصى دفع يسمح به النموذج في تلك اللحظة. يحلّ نموذج البطارية الجهد والتيار معًا حتى يساوي حاصل ضربهما القدرة المطلوبة، "
+                "ويبقى فقد التوصيل في ESC 620D وعزم كل محرك خارج القياس المتاح. [مقاييس الحزمة والدفع لكل رحلة](mission_flights.csv)",'']
     if (OUT/'mission_phase_checks.csv').is_file():
         phases=dataframe(OUT/'mission_phase_checks.csv')
         duration=sum(number(r,'duration_s') for r in phases)

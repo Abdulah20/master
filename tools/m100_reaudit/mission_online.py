@@ -14,16 +14,31 @@ NAVS=('OFFBOARD','AUTO_TAKEOFF','AUTO_LAND','AUTO_LOITER')
 NUMERIC=('payload_kg','commanded_speed_mps','commanded_altitude_agl_m','horizontal_speed_mps','vertical_speed_up_mps',
          'horizontal_tangential_accel_mps2','horizontal_accel_magnitude_mps2','vertical_accel_up_mps2',
          'estimated_height_since_takeoff_m','air_relative_horizontal_mps','ambient_temperature_C','nominal_soc_at_start_pct')
+FEATURE_NAMES=[*NUMERIC,*['phase='+s for s in PHASES],*['nav='+s for s in NAVS]]
 
 
 def inputs(row):
     raw=[row.get(k) for k in NUMERIC]
-    if any(v is None or v=='' for v in raw) or str(row.get('causal_features_available')).lower()!='true':
+    if (any(v is None or v=='' for v in raw) or str(row.get('causal_features_available')).lower()!='true'
+            or not row.get('flight_phase') or not row.get('px4_mode')):
         return None
     x=[float(v) for v in raw]
     x += [float(row['flight_phase']==s) for s in PHASES]
     x += [float(row['px4_mode']==s) for s in NAVS]
     return x if all(math.isfinite(v) for v in x) else None
+
+
+def predict(row, model):
+    """Predict next-interval mean power from information available at the left edge, in watts."""
+    if model['features']!=FEATURE_NAMES or model['target']!='following_interval_mean_pack_power_W':
+        raise ValueError('Unsupported online power model')
+    features=inputs(row)
+    if features is None:
+        return None
+    prediction=float(ridge_apply(np.asarray([features]),model['fit'])[0,0])
+    if not math.isfinite(prediction) or prediction<=0:
+        raise ValueError('The power model returned a nonphysical airborne prediction')
+    return prediction
 
 
 def evaluate(path, flights, destination, *, observe_held_out=None):
@@ -92,7 +107,7 @@ def evaluate(path, flights, destination, *, observe_held_out=None):
     if not np.isfinite(predictions).all():
         raise ValueError('Nonfinite power prediction')
     table(destination/'held_out_by_flight.csv',rows)
-    save(destination/'model.json',dict(features=[*NUMERIC,*['phase='+s for s in PHASES],*['nav='+s for s in NAVS]],
+    save(destination/'model.json',dict(features=FEATURE_NAMES,
          fit=ridge_fit(x,y[:,None],weights,3.),target='following_interval_mean_pack_power_W',
          observations='Causal PX4 local estimates and commands at the left edge. Battery current and voltage are excluded.',
          phase_window_s='approximately one second; observed endpoints',field_validation=False))

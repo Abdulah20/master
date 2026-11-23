@@ -46,8 +46,13 @@ def release_tables(selected,attempts):
         confirm(digest(file)==a['checks']['intervals_sha256'],'Verified time-series bytes changed')
         audit_file=Path('audits')/a['case_id']/f"attempt_{a['attempt']}.json"
         receipt=read(OUT/'acquisition'/a['case_id']/f"attempt_{a['attempt']}.json")
-        rows.append(dict(**m,source_audit=str(audit_file),raw_archive=receipt['archive'],
-                         raw_archive_sha256=a['archive_sha256']))
+        primary=('case_id','run_id','group','mission_route','payload_kg','base_uav_mass_kg','total_mass_kg',
+                 'cruise_speed_mps','altitude_m','wind_speed_mps','wind_direction_toward_deg_ENU','temperature_c',
+                 'initial_soc_percent','estimated_airborne_energy_Wh','airborne_mean_power_W','airborne_duration_s',
+                 'airborne_horizontal_distance_m','nominal_remaining_energy_Wh','nominal_remaining_soc_percent',
+                 'nominal_endurance_to_reserve_min','nominal_horizontal_range_to_reserve_km','energy_uncovered_s')
+        rows.append({**{k:m[k] for k in primary},**m,'source_audit':str(audit_file),'raw_archive':receipt['archive'],
+                     'raw_archive_sha256':a['archive_sha256']})
         files.append(file)
     table(OUT/'mission_flights.csv',rows)
     combine_intervals(files,OUT/'mission_intervals.csv.gz')
@@ -281,8 +286,20 @@ def build(stage):
         power_evaluation(OUT/'mission_intervals.csv.gz',reference,OUT/'online_reference')
         make_confirmation(reference,model,OUT/'preflight_reference/model.json')
         return
-    confirm(stage=='final' and confirm_plan and digest(OUT/'preflight_reference/model.json')==confirm_plan['model_sha256'],
+    confirm(stage=='final' and confirm_plan and digest(OUT/'protocol.json')==confirm_plan['parent_sha256']
+            and digest(OUT/'preflight_reference/model.json')==confirm_plan['model_sha256'],
             'Confirmation requires a frozen model and recommendation register')
+    expected_reference={r['case_id'] for r in reference}
+    expected_discovery={r['case_id'] for r in discovery}
+    confirmation_ids={r['case_id'] for r in confirm_plan['cases']}
+    confirm(not expected_discovery.intersection(confirmation_ids),'Discovery and confirmation identifiers overlap')
+    for name,expected in (('preflight_reference',expected_reference),('preflight_exploratory',expected_discovery)):
+        ids=[r['case_id'] for r in dataframe(OUT/name/'held_out_predictions.csv')]
+        confirm(len(ids)==len(expected) and set(ids)==expected, f'Discovery predictions do not match the {name} flights')
+    power_scored={r['case_id'] for r in dataframe(OUT/'online_reference/held_out_by_flight.csv')}
+    no_power=read(OUT/'online_reference/evaluation.json')['flights_without_eligible_intervals']
+    confirm(power_scored.isdisjoint(no_power) and power_scored.union(no_power)==expected_reference,
+            'Power evaluation membership does not match the reference discovery flights')
     checks=confirm_results(rows,confirm_plan)
     counts={k:sum(r['group']==k for r in rows) for k in ('factorial','route','sensitivity','confirmation')}
     save(OUT/'verification.json',dict(registered=len(protocol['cases'])+len(confirm_plan['cases']),accepted=len(rows),
@@ -291,6 +308,9 @@ def build(stage):
         confirmation_coverage=checks['coverage'],eligible_paired_confirmation_rows=checks['pairs_satisfying_nominal_constraints'],
         expected_paired_confirmation_rows=checks['expected_distinct_seed_pairs'],new_preflight_csv_sha256=digest(OUT/'mission_flights.csv'),
         new_series_sha256=digest(OUT/'mission_intervals.csv.gz'),model_sha256=confirm_plan['model_sha256'],
+        discovery_protocol_sha256=confirm_plan['parent_sha256'],confirmation_protocol_sha256=digest(confirmation_file),
+        discovery_reference_model_flights=len(expected_reference),discovery_exploratory_model_flights=len(expected_discovery),
+        confirmation_cases_excluded_from_model_fit_and_discovery_scores=len(confirmation_ids),
         positive_uncovered_s=sum(r['energy_uncovered_s']>0 for r in rows),
         maximum_pack_equation_residual_V=max(r['native_2rc_equation_max_residual_V'] or 0 for r in rows),
         maximum_supported_power_residual_W=max(r['pack_power_balance_max_residual_W'] or 0 for r in rows),

@@ -1,0 +1,72 @@
+{
+  "dogleg_guard_correction": "The previous guard always measured displacement from the east axis. It now checks perpendicular distance to the active finite segment. Its other safety thresholds are retained.",
+  "null_hover_duration_correction": "A cruise mission still validates the unused hover-duration parameter. Set to 60 s.",
+  "raw_storage": "M100_MISSION_ARCHIVE",
+  "setup_attempts": [
+    {
+      "archive": "engineering/setup_pilot.zip",
+      "archive_sha256": "1eb4178ec0dcfb9ee1425c0a9e0291847abc2403e917b747554e88d11c6b8ce7",
+      "armed_at_end": false,
+      "case_id": "direct_000_6_25_s1701",
+      "confirmed_landed": true,
+      "included_in_training": false,
+      "outcome": "RUNNER_ERROR",
+      "reason": "manager entered ERROR: REJECTED \u2014 hover_duration_s must be in [5, 600]",
+      "receipt_sha256": "35bb33aef1d75b9758bcfba9f131da26ddc811a64bbb28f66843a0dce2321c48",
+      "recorder_energy_Wh": null,
+      "run_id": null
+    },
+    {
+      "archive": "engineering/setup_pilot2.zip",
+      "archive_sha256": "925bdf546cf82da8a32dcff4967dafac4ab7467c813dac8597a615498ccfb32c",
+      "armed_at_end": false,
+      "case_id": "direct_000_6_25_s1701",
+      "confirmed_landed": true,
+      "included_in_training": false,
+      "outcome": "COMPLETE",
+      "reason": "",
+      "receipt_sha256": "960b1ab22f299f5a727c6bb396460012f56a2819022788c33806b7ea661aa411",
+      "recorder_energy_Wh": 18.192141932875945,
+      "run_id": "m100_20261123T153902Z"
+    },
+    {
+      "archive": "engineering/pre_registration_factorial_p000_v6_h25_direct_w0d0_t15_q100_s1701.zip",
+      "archive_sha256": "286547205ed5030476410cb5c7a788756baeab577f879a186b04c0b651b1725b",
+      "armed_at_end": false,
+      "case_id": "factorial_p000_v6_h25_direct_w0d0_t15_q100_s1701",
+      "confirmed_landed": true,
+      "included_in_training": false,
+      "outcome": "COMPLETE",
+      "reason": "",
+      "receipt_sha256": "e9c9f6efee78bcf6ffeaca58ff3aa167cf27d21e24a631d712ab75053186a9b8",
+      "recorder_energy_Wh": 18.173469855728776,
+      "run_id": "m100_20261123T154653Z"
+    },
+    {
+      "archive": "engineering/pre_registration_route_p000_v6_h25_north_dogleg_w0d0_t15_q100_s1701.zip",
+      "archive_sha256": "241e1c1a7c60be475c8d13dd7cfece15cf9065887a5d32abea46c3e7e6a4790b",
+      "armed_at_end": false,
+      "case_id": "route_p000_v6_h25_north_dogleg_w0d0_t15_q100_s1701",
+      "confirmed_landed": true,
+      "included_in_training": false,
+      "outcome": "ABORTED_BY_GUARD",
+      "reason": "persistent trajectory loss: cross_track=22.81 m, altitude_error=0.00 m",
+      "receipt_sha256": "f1a7f17911e277c549462b37563f6fb19997102c8d1a94a114f1c5db654b3402",
+      "recorder_energy_Wh": 6.673233702739086,
+      "run_id": "m100_20261123T154701Z"
+    },
+    {
+      "archive": "engineering/pre_registration_sensitivity_p025_v8_h50_direct_w0d0_t15_q80_s1701.zip",
+      "archive_sha256": "5fa38c21ff89a117dbda51eeef4cb5933b4c45e6a01fd8e7648fe8bc8e456398",
+      "armed_at_end": false,
+      "case_id": "sensitivity_p025_v8_h50_direct_w0d0_t15_q80_s1701",
+      "confirmed_landed": true,
+      "included_in_training": false,
+      "outcome": "COMPLETE",
+      "reason": "",
+      "receipt_sha256": "181f7a74564a41b5500f8788a998d264d2a47de169d5e09a5c240dbe14a0c359",
+      "recorder_energy_Wh": 22.956578206966487,
+      "run_id": "m100_20261123T154708Z"
+    }
+  ]
+}

@@ -1,0 +1,66 @@
+{
+  "bias": "prediction minus simulator label",
+  "cohorts": {
+    "exploratory": {
+      "command_families": 33,
+      "eligible_intervals": 19210,
+      "excluded_intervals": 0,
+      "flights": 113,
+      "folds": 5,
+      "input_sha256": {
+        "mission_flights.csv": "7b4d1a7e17aad967ebd32de6d6d7849637814d50499f5f133344ff9e0de741c2",
+        "mission_intervals.csv.gz": "5021323604467dbc6c846f12c7b9b491ab514903533a76133ec925eeb554ac6c",
+        "preflight_exploratory/evaluation.json": "a531e18a8017deebd9396bbf16476d234e7e302c7b543cc6c0eb0fe9b3794a69",
+        "preflight_exploratory/held_out_predictions.csv": "d17e3b295161eea5ca180fe4d6afad393d5fa2b4ce250d4a0b1a357024774437"
+      },
+      "phase_interval_partition_verified": true,
+      "power_validation_basis": "ADDITIONAL_EXPLORATORY_OUT_OF_FOLD",
+      "recomputed_power_mae_W": 5.672108737271171,
+      "reproduced_energy_mae_Wh": 0.22355446369097356
+    },
+    "historical": {
+      "command_families": 18,
+      "eligible_intervals": 24273,
+      "excluded_intervals": 0,
+      "flights": 69,
+      "folds": 5,
+      "input_sha256": {
+        "historical_intervals.csv.gz": "8618fadaf680f6e9b4fc6b7e15b617e06738e2894ac9a96a66c593306bc079ed",
+        "historical_power_model/evaluation.json": "b75c929ba65ca2ee9df75caf31d2f5068cf033a513938bf6d6632a3e3edbe797",
+        "historical_preflight.csv": "61259cebbdfb9b5e3d07026b1d5c0f7bff657989ac36df58fcbfd9cc7972e29e",
+        "historical_preflight_model/evaluation.json": "2d30d9aa4f64409fda4c2d0db5f83d8eaa10f5113d4a9ceeb029890575f9226d",
+        "historical_preflight_model/held_out_predictions.csv": "d405059a6d643e5d767ba845162f2254845d44ef3ef2802797c49957d52bd71f"
+      },
+      "phase_interval_partition_verified": true,
+      "power_validation_basis": "REPRODUCED_PUBLISHED_OUT_OF_FOLD",
+      "recomputed_power_mae_W": 22.037656852079127,
+      "reproduced_energy_mae_Wh": 1.101007940451588
+    },
+    "reference": {
+      "command_families": 13,
+      "eligible_intervals": 15814,
+      "excluded_intervals": 0,
+      "flights": 93,
+      "folds": 5,
+      "input_sha256": {
+        "mission_flights.csv": "7b4d1a7e17aad967ebd32de6d6d7849637814d50499f5f133344ff9e0de741c2",
+        "mission_intervals.csv.gz": "5021323604467dbc6c846f12c7b9b491ab514903533a76133ec925eeb554ac6c",
+        "online_reference/evaluation.json": "0e65f7a86a13860cdcb089b11d2d18eedb7db808c797cf313492bb324454b1f5",
+        "preflight_reference/evaluation.json": "5edba2ea48d19ceae1bd44fa5d37b2af9d1058b1ebe8768e3e892c86f2ce4654",
+        "preflight_reference/held_out_predictions.csv": "47f49a563a2a80f9f405a61b17601c1967dd2422a57380a65a2efd826338cc6a"
+      },
+      "phase_interval_partition_verified": true,
+      "power_validation_basis": "REPRODUCED_PUBLISHED_OUT_OF_FOLD",
+      "recomputed_power_mae_W": 5.688520260263099,
+      "reproduced_energy_mae_Wh": 0.1969987257330531
+    }
+  },
+  "command_family": "Mission route, speed, altitude, wind vector command, temperature, initial nominal SOC and planned distances/hover time; every seed and payload for that condition stays in the same fold.",
+  "differences": "ridge metric minus named reference metric",
+  "energy_weighting": "One takeoff-to-landing observation per flight. A phase has no preflight whole-flight target.",
+  "interpretation": "Each slice is marginal; a row with one command family describes that setting. No physical-flight prediction accuracy is inferred. Confirmation flights are excluded.",
+  "labels": "M100 simulator only",
+  "power_weighting": "Normalize interval duration within each contributing flight and slice, then weight flights equally. RMSE is sqrt(equal-flight mean of time-weighted per-flight MSE). Phase is the command at interval start.",
+  "table_rows": 288,
+  "table_sha256": "e9df3e7d1ef4e850079cebcd177ce128d5fee50f05ef16baadae26c2a9431182"
+}

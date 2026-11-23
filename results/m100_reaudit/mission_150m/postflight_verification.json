@@ -1,0 +1,100 @@
+{
+  "consecutive_step_changes": [
+    {
+      "change_attributable_to_mean_power_Wh": -0.018777139648607565,
+      "change_attributable_to_time_Wh": -0.4621109884996618,
+      "delta_energy_Wh": -0.4808881281482691,
+      "delta_energy_percent": -2.655547406357539,
+      "delta_horizontal_distance_m": -7.446468365136525,
+      "delta_mean_power_W": -0.4935688043326536,
+      "delta_time_s": -3.5420000000000016,
+      "from_step_s": 0.004,
+      "to_step_s": 0.002
+    },
+    {
+      "change_attributable_to_mean_power_Wh": -0.010826210036120963,
+      "change_attributable_to_time_Wh": 0.45025663404230537,
+      "delta_energy_Wh": 0.4394304240061828,
+      "delta_energy_percent": 2.492808506199884,
+      "delta_horizontal_distance_m": 3.9623993127516997,
+      "delta_mean_power_W": -0.28466512405714184,
+      "delta_time_s": 3.4539999999999793,
+      "from_step_s": 0.002,
+      "to_step_s": 0.001
+    }
+  ],
+  "corrected_pack_header_sha256": "9d730a925f9146f552f47a5a6491929713ddd0f85abd904298f237d780bcc36b",
+  "corrected_pack_source_sha256": "ed84f9e11fd9755deb552e0340314b0ea9ac1f5ad6b77f0c9bae9ffd1619c08f",
+  "corrected_plugin_sha256": "105f6722ce56d6f98d7be62da917c2ddfc7d81a4c416db18442a5f7fc3808b30",
+  "default_pack_confirmed_in_flight": true,
+  "discovery_same_setting_energies_Wh": [
+    18.07892493723479,
+    18.070936082610512,
+    18.139485842259226
+  ],
+  "flights": [
+    {
+      "airborne_s": 138.728,
+      "archive_sha256": "72feb6edb93b67e152b627986dc82ef30020c0b9c94e15dbedf834d0ae2a50d0",
+      "case_id": "rest_check_p000_v6_h25_direct_w0d0_t15_q100_s3771_dt4ms",
+      "confirmed_rest_s": 8.52800000000002,
+      "energy_Wh": 18.108813534904144,
+      "horizontal_m": 309.7087341298633,
+      "max_rest_branch_error_V": 8.326672684688674e-16,
+      "max_rest_charge_variation_Ah": 0.0,
+      "max_supported_current_A": 24.080863036533028,
+      "max_vi_error_W": 5.684341886080802e-14,
+      "max_voltage_equation_error_V": 3.552713678800501e-15,
+      "min_supported_voltage_V": 22.022839407000294,
+      "raw_archive": "engineering/rest_check_p000_v6_h25_direct_w0d0_t15_q100_s3771_dt4ms/m100_20261123T162808Z.zip",
+      "report": "postflight_checks/rest_check_p000_v6_h25_direct_w0d0_t15_q100_s3771_dt4ms.json",
+      "run_id": "m100_20261123T162808Z",
+      "seed": 3771,
+      "step_s": 0.004
+    },
+    {
+      "airborne_s": 135.186,
+      "archive_sha256": "235151bbe015f0edc641355a278173d88572bc782a5d7b1bd5c54f36b4b25a25",
+      "case_id": "rest_check_p000_v6_h25_direct_w0d0_t15_q100_s3771_dt2ms",
+      "confirmed_rest_s": 8.5,
+      "energy_Wh": 17.627925406755875,
+      "horizontal_m": 302.26226576472675,
+      "max_rest_branch_error_V": 1.2212453270876722e-15,
+      "max_rest_charge_variation_Ah": 0.0,
+      "max_supported_current_A": 24.075710598871247,
+      "max_vi_error_W": 5.684341886080802e-14,
+      "max_voltage_equation_error_V": 3.552713678800501e-15,
+      "min_supported_voltage_V": 22.052171132702362,
+      "raw_archive": "engineering/rest_check_p000_v6_h25_direct_w0d0_t15_q100_s3771_dt2ms/m100_20261123T163114Z.zip",
+      "report": "postflight_checks/rest_check_p000_v6_h25_direct_w0d0_t15_q100_s3771_dt2ms.json",
+      "run_id": "m100_20261123T163114Z",
+      "seed": 3771,
+      "step_s": 0.002
+    },
+    {
+      "airborne_s": 138.64,
+      "archive_sha256": "cfa87fe0aa29c6e1774b6a7138c2a00c45fa6ebf1291da73eb5be375de5a8e37",
+      "case_id": "rest_check_p000_v6_h25_direct_w0d0_t15_q100_s3771_dt1ms",
+      "confirmed_rest_s": 8.531000000000006,
+      "energy_Wh": 18.067355830762057,
+      "horizontal_m": 306.22466507747845,
+      "max_rest_branch_error_V": 8.881784197001252e-16,
+      "max_rest_charge_variation_Ah": 0.0,
+      "max_supported_current_A": 24.559744359239996,
+      "max_vi_error_W": 5.684341886080802e-14,
+      "max_voltage_equation_error_V": 3.552713678800501e-15,
+      "min_supported_voltage_V": 22.03029697631466,
+      "raw_archive": "engineering/rest_check_p000_v6_h25_direct_w0d0_t15_q100_s3771_dt1ms/m100_20261123T185348Z.zip",
+      "report": "postflight_checks/rest_check_p000_v6_h25_direct_w0d0_t15_q100_s3771_dt1ms.json",
+      "run_id": "m100_20261123T185348Z",
+      "seed": 3771,
+      "step_s": 0.001
+    }
+  ],
+  "included_in_training": false,
+  "interpretation": "One native closed-loop case at successive solver steps with a common Gazebo seed. Differences include controller, timing and trajectory variation; these are not a bound on global discretization error.",
+  "refinement_energy_change_Wh": -0.4808881281482691,
+  "refinement_energy_change_percent": -2.655547406357534,
+  "refinement_time_change_s": -3.5420000000000016,
+  "status": "PASS"
+}

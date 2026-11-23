@@ -1,0 +1,96 @@
+{
+  "arabic_dictionary_distinct_columns": 179,
+  "independent_csv_import": {
+    "columns": 79,
+    "energy_duration_identity": true,
+    "route_geometry_import_intact": true,
+    "rows": 131,
+    "unique_flights": 131
+  },
+  "local_working_copy_regressions": {
+    "linked_drone_nav": {
+      "log_sha256": "1e825bf41a5a79a039e1d72ae2eafa694eecf9744478d04950a80747b8e302b5",
+      "summary": "366 passed in 6.15s"
+    },
+    "thesis": {
+      "log_sha256": "f7557b163c3e98915793a6fdb76163c7923496016766d55fa43d45755af1db2b",
+      "summary": "167 passed in 14.30s"
+    }
+  },
+  "native_default_verified": true,
+  "native_numbers_read_back": {
+    "historical_intervals.csv.gz": {
+      "columns": 50,
+      "rows": 24273,
+      "sha256": "8618fadaf680f6e9b4fc6b7e15b617e06738e2894ac9a96a66c593306bc079ed"
+    },
+    "historical_preflight.csv": {
+      "columns": 39,
+      "rows": 69,
+      "sha256": "61259cebbdfb9b5e3d07026b1d5c0f7bff657989ac36df58fcbfd9cc7972e29e"
+    },
+    "mission_flights.csv": {
+      "columns": 79,
+      "rows": 131,
+      "sha256": "7b4d1a7e17aad967ebd32de6d6d7849637814d50499f5f133344ff9e0de741c2"
+    },
+    "mission_intervals.csv.gz": {
+      "columns": 50,
+      "rows": 21816,
+      "sha256": "5021323604467dbc6c846f12c7b9b491ab514903533a76133ec925eeb554ac6c"
+    },
+    "mission_phase_checks.csv": {
+      "columns": 26,
+      "rows": 131,
+      "sha256": "c868d868ca5546db0344704207bed76f2931bcbf58eacf1d0fec4baad1aa249d"
+    },
+    "mission_phases.csv": {
+      "columns": 46,
+      "rows": 3348,
+      "sha256": "b79b2e3b1478e823f6a3ff576cbb562bca4dba4e6a90d6085e0ef3a8d20898ce"
+    }
+  },
+  "portability_check": "A fresh git archive of executable code was used, with just the published preflight CSV and model files. The interval row for the inference example was provided separately; no acquisition archives or ROS session were used by inference.",
+  "portable_causal_power_inference_W": 537.7720762682153,
+  "portable_code_commit": "4a23052512fba28bf03b6d5bbaaf68eeaf96ba64",
+  "portable_selector": {
+    "0": {
+      "alternatives": 13,
+      "matches_frozen": true,
+      "status": "FEASIBLE_TESTED_OPTIONS"
+    },
+    "0.25": {
+      "alternatives": 13,
+      "matches_frozen": true,
+      "status": "FEASIBLE_TESTED_OPTIONS"
+    },
+    "0.5": {
+      "alternatives": 13,
+      "matches_frozen": true,
+      "status": "FEASIBLE_TESTED_OPTIONS"
+    },
+    "flown_crosswind": {
+      "alternatives": 2,
+      "status": "FEASIBLE_TESTED_OPTIONS"
+    },
+    "insufficient_nominal_energy": {
+      "alternatives": 13,
+      "status": "NO_FEASIBLE_TESTED_OPTION"
+    },
+    "one_second_deadline": {
+      "alternatives": 13,
+      "status": "NO_FEASIBLE_TESTED_OPTION"
+    },
+    "other_destination": {
+      "alternatives": 0,
+      "status": "NO_MATCHING_FLOWN_CONDITION"
+    }
+  },
+  "repeat_entry_point": {
+    "fresh_store": true,
+    "prepare_only_flights": 0,
+    "registered": 113,
+    "registered_plugin_sha256": "105f6722ce56d6f98d7be62da917c2ddfc7d81a4c416db18442a5f7fc3808b30",
+    "resume_reproduced_registration": true
+  }
+}

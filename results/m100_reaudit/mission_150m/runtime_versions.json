@@ -28,6 +28,15 @@
   },
   "campaign_source_commit": "7a78efa",
   "fresh_pack_per_case": true,
+  "installed_native_release": {
+    "archive_sha256": "8a65f7a451edb6d9dec95da5c6a2eac025065ba46f7272b8c0e8ddab862855e0",
+    "equivalent_to_isolated_engineering_build": true,
+    "other_runtime_inputs_match_discovery": true,
+    "pack_header_sha256": "9d730a925f9146f552f47a5a6491929713ddd0f85abd904298f237d780bcc36b",
+    "pack_source_sha256": "ed84f9e11fd9755deb552e0340314b0ea9ac1f5ad6b77f0c9bae9ffd1619c08f",
+    "plugin_sha256": "105f6722ce56d6f98d7be62da917c2ddfc7d81a4c416db18442a5f7fc3808b30",
+    "source_and_binary_archive": "software/installed_rest_runtime.zip"
+  },
   "native_research_build": "239d074b5953f203c1dc0c46d31f2672578f420203c89042cdb8b58ecb2a0aac",
   "native_research_source": "1732fd9cb4580a31bb65bfe6c2ca82aa3387ac428612030a0e9aab89610d48f4",
   "postflight_rest_enters_airborne_energy_label": false,

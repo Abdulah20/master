@@ -102,6 +102,48 @@ def charts(conditions,sensitivity,out):
     plt.close(fig)
 
 
+def phase_budget_chart(flights,segments,out):
+    import matplotlib
+    matplotlib.use('Agg')
+    import matplotlib.pyplot as plt
+
+    selected={r['case_id']:number(r,'estimated_airborne_energy_Wh') for r in flights
+              if r['group']=='factorial' and number(r,'payload_kg')==.25
+              and number(r,'cruise_speed_mps')==8 and number(r,'altitude_m')==50}
+    if not selected:
+        return False
+    energy=Counter()
+    seconds=Counter()
+    for row in segments:
+        if row['case_id'] in selected:
+            phase=row['flight_phase']
+            energy[phase]+=number(row,'estimated_energy_Wh')
+            seconds[phase]+=number(row,'duration_s')
+    if not np.isclose(sum(energy.values()),sum(selected.values()),rtol=0,atol=1e-8):
+        raise ValueError('Plotted phase totals differ from the registered airborne energy')
+    names={'TAKEOFF':'Takeoff','CLIMB':'Climb','STABILIZING':'Stabilizing / accelerating','CRUISE':'Outbound cruise',
+           'RETURN_BRAKING':'Braking','HOVER':'Hover','RETURNING':'Return','LANDING':'Landing','UNRESOLVED':'Phase unresolved'}
+    phases=[k for k in names if seconds[k]>0]
+    fig,(energy_ax,power_ax)=plt.subplots(1,2,figsize=(9.2,4.8),sharey=True,layout='constrained')
+    for ax,values,title,unit,decimals,color in (
+        (energy_ax,[energy[k]/len(selected) for k in phases],'Mean energy per mission','Wh',2,'#216d80'),
+        (power_ax,[3600*energy[k]/seconds[k] for k in phases],'Time-weighted mean power','W',0,'#524c85')):
+        bars=ax.barh(range(len(phases)),values,height=.58,color=['#8b9296' if k=='UNRESOLVED' else color for k in phases])
+        ax.bar_label(bars,fmt='%.'+str(decimals)+'f',padding=3,fontsize=9)
+        ax.set_xlim(0,1.22*max(values))
+        ax.set_axisbelow(True)
+        ax.grid(axis='x',color='#e1e7e9')
+        ax.set_title(title,loc='left')
+        ax.set_xlabel(unit)
+    energy_ax.set_yticks(range(len(phases)),[names[k] for k in phases])
+    energy_ax.invert_yaxis()
+    fig.suptitle(f'Direct flight phases at 0.25 kg, 8 m/s and 50 m AGL · {len(selected)} flights',
+                 fontsize=14,fontweight='bold')
+    fig.savefig(out/'phase_energy_power.png',dpi=180)
+    plt.close(fig)
+    return True
+
+
 def write():
     verify=read(OUT/'verification.json')
     reference=read(OUT/'preflight_reference/evaluation.json')['overall_and_by_payload']['all']
@@ -209,6 +251,9 @@ def write():
                 f"أتاحت سجلات الجهد والتيار تكاملًا مستقلًا لطاقة {vi_fraction*100:.1f}% من الزمن الجوي على فترات متجانسة المصدر. "
                 + (f"بلغ أكبر فرق مطلق بين تكامل القراءات المنشورة وعداد خطوة الفيزياء للفترات نفسها {max(vi_diff):.4f} Wh. " if vi_diff else '')
                 + "[طاقة المقاطع وأزمنتها ومسافاتها](mission_phases.csv) · [التحقق لكل رحلة](mission_phase_checks.csv)",'']
+        if phase_budget_chart(flights,dataframe(OUT/'mission_phases.csv'),OUT):
+            lines+=['![متوسط الطاقة والقدرة لكل مرحلة عند الحمولة والسرعة والارتفاع المرجعيين](phase_energy_power.png)','',
+                    'يعرض الرسم المسار المباشر عند حمولة 0.25 كغ وسرعة ذهاب 8 م/ث وارتفاع 50 م. يجمع المسجّل الاستقرار والتسارع في حالة واحدة. حُسبت قدرة كل مرحلة من طاقتها المجمعة ومدتها المجمعة، وأُدرجت طاقة الفترات التي تعذرت تسميتها.','']
     if (OUT/'error_breakdown/held_out_errors_by_condition.csv').is_file():
         lines+=['يعرض جدول أخطاء التنبؤ متوسط الخطأ المطلق والجذر التربيعي لمتوسط مربع الخطأ والانحياز. يذكر عدد الرحلات وعائلات الأوامر الداخلة في كل شريحة من الحمولة والسرعة والارتفاع والرياح والمسار، وكذلك مرحلة الرحلة في تنبؤ القدرة. [أخطاء التنبؤ بحسب ظروف التشغيل](error_breakdown/held_out_errors_by_condition.csv)','']
     if (OUT/'postflight_verification.json').is_file():
@@ -228,12 +273,28 @@ def write():
                     f"تغيرت طاقة الرحلة {change['delta_energy_Wh']:+.3f} Wh ({change['delta_energy_percent']:+.2f}%)، "
                     f"وزمنها {change['delta_time_s']:+.2f} ث، ومسافتها الأفقية الفعلية {change['delta_horizontal_distance_m']:+.2f} م، "
                     f"ومتوسط القدرة {change['delta_mean_power_W']:+.2f} W."]
+        changes=post['consecutive_step_changes']
+        if len(changes)>1 and changes[0]['delta_energy_Wh']*changes[1]['delta_energy_Wh']<0:
+            lines+=['','تغيّر اتجاه فرق الطاقة بين خطوتَي التنقيح. جاء معظم الفرق في هذه الحالة من تغير مدة الرحلة مع استجابة المتحكم.'
+                    if all(abs(c['change_attributable_to_time_Wh'])>abs(c['change_attributable_to_mean_power_Wh']) for c in changes)
+                    else 'تغيّر اتجاه فرق الطاقة بين خطوتَي التنقيح.']
         lines+=['',"تشمل المقارنة تغير التتبع والتوقيت في منظومة التحكم. وهي تخص هذه الحالة والبذرة. "
                 f"كان أقصى فرق عن الاضمحلال الأسي المتوقع للفرعين {max(o['max_rest_branch_error_V'] for o in trials):.2g} V. "
                 "[سجل التحقق من البطارية وحجم الخطوة](postflight_verification.json) · [تجارب إعداد الحملة](engineering_setup.json)",'']
     if reasons:
+        explains={'DISCONTINUOUS_PX4_LAND_SEQUENCE':'انقطع تسلسل إشارات الإقلاع والهبوط في PX4',
+                  'MISSING_AIRBORNE_POWER':'غابت القدرة عن جزء من الفترة الجوية',
+                  'REJECTED — PX4 position telemetry became unavailable during descent':'غابت بيانات الموضع في أثناء الهبوط',
+                  'roll or pitch exceeded 65 deg persistently':'تجاوز الميل حد مراقب الرحلة مدةً متصلة',
+                  'REJECTED — precision return-to-home did not settle over the landing center':'تعذّر الاستقرار فوق نقطة الهبوط'}
         lines+=['رُفضت محاولات قبل إعداد جدول التدريب للأسباب الآتية. يحفظ السجل هوية كل رحلة أصلية أو بديلة، وتعاد الحالات بإعداداتها وبذورها الأصلية. [سجل المحاولات](attempt_registry.csv) · [إعداد المحاولات البديلة](retry_policy.json)','',
-                *[f'- `{reason}` في {count} محاولة.' for reason,count in reasons.items()],'']
+                '| سبب الاستبعاد | عدد المحاولات |','|---|---:|',
+                *[f'| {explains.get(reason,reason)} | {count} |' for reason,count in reasons.most_common()],'']
+    lines+=['## تشغيل الحملة مجددًا','',
+            'ينفّذ الأمر التالي حملة جديدة باستخدام النسخة المثبّتة على جهاز المشروع. يحفظ النتائج والسجلات في مجلدين جديدين ويطبع مساريهما. [دليل إعادة التشغيل والتدريب](../../../docs/m100_reaudit/mission_training_ar.md)','',
+            '```bash','/usr/bin/python3 -m tools.m100_reaudit.mission_repeat --workers 2','```','']
+    if (OUT/'delivery_checks.json').is_file():
+        lines+=['يشمل التحقق النهائي فتح ملف التدريب في قارئ جداول مستقل، ومطابقة الأعمدة بقاموسها، واستخدام نموذجي الطاقة والقدرة في نسخة مستقلة من كود المشروع. [سجل التحقق النهائي](delivery_checks.json)','']
     (OUT/'report_ar.md').write_text('\n'.join(lines).rstrip()+'\n')
     manifest=OUT/'SHA256SUMS'
     files=[p for p in sorted(OUT.rglob('*')) if p.is_file() and p!=manifest and not p.name.endswith(('.part','.tmp'))]

@@ -1,0 +1,13 @@
+{
+  "accepted_flights": 6,
+  "complete_original_airborne_targets": 3,
+  "complete_primary_power_windows": 6,
+  "matched_pairs": 3,
+  "missing_accepted_case_ids": [],
+  "primary_selector": "Original CMU speed/height/vertical thresholds, intersected with fresh outbound manager and native packets; native-pack V*I on unambiguously supported intervals.",
+  "protocol_sha256": "83b53bb5375ad93feb8e3f0284788b144c8bcfef75f65d22058fe9668b94d365",
+  "scope": "Native terminal estimates and original training labels. The complete-window source ledger preserves manager fallback and uncovered time. Terminal V*I comparison uses pure native-pack intervals only.",
+  "strict_selector": "Secondary straight, level and nearly steady kinematics on original PX4 truth.",
+  "tests_of_field_equivalence": false,
+  "verified_attempts": 6
+}

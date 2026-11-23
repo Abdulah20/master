@@ -1,0 +1,56 @@
+{
+  "dataset_doi": "10.1184/R1/12683453",
+  "published_split_and_phases_doi": "10.5281/zenodo.6726991",
+  "field_study": "https://pmc.ncbi.nlm.nih.gov/articles/PMC8213793/",
+  "sources_relative_to": "--project",
+  "sources": {
+    "samples": {
+      "path": "outputs/m100_real_dataset_v2/m100_calibration_ready_samples.csv",
+      "sha256": "d2e4536ce082eede5aaaed6a25fdc1cee9521b97fe2e16b8da6953471197404c"
+    },
+    "split": {
+      "path": "outputs/m100_cruise_speed_validation_v1/evaluation.json",
+      "sha256": "4ee30d9f70a6870dc57ed58433c69a4f4e985728651909b3842f9c976786e6f7"
+    },
+    "summary": {
+      "path": "analysis/m100_rodrigues_official_reproduction_v1/energy_summary_v1.csv",
+      "sha256": "df560db3c856ddf3bba92e889de4862c1c5b53de1a100cd7fbfa6d319aeaedb9"
+    },
+    "selector": {
+      "path": "analysis/m100_energy_calibration/calibrate_aircraft_level_energy.py",
+      "sha256": "193d8b71c1f2baba6e5f8739339eff33181605eec0d648eaf1d557570779753e"
+    },
+    "official_sample": {
+      "path": "analysis/m100_rodrigues_official_reproduction_v1/official_sample_v1.csv",
+      "sha256": "a5d3922846cba85047e6ecd31726cc1727bc4941a767975c12a12645415df6ea"
+    },
+    "qc": {
+      "path": "outputs/m100_real_dataset_v2/m100_flight_audit_summary.csv",
+      "sha256": "eecc926b014c9c39aecbfd9aef0ffac0cfffab57d4735611e5f8b95bf84e0c70"
+    }
+  },
+  "development_flights": 110,
+  "evaluation_flights": 60,
+  "same_field_campaign": true,
+  "evaluation_flights_used_for_speed_fit": false,
+  "overlap_with_cruise_aircraft_voltage_2rc_or_manoeuvre_fit_ids": 0,
+  "comparison_payload_kg": 0.25,
+  "comparison_target_agl_m": 50.0,
+  "locked_stable": "Each endpoint requires absolute speed error <= max(0.5 m/s, 10% command), absolute height error <= max(3 m, 10% command), abs(vz) <=1.5 m/s. Field AGL uses median ASL in first five seconds. All eligible intervals are summed per flight. The 20 s may comprise disjoint intervals.",
+  "straight_level": "The nested sensitivity uses the project transient_cmu movement and ground-track guards. Each endpoint requires |vz| <= 0.8 m/s, |speed(t)-speed(t-1 s)|/1 s <0.30 m/s2, two resolved 0.75 s GNSS ground-track legs of at least 1 m with bend <=20 degrees. Kinematic history resets across gaps >0.5 s. Identical >=20 s eligibility and quadrature. Guard uses no power or field-fit outcome.",
+  "integration": "Trapezoidal signed V*I on adjacent original times with both endpoints selected and 0<dt<=0.5 s. Divide the sum by the selected duration. Each held-out flight has equal weight in the field cell. The comparison measures mean electrical power over the eligible intervals.",
+  "native_window": "Apply the corresponding kinematic mask to native ground truth inside the audited outbound measurement phase, plus a fresh acknowledged native pack ledger, bounded synchronized telemetry, and adjacent native pack packets <=0.30 s apart. Require >=20 s total in each treatment.",
+  "conditions": "Exact nominal payload, AGL command and speed command. Wind, ambient temperature, route, starting SOC and density are unmatched across field and simulator flights. The aircraft-carried wind sensor measures relative airflow. This is a same-campaign check with sparse exact cells.",
+  "whole_phase": "The held-out table includes the published whole cruise-phase mean for context. It includes changes of heading and speed. The steady comparison uses eligible kinematic intervals.",
+  "error_comparison": "Absolute error to the field cell mean is |Pnative - mean(Pflight)|. Per-flight MAE is mean(|Pnative-Pflight|) across the identical field IDs. Negative on-minus-off errors mean closer agreement in these observations.",
+  "reproduction": "python3 -m tools.m100_reaudit.speed_pack_field --project <CMU project root>",
+  "reproduction_with_native": "Add --join-native after the native audit has written all accepted flights.",
+  "join_sha256": {
+    "protocol.json": "83b53bb5375ad93feb8e3f0284788b144c8bcfef75f65d22058fe9668b94d365",
+    "native_flights.csv": "760eba394c586308c08aeaa1c4b5778bceda201f3a776114550d0b862fd10f91",
+    "field_targets.csv": "ffb46fee01ebdb65afd201473006f717d524ea877e9c80eac53b9f01255ea4d8",
+    "field_heldout_flights.csv": "9627f3cfdb2fa3ad2fe3a9aa5e2055f246b6bc7e35c665aa364abd1e018f9c5e",
+    "comparison.csv": "e04289cc5c40df2630e1af9c1cf4de8083eb04ece6d48caf2e00f5ee7e851202",
+    "field_per_flight_errors.csv": "5007239e0e4a9fc74291ea447aefbf0ee635d1f8fa13a0d44566eab22840cea5"
+  }
+}

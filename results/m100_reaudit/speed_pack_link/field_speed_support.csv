@@ -1,0 +1,9 @@
+command_mps,whole_phase_fit_flights,locked_stable_fit_flights,straight_level_fit_flights,max_locked_selected_fit_s,whole_phase_evaluation_flights,locked_stable_evaluation_flights,straight_level_evaluation_flights,max_locked_selected_evaluation_s
+4,21,21,21,108.5,11,10,10,109.51000000000002
+5,0,0,0,,0,0,0,
+6,25,24,24,70.0,9,8,8,66.22
+8,18,16,0,43.39999999999999,15,15,0,42.599999999999994
+10,26,0,0,14.300000000000011,10,0,0,11.89
+12,20,0,0,3.1999999999999957,15,0,0,3.829999999999984
+15,0,0,0,,0,0,0,
+20,0,0,0,,0,0,0,

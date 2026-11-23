@@ -1,0 +1,12 @@
+{
+  "archive": "steady_v4_s4101_off/attempt_1.zip",
+  "archive_sha256": "29479f9b0188ae2eea52fb92443e328b1b56b9feb4c6af4fd318264de89d6131",
+  "attempt": 1,
+  "case_id": "steady_v4_s4101_off",
+  "launcher_exit": 0,
+  "outcome": "COMPLETE",
+  "protocol_sha256": "83b53bb5375ad93feb8e3f0284788b144c8bcfef75f65d22058fe9668b94d365",
+  "reason": "",
+  "recorded_utc": "2026-11-23T19:58:40.169055+00:00",
+  "run_id": "m100_20261123T195459Z"
+}

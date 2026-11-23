@@ -17,6 +17,7 @@ import zipfile
 from .direct_airborne_evidence import digest
 
 ROOT = Path(__file__).resolve().parents[2]
+MAX_ATTEMPTS = 4
 OUT = ROOT / 'results/m100_reaudit/mission_150m'
 WORK = ROOT / 'tmp/m100_closure/registered_acquire'
 LAUNCH = ROOT / 'tools/m100_reaudit/isolated_native.sh'

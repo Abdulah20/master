@@ -1,0 +1,11 @@
+{
+  "eligible_intervals": 15814,
+  "excluded_intervals": 0,
+  "flights": 93,
+  "flights_without_eligible_intervals": [],
+  "heldout_bias_W_equal_flight": 0.029091476397145807,
+  "heldout_mae_W_equal_flight": 5.688520260263099,
+  "input_flights": 93,
+  "method": "Full flights assigned to the same grouped folds as the preflight task. Equal total fit weight per flight.",
+  "phase_mean_reference_mae_W": 34.52478667774443
+}

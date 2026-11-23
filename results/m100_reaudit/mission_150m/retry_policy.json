@@ -1,0 +1,12 @@
+{
+  "concurrent_first_second_third_fourth": [
+    3,
+    2,
+    1,
+    1
+  ],
+  "max_attempts": 4,
+  "reason": "Two second attempts had missing native airborne power under concurrent acquisition. If a serial third attempt fails, allow one further serial acquisition before freezing all model choices. All original receipts are retained.",
+  "registered_utc": "2026-11-23T18:27:06.615360+00:00",
+  "same_seed_and_conditions": true
+}

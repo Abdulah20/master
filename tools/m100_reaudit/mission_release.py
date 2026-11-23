@@ -10,7 +10,7 @@ import numpy as np
 
 from .direct_airborne_evidence import confirm, digest
 from .mission_audit import INTERVAL_CACHE
-from .mission_campaign import OUT, read, save
+from .mission_campaign import MAX_ATTEMPTS, OUT, read, save
 from .mission_history import combine_intervals
 from .mission_observations import table
 from .mission_online import evaluate as power_evaluation
@@ -316,7 +316,7 @@ def build(stage):
         return
     if stage!='progress' and pending:
         # A scientifically unsupported flight remains explicitly excluded after its documented retries.
-        untouched=[c['case_id'] for c in pending if not (OUT/'audits'/c['case_id']/'attempt_3.json').exists()]
+        untouched=[c['case_id'] for c in pending if not (OUT/'audits'/c['case_id']/f'attempt_{MAX_ATTEMPTS}.json').exists()]
         if untouched:
             raise ValueError(f'{len(untouched)} cases are still pending acquisition or audit')
     rows=release_tables(selected,attempts)

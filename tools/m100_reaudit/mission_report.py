@@ -41,7 +41,7 @@ def charts(conditions,sensitivity,out):
 
     plt.rcParams.update({'font.family':'DejaVu Sans','axes.spines.top':False,'axes.spines.right':False,
                          'font.size':10,'axes.labelcolor':'#182d3a','text.color':'#182d3a','axes.edgecolor':'#82919a'})
-    fig,axes=plt.subplots(1,3,figsize=(10.5,4),sharey=True,layout='constrained')
+    fig,axes=plt.subplots(1,3,figsize=(10.5,4.4),sharey=True,layout='constrained')
     colors=('#216d80','#a45622','#524c85')
     for i,(ax,mass) in enumerate(zip(axes,(0,.25,.5))):
         for color,height in zip(colors,(25,50,100)):
@@ -53,22 +53,22 @@ def charts(conditions,sensitivity,out):
             lo=means-np.array([number(r,'min_Wh') for r in part])
             hi=np.array([number(r,'max_Wh') for r in part])-means
             ax.errorbar([number(r,'cruise_speed_mps') for r in part],means,yerr=[lo,hi],
-                        label=f'{height} m',marker='o',markersize=4.2,lw=1.8,capsize=4,color=color)
+                        label=f'{height} m AGL',marker='o',markersize=4.2,lw=1.8,capsize=4,color=color)
         ax.set_xticks([6,8,10])
         ax.set_title(f'{mass:g} kg payload',loc='left',fontweight='bold')
         ax.set_xlabel('Outbound speed command (m/s)')
         ax.grid(axis='y',color='#e1e7e9')
         if i==0:
-            ax.set_ylabel('Takeoff-to-landing energy (Wh)')
-        if i==2:
-            ax.legend(title='Height AGL',frameon=False)
-    fig.suptitle('Direct flight to a destination 150 m away and return in calm air',fontsize=15,fontweight='bold')
+            ax.set_ylabel('Mean takeoff-to-landing energy (Wh)')
+    handles,labels=axes[0].get_legend_handles_labels()
+    fig.legend(handles,labels,loc='outside lower center',ncols=3,frameon=False)
+    fig.suptitle('Direct flight to 150 m and return in calm air',fontsize=15,fontweight='bold')
     fig.savefig(out/'payload_speed_height.png',dpi=180)
     plt.close(fig)
 
     if not sensitivity:
         return
-    fig,axes=plt.subplots(1,3,figsize=(11,4.5),layout='constrained',gridspec_kw={'width_ratios':[1.5,1,1]})
+    fig,axes=plt.subplots(1,3,figsize=(11,4.5),sharex=True,layout='constrained',gridspec_kw={'width_ratios':[1.5,1,1]})
     categories=(('wind',[(3,180),(3,0),(3,90),(6,180),(6,0),(6,90)]),
                 ('ambient',[10,25]),('charge',[90,80]))
     for ax,(kind,settings) in zip(axes,categories):
@@ -95,7 +95,8 @@ def charts(conditions,sensitivity,out):
         ax.grid(axis='x',color='#e1e7e9')
         ax.set_xlabel('Change in energy (Wh)')
         ax.set_title({'wind':'Wind toward','ambient':'Air temperature','charge':'Initial nominal SOC'}[kind],loc='left')
-    axes[0].legend(loc='best',frameon=False)
+    handles,labels=axes[0].get_legend_handles_labels()
+    fig.legend(handles,labels,loc='outside lower center',ncols=2,frameon=False)
     fig.suptitle('Matched single-seed changes from calm air, 15 °C, 100% charge',fontsize=14,fontweight='bold')
     fig.savefig(out/'environment_sensitivity.png',dpi=180)
     plt.close(fig)
@@ -231,7 +232,7 @@ def write():
                 f"كان أقصى فرق عن الاضمحلال الأسي المتوقع للفرعين {max(o['max_rest_branch_error_V'] for o in trials):.2g} V. "
                 "[سجل التحقق من البطارية وحجم الخطوة](postflight_verification.json) · [تجارب إعداد الحملة](engineering_setup.json)",'']
     if reasons:
-        lines+=['رُفضت محاولات قبل إعداد جدول التدريب للأسباب الآتية. يحفظ سجل المحاولات هوية كل رحلة أصلية أو بديلة.','',
+        lines+=['رُفضت محاولات قبل إعداد جدول التدريب للأسباب الآتية. يحفظ السجل هوية كل رحلة أصلية أو بديلة، وتعاد الحالات بإعداداتها وبذورها الأصلية. [سجل المحاولات](attempt_registry.csv) · [إعداد المحاولات البديلة](retry_policy.json)','',
                 *[f'- `{reason}` في {count} محاولة.' for reason,count in reasons.items()],'']
     (OUT/'report_ar.md').write_text('\n'.join(lines).rstrip()+'\n')
     manifest=OUT/'SHA256SUMS'

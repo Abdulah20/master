@@ -6,7 +6,7 @@ from pathlib import Path
 import time
 
 from .mission_audit import audit_closed
-from .mission_campaign import OUT, WORK, read, register, run_one
+from .mission_campaign import MAX_ATTEMPTS, OUT, WORK, read, register, run_one
 from .mission_release import build
 
 
@@ -23,7 +23,7 @@ def progress(last_count):
 
 
 def acquire(planned,path,workers):
-    for number in (1,2,3):
+    for number in range(1,MAX_ATTEMPTS+1):
         queue=[]
         for c in planned:
             cid=c['case_id']

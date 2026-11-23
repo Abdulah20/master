@@ -1,0 +1,205 @@
+--- a/ros2_ws/src/drone_nav/drone_nav/m100_experiment_manager.py
++++ b/ros2_ws/src/drone_nav/drone_nav/m100_experiment_manager.py
+@@ -653,6 +653,10 @@
+             str(self.get_parameter("stable_cruise_energy_config").value)
+         ).resolve()
+         self._stable_cruise_fit = StableCruiseSpeedFit.load(self._stable_cruise_config_path)
++        pack_speed_mode = os.environ.get("M100_PACK_STABLE_CRUISE_CORRECTION", "1")
++        if pack_speed_mode not in {"0", "1"}:
++            raise ValueError("M100_PACK_STABLE_CRUISE_CORRECTION must be 0 or 1")
++        self._pack_stable_cruise_enabled = pack_speed_mode == "1"
+         self._transient_config_path = STABLE_CRUISE_ENERGY_CONFIG.with_name("m100_transient_power_v1.yaml")
+         self._transient_power = TransientPowerEstimator(
+             TransientPowerFit.load(self._transient_config_path), energy_config.maximum_valid_gap_s
+@@ -816,7 +820,8 @@
+         return stamp - self._pack_signal_times[key][1] <= max_age
+ 
+     def _publish_pack_demand(self, stamp, sample, velocities, phase, calibration,
+-                             manager_power_w=None, *, configuration_committed=False) -> None:
++                             manager_power_w=None, *, configuration_committed=False,
++                             speed_adjustment_w=None) -> None:
+         model = self._active_runtime_model
+         now = time.monotonic()
+         if not model or not self._pack_time_is_current(stamp, now):
+@@ -836,17 +841,25 @@
+                                                 stamp, now, self._energy_config.maximum_valid_gap_s)
+         landed = bool(sample["landed"]) if sample.get("landed_state_known") and landed_recent else None
+         phase_power, phase_source = None, "FLIGHT_STATE_UNAVAILABLE"
++        phase_base_power = eligible_delta = applied_delta = speed_model_id = None
+         phase_ready = configuration_committed and joints_valid
+         if phase_ready:
+             # The native pack gates this proposal with the PX4 land detector.
+             # Its density is fixed at APPLY and does not need a fresh MAVLink altitude.
++            eligible_delta = speed_adjustment_w
+             estimate = self._energy_config.estimate_power(
+                 phase, self._config.payload.payload_kg, self._applied_atmosphere.reference.density_kg_m3,
+                 limited_hover_eligible=calibration.use_limited_hover_mean,
++                stable_cruise_speed_adjustment_w=eligible_delta if self._pack_stable_cruise_enabled else None,
+             )
+-            phase_power = estimate.power_w
++            phase_base_power = phase_power = estimate.power_w
++            applied_delta = estimate.stable_cruise_speed_adjustment_w
++            if applied_delta is not None:
++                # The published estimator adds this residual once before pack V/I.
++                phase_base_power = phase_power - applied_delta
++                speed_model_id = estimate.model_id
+             phase_source = ("CMU_LIMITED_HOVER_MEAN" if estimate.coefficient_phase == "limited_hover"
+-                            else estimate.model_id if phase_power is not None else "UNSUPPORTED_PHASE")
++                            else self._energy_config.model_id if phase_power is not None else "UNSUPPORTED_PHASE")
+         manager_air_ready = phase_ready and self._power_air_state is not None
+         if not manager_air_ready:
+             manager_power_w = None
+@@ -858,6 +871,10 @@
+         request = {"model": f"{model}_0", "time_s": stamp, "power_w": power, "armed": armed,
+                    "landed": landed, "run_id": self._run_id if self._recording else None,
+                    "phase_power_w": phase_power, "phase_source": phase_source,
++                   "phase_base_power_w": phase_base_power, "measurement_active": self._measurement_active,
++                   "stable_cruise_speed_enabled": self._pack_stable_cruise_enabled,
++                   "stable_cruise_speed_eligible_adjustment_w": eligible_delta,
++                   "stable_cruise_speed_adjustment_w": applied_delta, "stable_cruise_speed_model_id": speed_model_id,
+                    "manager_power_w": manager_power_w,
+                    "producer": "m100_experiment_manager", "source": source, "phase": phase,
+                    "phase_applicability": calibration.status, **self._pack_command_conditions()}
+@@ -1078,7 +1095,7 @@
+         # research channel; it never changes V2 power or the battery budget.
+         speed_adjustment_w = (
+             self._stable_cruise_fit.adjustment_w(self._config)
+-            if self._state == "CRUISE" and self._measurement_active else None
++            if self._state == energy_phase == "CRUISE" and self._measurement_active else None
+         )
+         transient_estimate = None
+         if power_density is not None:
+@@ -1120,7 +1137,8 @@
+             ),
+         )
+         self._publish_pack_demand(timestamp_s, sample, velocities, energy_phase, calibration,
+-                                  model_energy.operational_power_w, configuration_committed=committed)
++                                  model_energy.operational_power_w, configuration_committed=committed,
++                                  speed_adjustment_w=speed_adjustment_w)
+         # Keep the scientific applicability label atomic with the exact model
+         # snapshot that used it.  Status/CSV readers run under the same manager
+         # lock and therefore cannot pair a new lifecycle flag with an older
+@@ -3162,9 +3180,10 @@
+                 "power_model_id": self._energy_config.model_id,
+                 "cmu_development_fit_sha256": CMU_FIT_SHA256,
+                 "conditions": self._pack_command_conditions(),
++                "stable_cruise_speed_enabled": self._pack_stable_cruise_enabled,
+                 "cmu_training_ranges": {"payload_kg": [0.0, 0.5], "commanded_speed_mps": [4.0, 12.0],
+                                         "commanded_altitude_agl_m": [25.0, 100.0]},
+-                "demand_definition": "Phase means use 15 C density at commanded altitude. Gazebo selects the CMU transient estimate from live kinematics during supported manoeuvres. Manager fallback is a separately attributed aircraft-level estimate.",
++                "demand_definition": "Phase means use 15 C density at commanded altitude. Eligible steady outbound requests add the configured CMU speed residual when enabled. Gazebo selects the CMU transient estimate from live kinematics during supported manoeuvres. Manager fallback is a separately attributed aircraft-level estimate.",
+                 "airborne_calibration_id": AIRBORNE_CALIBRATION_ID,
+                 "airborne_boundary_source": AIRBORNE_BOUNDARY_SOURCE,
+                 "airborne_boundary_gazebo_topic": "/m100/pack_drive/land",
+--- /dev/null
++++ b/ros2_ws/src/drone_nav/test/test_m100_pack_stable_cruise.py
+@@ -0,0 +1,109 @@
++"""Exercise joint callback -> ROS pack demand with both battery treatments."""
++
++import json
++import time
++from types import SimpleNamespace
++from unittest.mock import Mock
++
++import pytest
++from sensor_msgs.msg import JointState
++
++from drone_nav import m100_experiment_manager as runtime
++from drone_nav.m100_atmosphere import compare_density_to_15c_reference, dry_air_state
++from drone_nav.m100_contract import build_config
++from drone_nav.m100_stable_cruise_speed import MODEL_ID
++
++
++@pytest.fixture(scope="module")
++def fits():
++    return (runtime.PublishedEnergyConfig.load(runtime.ENERGY_CONFIG),
++            runtime.StableCruiseSpeedFit.load(runtime.STABLE_CRUISE_ENERGY_CONFIG))
++
++
++def request_for(fits, *, speed=6, enabled=True, phase="CRUISE", measuring=True,
++                local_fresh=True, armed=True, recovering=False, length=200, wind=0, valid_joints=True):
++    manager = object.__new__(runtime.M100ExperimentManager)
++    manager._energy_config, manager._stable_cruise_fit = fits
++    manager._energy_model = runtime.M100PublishedEnergyModel(manager._energy_config)
++    manager._config = build_config(temperature_c=15, payload_kg=0.25, wind_speed_mps=wind,
++                                   wind_direction_deg=0, cruise_speed_mps=speed, altitude_m=50,
++                                   route_length_m=length, hover_duration_s=15)
++    manager._applied_atmosphere = compare_density_to_15c_reference(15, 50)
++    manager._active_payload = manager._config.payload
++    manager._active_runtime_model = manager._active_payload.model
++    manager._pack_stable_cruise_enabled = enabled
++    manager._state, manager._measurement_active, manager._recovering_landing = phase, measuring, recovering
++    manager._recording = False
++    manager._home_ned = (0., 0., 0.)
++    manager._power_position_stamp = (None, 0.)
++    manager._distance_m = 0.
++    now = time.monotonic()
++    manager._clock_advanced_at = now
++    manager._gazebo_sim_time_s, manager._pack_epoch_s = 42., None
++    manager._pack_requests, manager._pack_signal_times = [], {}
++    manager._pack_drive_pub = Mock()
++    manager._transient_power = Mock()
++    manager._transient_power.estimate.return_value = None
++    manager._wind_simulation = Mock()
++    manager._wind_simulation.power_delta_w.return_value = None
++    manager._runtime_energy = Mock()
++    manager._runtime_energy.optional_wind_power_delta.return_value = None
++    manager._propulsion = SimpleNamespace(thrust_constant_n_per_rad_s2=1e-5, yaw_moment_ratio_m=0.02)
++    # Local altitude differs from configured altitude to expose manager-power substitution.
++    local = dict(x=0., y=100., z=-48., vx=0., vy=float(speed), vz=0.)
++    manager._mav = Mock()
++    manager._mav.snapshot.return_value = dict(local=local, boot_time_s=42., fresh=local_fresh,
++        armed=armed, landed=not armed, heartbeat_fresh=True, landed_state_known=True,
++        last_heartbeat_monotonic=now, last_landed_state_monotonic=now, last_local_position_monotonic=now)
++    message = JointState()
++    message.header.stamp.sec = 42
++    message.name = list(runtime.ROTOR_JOINT_NAMES)
++    message.velocity = [60., -60., 60., -60.] if valid_joints else []
++    manager._process_rotor_joint_state(message)
++    request = json.loads(manager._pack_drive_pub.publish.call_args.args[0].data)
++    assert request == manager._pack_requests[-1]
++    return request
++
++
++@pytest.mark.parametrize("enabled", (False, True))
++@pytest.mark.parametrize("local_fresh", (False, True))
++@pytest.mark.parametrize("speed", (4, 6, 8))
++def test_eligible_residual_enters_both_native_paths_once(fits, speed, enabled, local_fresh):
++    request = request_for(fits, speed=speed, enabled=enabled, local_fresh=local_fresh)
++    power, fit = fits
++    base = power.estimate_power("CRUISE", 0.25, dry_air_state(15, 50).density_kg_m3).power_w
++    delta = fit.offset_w + fit.slope_w_per_mps * (speed - fit.reference_speed_mps)
++    proposed = base + (delta if enabled else 0.)
++    assert request["stable_cruise_speed_enabled"] is enabled
++    assert request["stable_cruise_speed_eligible_adjustment_w"] == delta
++    assert request["stable_cruise_speed_adjustment_w"] == (delta if enabled else None)
++    assert request["stable_cruise_speed_model_id"] == (MODEL_ID if enabled else None)
++    assert request["phase_source"] == power.model_id
++    assert request["phase_base_power_w"] == pytest.approx(base)
++    assert request["phase_power_w"] == pytest.approx(proposed)
++    if local_fresh:
++        assert request["power_w"] == pytest.approx(proposed)
++        local_base = power.estimate_power("CRUISE", 0.25, dry_air_state(15, 48).density_kg_m3).power_w
++        assert request["manager_power_w"] == pytest.approx(local_base + delta)
++    else:
++        assert request["power_w"] is None and request["manager_power_w"] is None
++
++
++@pytest.mark.parametrize("case", [
++    *({"speed": speed} for speed in (0, 5, 10, 15, 20)), {"phase": "STABILIZING"},
++    {"phase": "RETURN_BRAKING"}, {"phase": "RETURNING"}, {"phase": "LANDING"},
++    {"recovering": True}, {"measuring": False}, {"speed": 8, "length": 150},
++    {"wind": 3}, {"valid_joints": False},
++])
++def test_no_native_speed_residual_outside_original_gate(fits, case):
++    request = request_for(fits, **case)
++    assert request["phase_power_w"] == request["phase_base_power_w"]
++    assert request["stable_cruise_speed_eligible_adjustment_w"] is None
++    assert request["stable_cruise_speed_adjustment_w"] is None
++    assert request["stable_cruise_speed_model_id"] is None
++
++
++def test_disarmed_zero_keeps_authority_over_an_eligible_proposal(fits):
++    request = request_for(fits, armed=False)
++    assert request["power_w"] == 0 and request["source"] == "DRIVE_DISARMED"
++    assert request["phase_power_w"] < request["phase_base_power_w"]

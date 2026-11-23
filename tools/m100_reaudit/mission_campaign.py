@@ -135,18 +135,21 @@ def archive(raw, destination):
     return digest(destination)
 
 
-def run_one(case, protocol_path, attempt):
+def run_one(case, protocol_path, attempt, *, release_dir=None, work_root=None, archive_root=None, extra_env=None):
     global last_start
+    release_dir = release_dir or OUT
+    work_root = work_root or WORK
+    archive_root = archive_root or ARCHIVE
     cid = case['case_id']
-    receipt_path = OUT/'acquisition'/cid/f'attempt_{attempt}.json'
-    work = WORK/cid
+    receipt_path = release_dir/'acquisition'/cid/f'attempt_{attempt}.json'
+    work = work_root/cid
     work.mkdir(parents=True, exist_ok=True)
     with (work/'case.lock').open('a') as lock:
         fcntl.flock(lock, fcntl.LOCK_EX)
         if receipt_path.exists():
             return
         if attempt > 1:
-            previous = read(OUT/'audits'/cid/f'attempt_{attempt-1}.json')
+            previous = read(release_dir/'audits'/cid/f'attempt_{attempt-1}.json')
             if previous['accepted'] or not previous['reason']:
                 raise ValueError(f'{cid}: previous attempt did not require replacement')
         raw = work/f'attempt_{attempt}'
@@ -169,6 +172,7 @@ def run_one(case, protocol_path, attempt):
             save(plan,[case])
             env = dict(os.environ, M100_GAZEBO_SEED=str(case['seed']), M100_MISSION_ROUTE=case['mission_route'],
                        M100_INITIAL_SOC_PERCENT=str(case['initial_soc_percent']), M100_PACK_DYNAMICS='cmu_2rc')
+            env.update(extra_env or {})
             env.pop('M100_BATTERY_RESEARCH_PROFILE', None)
             with START_LOCK:
                 time.sleep(max(0, 6 - (time.monotonic()-last_start)))
@@ -178,7 +182,7 @@ def run_one(case, protocol_path, attempt):
                                       cwd=ROOT, env=env).returncode
         receipt = read(raw/(cid+'.json')) if (raw/(cid+'.json')).is_file() else {}
         name = f'{cid}/attempt_{attempt}.zip'
-        archive_sha = archive(raw, ARCHIVE/name)
+        archive_sha = archive(raw, archive_root/name)
         save(receipt_path, dict(case_id=cid, attempt=attempt, run_id=receipt.get('run_id'), outcome=receipt.get('outcome'),
                                 reason=receipt.get('reason'), launcher_exit=code, archive=name, archive_sha256=archive_sha,
                                 recorded_utc=datetime.now(timezone.utc).isoformat(), protocol_sha256=digest(protocol_path)))

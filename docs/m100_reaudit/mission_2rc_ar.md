@@ -38,11 +38,14 @@ P_requested = V_terminal I
 release="$PWD/tools/m100_reaudit/pack_drive"
 project="$HOME/Master/Drone/project"
 git -C "$project" apply "$release/mission_2rc_ros2.patch"
+git -C "$project" apply "$release/stable_cruise_pack_ros2.patch"
 install -m 0644 "$release"/{M100PackDrive.cc,M100TheveninFit.hh} "$project/ros2_ws/src/m100_gazebo_gui/propulsion/"
 install -m 0644 "$release/m100_airborne_training.py" "$project/ros2_ws/src/drone_nav/drone_nav/"
 source /opt/ros/jazzy/setup.bash
 (cd "$project/ros2_ws" && colcon build --symlink-install --packages-select drone_nav m100_gazebo_gui --cmake-args -DBUILD_TESTING=OFF)
 ```
+
+يستخدم طلب قدرة البطارية تصحيح السرعة المحفوظ في المشروع مرة واحدة أثناء مقطع الذهاب الأفقي المستقر عند أوامر 4 و6 و8 م/ث، ضمن شروط المعايرة. يسجّل طلب البطارية القدرة الأساسية والتصحيح المطبّق، وتسجّل إضافة Gazebo الجهد والتيار الناتجين. للمقارنة المزدوجة يمكن بدء مدير تجربة جديد بالمتغير `M100_PACK_STABLE_CRUISE_CORRECTION=0` للحصول على طلب الحزمة الأساسي. القيمة الافتراضية `1` تفعّل التصحيح.
 
 تُعاد ملاءمة المعاملات من سجلات التطوير عبر `OPENBLAS_NUM_THREADS=1 python3 -m tools.m100_reaudit.thevenin_transfer`. يضم ملف المعايرة هويات الرحلات وبصمات مصادرها ومقاييس الخطأ. يحتفظ مسار القياس التاريخي بتعريفه. في مهمة الوجهة الثابتة يحدد `M100_MISSION_ROUTE` المسار المباشر أو المسار عبر نقطة وسطية، وتقاس الوجهة من موضع الإقلاع. يتحقق مراقب المسار من المسافة إلى الضلع الجاري، ويتحقق تدقيق مستقل بعد الهبوط من المسار الفعلي المسجل في PX4.
 

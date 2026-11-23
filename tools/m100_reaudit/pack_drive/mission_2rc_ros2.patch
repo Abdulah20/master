@@ -270,7 +270,9 @@
                      trajectory_loss_since = (
 --- a/ros2_ws/src/drone_nav/test/test_m100_experiment_session_lifecycle.py
 +++ b/ros2_ws/src/drone_nav/test/test_m100_experiment_session_lifecycle.py
-@@ -92,6 +92,9 @@
+@@ -90,10 +90,13 @@
+
+ def test_apply_restarts_the_owned_px4_and_gazebo_process_group(monkeypatch):
      manager = object.__new__(M100ExperimentManager)
      signals = []
      removed = []
@@ -280,12 +282,17 @@
      manager._px4_process = SimpleNamespace(
          pid=12345, poll=lambda: None, send_signal=signals.append,
          wait=lambda **kwargs: None,
-@@ -108,6 +111,7 @@
+     )
+     manager._active_runtime_model = "m100_cmu_v2"
+@@ -106,10 +109,11 @@
+     monkeypatch.setattr(manager_module.time, "sleep", lambda delay: None)
+
      monkeypatch.setattr(manager_module.os, "killpg", lambda pid, value: signals.append((pid, value)))
      manager._stop_owned_stack(require_landed=True, remove_runtime_model=True)
      assert signals == [(12345, manager_module.signal.SIGINT)]
 +    assert epochs_reset == [True]
      assert removed == ["m100_cmu_v2"]
      assert manager._px4_process is None
--
-+
+
+
+ def test_owned_gazebo_model_removal_is_exact_and_acknowledged(monkeypatch):

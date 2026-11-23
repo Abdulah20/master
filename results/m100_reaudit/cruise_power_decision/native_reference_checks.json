@@ -1,0 +1,147 @@
+{
+  "source_protocol": "results/m100_reaudit/speed_pack_link/protocol.json",
+  "manager_sha256": "3456942c6a29dc77c558b16fc972f92d55ee6f2e0cae7eb5986a4718d2ee9a9e",
+  "estimator_sha256": {
+    "m100_atmosphere": "c55d89c71f27915f7c825dad31e2fa8590b2315b1172fa0ca7e9d92439aae77f",
+    "m100_published_energy_v2": "e9dd6e7c2caeee7c721b4fc4a457774279a0dfe19140e8c437c6bdb668ed222a",
+    "m100_energy_v2_config": "725b2a54d333bc3ed40a9919d990cda48ee28d158cde87749a8ff08cda585458",
+    "m100_stable_cruise_speed": "186a9ef028af76516b4d1e35e45342de70fa5ce47163a1fc872e2bc0e7e21087",
+    "m100_stable_cruise_speed_config": "a702c1f1a4b2498e29554b10c0e10ff1f9d6541333fe82fc0b1b36736ce0f2c7"
+  },
+  "reference_atmosphere": "Fixed at APPLY: commanded altitude above the zero-MSL Gazebo datum, 15 C at datum.",
+  "phase_model": "Published CRUISE regression, 3.715 kg + payload, pre-battery aircraft-level electrical power.",
+  "traces": [
+    {
+      "case_id": "steady_v4_s4101_off",
+      "run_id": "m100_20261123T195459Z",
+      "archive": "steady_v4_s4101_off/attempt_1.zip",
+      "archive_sha256": "29479f9b0188ae2eea52fb92443e328b1b56b9feb4c6af4fd318264de89d6131",
+      "payload_kg": 0.25,
+      "altitude_m": 50,
+      "speed_mps": 4,
+      "mode": "off",
+      "reference_density_kg_m3": 1.2191306315968917,
+      "baseline_W": 509.47314230612324,
+      "legacy_W": 499.818749820603,
+      "expected_W": 509.47314230612324,
+      "acknowledged_cruise_packets": 918,
+      "terminal_packets": 918,
+      "maximum_absolute_residual_W": {
+        "phase_base_W": 0.0,
+        "phase_proposal_W": 0.0,
+        "native_effective_W": 0.0,
+        "terminal_VI_W": 5.684341886080802e-14
+      }
+    },
+    {
+      "case_id": "steady_v6_s4101_off",
+      "run_id": "m100_20261123T195506Z",
+      "archive": "steady_v6_s4101_off/attempt_1.zip",
+      "archive_sha256": "4f4f9421e63a4f51129f9ceaea0969e86d82457a857e66528be3381a216dc489",
+      "payload_kg": 0.25,
+      "altitude_m": 50,
+      "speed_mps": 6,
+      "mode": "off",
+      "reference_density_kg_m3": 1.2191306315968917,
+      "baseline_W": 509.47314230612324,
+      "legacy_W": 491.10375730241384,
+      "expected_W": 509.47314230612324,
+      "acknowledged_cruise_packets": 605,
+      "terminal_packets": 605,
+      "maximum_absolute_residual_W": {
+        "phase_base_W": 0.0,
+        "phase_proposal_W": 0.0,
+        "native_effective_W": 0.0,
+        "terminal_VI_W": 5.684341886080802e-14
+      }
+    },
+    {
+      "case_id": "steady_v8_s4101_off",
+      "run_id": "m100_20261123T195513Z",
+      "archive": "steady_v8_s4101_off/attempt_1.zip",
+      "archive_sha256": "230cb490941a64c9a5eef4cd48922b45c0da5379277f6e55d3f090baa76bca1a",
+      "payload_kg": 0.25,
+      "altitude_m": 50,
+      "speed_mps": 8,
+      "mode": "off",
+      "reference_density_kg_m3": 1.2191306315968917,
+      "baseline_W": 509.47314230612324,
+      "legacy_W": 482.3887647842247,
+      "expected_W": 509.47314230612324,
+      "acknowledged_cruise_packets": 451,
+      "terminal_packets": 451,
+      "maximum_absolute_residual_W": {
+        "phase_base_W": 0.0,
+        "phase_proposal_W": 0.0,
+        "native_effective_W": 0.0,
+        "terminal_VI_W": 5.684341886080802e-14
+      }
+    },
+    {
+      "case_id": "steady_v4_s4101_on",
+      "run_id": "m100_20261123T195857Z",
+      "archive": "steady_v4_s4101_on/attempt_1.zip",
+      "archive_sha256": "6481dfac108d66f5b0ccb76115c10668175712e89cb366f47c8b67710d685154",
+      "payload_kg": 0.25,
+      "altitude_m": 50,
+      "speed_mps": 4,
+      "mode": "on",
+      "reference_density_kg_m3": 1.2191306315968917,
+      "baseline_W": 509.47314230612324,
+      "legacy_W": 499.818749820603,
+      "expected_W": 499.818749820603,
+      "acknowledged_cruise_packets": 963,
+      "terminal_packets": 963,
+      "maximum_absolute_residual_W": {
+        "phase_base_W": 0.0,
+        "phase_proposal_W": 0.0,
+        "native_effective_W": 0.0,
+        "terminal_VI_W": 5.684341886080802e-14
+      }
+    },
+    {
+      "case_id": "steady_v6_s4101_on",
+      "run_id": "m100_20261123T195904Z",
+      "archive": "steady_v6_s4101_on/attempt_1.zip",
+      "archive_sha256": "d0d5ed0af3c0ab58678e6eaa04416c61392c6a60d41185cf869231dc7e924549",
+      "payload_kg": 0.25,
+      "altitude_m": 50,
+      "speed_mps": 6,
+      "mode": "on",
+      "reference_density_kg_m3": 1.2191306315968917,
+      "baseline_W": 509.47314230612324,
+      "legacy_W": 491.10375730241384,
+      "expected_W": 491.10375730241384,
+      "acknowledged_cruise_packets": 641,
+      "terminal_packets": 641,
+      "maximum_absolute_residual_W": {
+        "phase_base_W": 0.0,
+        "phase_proposal_W": 0.0,
+        "native_effective_W": 0.0,
+        "terminal_VI_W": 5.684341886080802e-14
+      }
+    },
+    {
+      "case_id": "steady_v8_s4101_on",
+      "run_id": "m100_20261123T195912Z",
+      "archive": "steady_v8_s4101_on/attempt_1.zip",
+      "archive_sha256": "ae8c536af340310e4ae7715562e994c2544f851defc9069f42a29a04ea8798d5",
+      "payload_kg": 0.25,
+      "altitude_m": 50,
+      "speed_mps": 8,
+      "mode": "on",
+      "reference_density_kg_m3": 1.2191306315968917,
+      "baseline_W": 509.47314230612324,
+      "legacy_W": 482.3887647842247,
+      "expected_W": 482.3887647842247,
+      "acknowledged_cruise_packets": 480,
+      "terminal_packets": 480,
+      "maximum_absolute_residual_W": {
+        "phase_base_W": 0.0,
+        "phase_proposal_W": 0.0,
+        "native_effective_W": 0.0,
+        "terminal_VI_W": 5.684341886080802e-14
+      }
+    }
+  ]
+}

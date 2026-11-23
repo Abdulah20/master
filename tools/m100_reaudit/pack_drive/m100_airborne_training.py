@@ -65,7 +65,11 @@ def training_row(config, run_id, outcome, budget, *, recording_start_s, epoch_ch
         status = "MISSION_PLAN_NOT_COMPLETED"
     # Speed/altitude are marginal commands of the fitted CMU release. Real
     # aircraft airflow is not a direct reference for a commanded Gazebo wind.
+    # Changing the starting nameplate charge introduces a transfer assumption.
+    # Absence of this field identifies historical rows at the original setting.
+    initial_soc = config.get("initial_nominal_soc_percent", 100.0)
     inside = (config["payload_kg"] in (0.0, 0.25, 0.5)
+              and initial_soc == 100.0
               and 4 <= config["cruise_speed_mps"] <= 12 and 25 <= config["altitude_m"] <= 100
               and math.isclose(config["temperature_c"], 15, abs_tol=1e-6)
               and math.isclose(config["wind_speed_mps"], 0, abs_tol=1e-6))
@@ -104,6 +108,17 @@ def training_row(config, run_id, outcome, budget, *, recording_start_s, epoch_ch
     for source in POWER_SOURCES:
         entry = bins.get(source) if isinstance(bins, dict) else None
         row[f"{source}_s"] = entry.get("seconds") if isinstance(entry, dict) else None
+    if "battery_dynamics_model" in matched:
+        row.update(battery_dynamics_model=matched["battery_dynamics_model"],
+                   battery_parameter_sha256=matched.get("battery_parameter_sha256"),
+                   initial_nominal_soc_percent=matched.get("initial_nominal_soc_percent"),
+                   battery_soc_physical_calibration=False)
+    if "mission_route_id" in config:
+        row.update(mission_route_id=config["mission_route_id"],
+                   planned_destination_east_m=config["planned_destination_east_m"],
+                   planned_destination_north_m=config["planned_destination_north_m"],
+                   planned_outbound_measurement_m=config["planned_outbound_path_m"],
+                   route_field_validation="SIMULATION_ONLY")
     return row
 
 

@@ -1,5 +1,7 @@
 # أثر جهد الحزمة في محركات Matrice 100 داخل Gazebo
 
+يصف هذا التقرير إصدار المعايرة الساكنة التاريخي. يُفعّل التركيب الحالي نموذج Thévenin بفرعين في مسار Gazebo. [التفعيل والمعاملات وحدود التطبيق](mission_2rc_ar.md)
+
 في مسار PX4 المباشر وGazebo، ترسل الطائرة طلب قدرة كهربائية للحزمة كاملة. تحسب إضافة `m100::PackDrive` الجهد تحت الحمل وتيار الحزمة في زمن المحاكاة، ثم تحدد أعلى سرعة متاحة لكل مروحة. تقرأ المحركات الأربعة أوامر السرعة المحدودة قبل حساب القوى داخل محرك الفيزياء. بُنيت الإضافة لبيئة ROS 2 Jazzy المثبتة. لم تُشغّل رحلة أو محاكاة أو اختبار لهذا التغيير. [شيفرة الإضافة](../../tools/m100_reaudit/pack_drive/M100PackDrive.cc) · [أولوية أمر السرعة في محرك Gazebo 8.11](https://github.com/gazebosim/gz-sim/blob/gz-sim8_8.11.0/src/systems/multicopter_motor_model/MulticopterMotorModel.cc#L469-L504)
 
 في 22 نوفمبر 2026 أُجريت ثلاث رحلات PX4 وGazebo بهذه الإضافة. غطت السجلات الحمولات 0 و0.25 و0.50 كغ، وتضم مقارنة مع خمسة مقاطع مقاسة من حملة CMU. [نتائج الرحلات وحدود التدريب](../../results/m100_reaudit/pack_drive_three/report_ar.md)
@@ -79,7 +81,7 @@ git -C "$px4" apply "$release/px4.patch"
 git -C "$project" apply "$release/airborne_ros2.patch"
 git -C "$px4" apply "$release/airborne_px4.patch"
 install -d "$project/ros2_ws/src/m100_gazebo_gui/propulsion"
-install -m 0644 "$release"/{M100PackDrive.cc,M100TransientPower.hh,M100TransientModelId.hh,M100TransientPower.qrc,cmu_transient_v1.qz} \
+install -m 0644 "$release"/{M100PackDrive.cc,M100TheveninFit.hh,M100TransientPower.hh,M100TransientModelId.hh,M100TransientPower.qrc,cmu_transient_v1.qz} \
   "$project/ros2_ws/src/m100_gazebo_gui/propulsion/"
 install -m 0644 "$release/m100_airborne_training.py" "$project/ros2_ws/src/drone_nav/drone_nav/"
 source /opt/ros/jazzy/setup.bash

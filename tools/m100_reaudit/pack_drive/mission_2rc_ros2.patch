@@ -1,0 +1,291 @@
+--- a/ros2_ws/src/drone_nav/drone_nav/m100_experiment_manager.py
++++ b/ros2_ws/src/drone_nav/drone_nav/m100_experiment_manager.py
+@@ -172,6 +172,7 @@
+ PACK_DRIVE_STATE_TOPIC = "/m100/pack_drive/state"
+ CMU_FIT_SHA256 = "d3413efef49a278a10f0dc404c6b34e5c6d07e42dd698ad21aae0ea00824377f"
+ PACK_DRIVE_NUMBERS = (
++    "reference_source_v", "polarization_fast_v", "polarization_slow_v",
+     "voltage_v", "current_a", "discharged_ah", "demand_power_w", "delivered_power_w", "cap_voltage_v",
+     "omega_limit_rad_s", "thrust_limit_fraction", "requested_load_voltage_v", "requested_pack_current_a",
+     "fit_q_ah", "covered_load_time_s", "unaccounted_load_time_s", "unmodelled_idle_time_s", "raw_command_time_s",
+@@ -620,7 +621,13 @@
+         self.declare_parameter("gz_partition", "m100_experiment")
+         self.declare_parameter("csv_root", str(CSV_ROOT))
+         self.declare_parameter("energy_config", str(ENERGY_CONFIG))
+-        self.declare_parameter("battery_research_profile", "")
++        self.declare_parameter("battery_research_profile", os.environ.get("M100_BATTERY_RESEARCH_PROFILE", ""))
++        self.declare_parameter("mission_route", os.environ.get("M100_MISSION_ROUTE", "measurement"))
++        self._mission_route = str(self.get_parameter("mission_route").value)
++        if self._mission_route not in {"measurement", "direct", "north_dogleg", "south_dogleg"}:
++            raise ValueError("Unknown M100 mission_route")
++        self._route_checkpoints = []
++        self._mission_leg_enu = None
+         self.declare_parameter("gong_energy_config", str(GONG_CONFIG))
+         self.declare_parameter("stable_cruise_energy_config", str(STABLE_CRUISE_ENERGY_CONFIG))
+         self._partition = str(self.get_parameter("gz_partition").value)
+@@ -630,6 +637,12 @@
+         energy_config_path = Path(str(self.get_parameter("energy_config").value))
+         self._energy_config_path = energy_config_path.resolve()
+         energy_config = PublishedEnergyConfig.load(energy_config_path)
++        if "M100_INITIAL_SOC_PERCENT" in os.environ:
++            initial_soc = float(os.environ["M100_INITIAL_SOC_PERCENT"])
++            if not math.isfinite(initial_soc) or not 0 <= initial_soc <= 100:
++                raise ValueError("M100_INITIAL_SOC_PERCENT must be in [0, 100]")
++            energy_config = replace(energy_config, bms_config=replace(
++                energy_config.bms_config, initial_soc_percent=initial_soc))
+         self._energy_config = energy_config
+         research_profile_path = str(self.get_parameter("battery_research_profile").value)
+         research_profile = (
+@@ -884,7 +897,8 @@
+             for key in ("effective_demand_power_w", "transient_support_flights"):
+                 value = native.get(key)
+                 state[key] = value if type(value) in (int, float) else None
+-            for key in ("effective_demand_source", "transient_reason"):
++            for key in ("effective_demand_source", "transient_reason", "battery_dynamics_model",
++                        "battery_parameter_sha256", "battery_dynamics_scope"):
+                 value = native.get(key)
+                 state[key] = value if isinstance(value, str) else None
+             flags = native.get("transient_transfer_flags")
+@@ -952,7 +966,9 @@
+         for key in ("discharged_ah", "fit_q_ah", "covered_load_time_s", "unaccounted_load_time_s", "unmodelled_idle_time_s",
+                     "cap_voltage_v", "omega_limit_rad_s", "thrust_limit_fraction", "raw_command_time_s",
+                     "effective_demand_power_w", "effective_demand_source", "transient_reason", "transient_transfer_flags",
+-                    "transient_support_flights", *PACK_DRIVE_FLAGS, *PACK_DRIVE_COMMANDS):
++                    "transient_support_flights", "battery_dynamics_model", "battery_parameter_sha256",
++                    "battery_dynamics_scope", "reference_source_v", "polarization_fast_v", "polarization_slow_v",
++                    *PACK_DRIVE_FLAGS, *PACK_DRIVE_COMMANDS):
+             result[key] = state.get(key)
+         demand_stamp = state["demand_time_s"]
+         if demand_stamp is None:
+@@ -1926,6 +1942,8 @@
+         if config is None:
+             raise RuntimeError("no applied experiment configuration")
+         with self._lock:
++            self._route_checkpoints = []
++            self._mission_leg_enu = None
+             self._start_recording("m100")
+             self._auto_running = True
+         try:
+@@ -1945,7 +1963,9 @@
+                 self._mav.position_setpoint(local["x"], local["y"], target_down, yaw)
+                 time.sleep(0.1)
+
+-            if config.cruise_speed_mps == 0.0:
++            if config.cruise_speed_mps > 0 and self._mission_route != "measurement":
++                self._fly_fixed_destination(config, home, target_down, yaw)
++            elif config.cruise_speed_mps == 0.0:
+                 self._set_state("MEASURING", "Hover measurement started")
+                 self._begin_measurement(False)
+                 self._set_state("HOVER", f"Timed hover for {config.hover_duration_s:g} s")
+@@ -2067,6 +2087,59 @@
+                     self._auto_running = False
+                 self._manual_hold = None
+
++    def _delivery_waypoints(self, distance):
++        # East/north metres relative to the takeoff point. All alternatives
++        # visit the same destination and use the existing direct return.
++        if self._mission_route == "direct":
++            return [(distance, 0.0)]
++        sign = 1 if self._mission_route == "north_dogleg" else -1
++        return [(distance / 2, sign * distance / 4), (distance, 0.0)]
++
++    def _route_metadata(self, config):
++        if self._mission_route == "measurement" or config.cruise_speed_mps == 0:
++            return {}
++        points = self._delivery_waypoints(config.route_length_m)
++        path_m = sum(math.dist(a, b) for a, b in zip([(0., 0.)] + points, points))
++        return dict(route_definition="FIXED_DESTINATION_FROM_TAKEOFF", mission_route_id=self._mission_route,
++                    planned_destination_east_m=config.route_length_m, planned_destination_north_m=0.,
++                    planned_waypoints_enu_m=points, planned_outbound_path_m=path_m)
++
++    def _fly_fixed_destination(self, config, home, target_down, yaw):
++        self._begin_measurement(True)
++        previous = (0.0, 0.0)
++        completed_length = 0.0
++        for east, north in self._delivery_waypoints(config.route_length_m):
++            self._mission_leg_enu = (previous, (east, north))
++            length = math.hypot(east - previous[0], north - previous[1])
++            target = (home[0] + north, home[1] + east, home[2])
++            def observe(local, error, speed, target_speed):
++                dx, dy = east - previous[0], north - previous[1]
++                projected = ((local["y"] - home[1] - previous[0]) * dx +
++                             (local["x"] - home[0] - previous[1]) * dy) / length
++                self._measurement_distance_m = completed_length + min(length, max(0.0, projected))
++                if error <= M100_RETURN_CAPTURE_RADIUS_M and speed < 0.3:
++                    phase = "HOVER"
++                elif target_speed < 0.95 * config.cruise_speed_mps:
++                    phase = "RETURN_BRAKING"
++                elif speed < 0.95 * config.cruise_speed_mps:
++                    phase = "STABILIZING"
++                else:
++                    phase = "CRUISE"
++                if phase != self._state:
++                    self._set_state(phase, f"Waypoint east {east:g} m, north {north:g} m")
++            local = self._center_over_home_at_limited_speed(
++                target, target_down, yaw, config.cruise_speed_mps,
++                55 + 4 * length / config.cruise_speed_mps, observe=observe)
++            self._route_checkpoints.append({
++                "target_east_m": east, "target_north_m": north,
++                "observed_east_m": local["y"]-home[1], "observed_north_m": local["x"]-home[0],
++                "observed_agl_m": home[2]-local["z"],
++                "horizontal_speed_mps": math.hypot(local["vx"], local["vy"])})
++            previous = (east, north)
++            completed_length += length
++        self._mission_leg_enu = (previous, (0.0, 0.0))
++        self._freeze_measurement(self._measurement_distance_m)
++
+     def _precision_return_and_land(
+         self,
+         home: tuple[float, float, float],
+@@ -2207,13 +2280,14 @@
+         yaw: float,
+         speed_limit_mps: float,
+         timeout_s: float,
+-    ) -> None:
++        *, observe=None,
++    ) -> dict:
+         """Return over home with bounded XY velocity, then capture position."""
+         command = (0.0, 0.0)
+         last_setpoint = time.monotonic()
+         deadline = last_setpoint + timeout_s
+         # Reserve margin for closed-loop speed tracking under the safety cap.
+-        command_limit_mps = speed_limit_mps * M100_RETURN_SPEED_HEADROOM
++        command_limit_mps = speed_limit_mps if observe else speed_limit_mps * M100_RETURN_SPEED_HEADROOM
+         settled_since: float | None = None
+         while time.monotonic() < deadline:
+             self._check_abort()
+@@ -2227,6 +2301,8 @@
+             target = _limited_return_velocity_ned(
+                 local["x"], local["y"], home[0], home[1], command_limit_mps
+             )
++            if observe:
++                observe(local, error, horizontal_speed, math.hypot(*target))
+             command = _ramp_return_velocity_ned(command, target, now - last_setpoint)
+             last_setpoint = now
+             if target == (0.0, 0.0) and command == (0.0, 0.0):
+@@ -2241,7 +2317,7 @@
+                 if settled_since is None:
+                     settled_since = now
+                 elif now - settled_since >= M100_HOME_CENTER_SETTLE_S:
+-                    break
++                    return local
+             else:
+                 settled_since = None
+             time.sleep(M100_RETURN_SETPOINT_PERIOD_S)
+@@ -2499,6 +2575,7 @@
+             "px4_connected": bool(sample["fresh"]),
+             "px4_mode": sample["mode"],
+             "pos": [enu["x"], enu["y"], enu["z"]],
++            "mission_leg_enu_m": self._mission_leg_enu,
+             "vel": [enu["vx"], enu["vy"], enu["vz"]],
+             "speed": enu["speed"],
+             "yaw_deg": math.degrees(attitude["yaw"]) if "yaw" in attitude else None,
+@@ -2563,7 +2640,8 @@
+                     config.hover_duration_s if config else None
+                 ),
+                 "measurement_energy_status": measurement_status,
+-                "route_definition": "ONE_WAY_PLUS_X_ENU_MEASUREMENT_DISTANCE",
++                "route_definition": ("ONE_WAY_PLUS_X_ENU_MEASUREMENT_DISTANCE" if self._mission_route == "measurement"
++                                     else "FIXED_DESTINATION_FROM_TAKEOFF"),
+                 "temperature_physical": temperature_physical,
+                 "temperature_effect_scope": (
+                     TEMPERATURE_EFFECT_SCOPE if temperature_physical else None
+@@ -2988,6 +3066,8 @@
+                         "native_pack_drive": self._pack_drive_telemetry(),
+                     }
+                 context = self._run_provenance_context
++                if context.get("config", {}).get("mission_route_id"):
++                    context["waypoints_reached"] = list(self._route_checkpoints)
+                 if "airborne_training" not in context:
+                     row = training_row(
+                         context["config"], self._run_id, context["recording_end"]["outcome"],
+@@ -3074,7 +3154,8 @@
+             "schema": "M100_RUN_PROVENANCE_V2",
+             "created_utc": datetime.now(timezone.utc).isoformat(),
+             "run_id": self._run_id,
+-            "config": config.as_dict(),
++            "config": {**config.as_dict(), **self._route_metadata(config),
++                       "initial_nominal_soc_percent": self._energy_config.bms_initial_soc_percent},
+             "atmosphere": asdict(atmosphere),
+             "native_pack_drive": {
+                 "demand_topic": PACK_DRIVE_DEMAND_TOPIC, "state_topic": PACK_DRIVE_STATE_TOPIC,
+@@ -3190,6 +3271,8 @@
+             measurement_models = final_energy.phase_power_model_ids.get(measurement_phase, [])
+             if len(measurement_models) == 1:
+                 measurement_model_id = measurement_models[0]
++            if context.get("config", {}).get("mission_route_id"):
++                measurement_model_id = "FIXED_DESTINATION_MULTIPHASE_MANAGER"
+         payload = {
+             **context,
+             "finalized_utc": datetime.now(timezone.utc).isoformat(),
+@@ -3202,7 +3285,9 @@
+                 "fields": list(CSV_FIELDS),
+                 "value_source": "SIMULATION_MODEL_ESTIMATE",
+                 "time_basis": "energy_timestamp_s is the strictly increasing simulation energy clock",
+-                "distance_definition": "distance_m is recorded trajectory length; measurement_distance_m is the outbound +X ENU displacement",
++                "distance_definition": ("measurement_distance_m is cumulative along-leg projected outbound progress"
++                                        if context.get("config", {}).get("mission_route_id") else
++                                        "distance_m is recorded trajectory length; measurement_distance_m is the outbound +X ENU displacement"),
+                 "cached_energy_rows_skipped": (
+                     self._cached_energy_csv_rows_skipped
+                 ),
+--- a/analysis/m100_high_speed_stability/run_one_stability_case.py
++++ b/analysis/m100_high_speed_stability/run_one_stability_case.py
+@@ -12,6 +12,7 @@
+ from collections import deque
+ from datetime import datetime, timezone
+ import json
++import math
+ import os
+ from pathlib import Path
+ import time
+@@ -31,6 +32,19 @@
+ DEFAULT_OUTPUT_ROOT = PROJECT_ROOT / "outputs" / "m100_high_speed_stability"
+
+
++def cross_track_error_m(pos, leg):
++    """Horizontal distance to the active finite leg in takeoff-relative ENU."""
++    if leg is None:
++        return abs(float(pos[1]))  # Legacy eastbound measurement protocol.
++    (x0, y0), (x1, y1) = leg
++    dx, dy = x1-x0, y1-y0
++    length_sq = dx*dx + dy*dy
++    if length_sq == 0:
++        return math.hypot(pos[0]-x0, pos[1]-y0)
++    fraction = min(1., max(0., ((pos[0]-x0)*dx + (pos[1]-y0)*dy) / length_sq))
++    return math.hypot(pos[0]-x0-fraction*dx, pos[1]-y0-fraction*dy)
++
++
+ class StabilityCaseRunner(Node):
+     def __init__(self, raw_path: Path) -> None:
+         super().__init__("m100_high_speed_stability_runner")
+@@ -200,7 +214,7 @@
+
+                 pos = status.get("pos") or [None, None, None]
+                 if len(pos) >= 3 and all(isinstance(v, (int, float)) for v in pos[:3]):
+-                    cross_track = abs(float(pos[1]))
++                    cross_track = cross_track_error_m(pos, status.get("mission_leg_enu_m"))
+                     altitude_error = abs(float(pos[2]) - altitude_m)
+                     lost = cross_track > 20.0 or altitude_error > 5.0
+                     trajectory_loss_since = (
+--- a/ros2_ws/src/drone_nav/test/test_m100_experiment_session_lifecycle.py
++++ b/ros2_ws/src/drone_nav/test/test_m100_experiment_session_lifecycle.py
+@@ -92,6 +92,9 @@
+     manager = object.__new__(M100ExperimentManager)
+     signals = []
+     removed = []
++    epochs_reset = []
++    manager._lock = threading.RLock()
++    manager._reset_pack_drive_epoch = lambda: epochs_reset.append(True)
+     manager._px4_process = SimpleNamespace(
+         pid=12345, poll=lambda: None, send_signal=signals.append,
+         wait=lambda **kwargs: None,
+@@ -108,6 +111,7 @@
+     monkeypatch.setattr(manager_module.os, "killpg", lambda pid, value: signals.append((pid, value)))
+     manager._stop_owned_stack(require_landed=True, remove_runtime_model=True)
+     assert signals == [(12345, manager_module.signal.SIGINT)]
++    assert epochs_reset == [True]
+     assert removed == ["m100_cmu_v2"]
+     assert manager._px4_process is None
+-
++

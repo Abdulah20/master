@@ -5,6 +5,7 @@
 #include <chrono>
 #include <cmath>
 #include <cstdint>
+#include <cstdlib>
 #include <deque>
 #include <memory>
 #include <mutex>
@@ -33,6 +34,7 @@
 #include <sdf/Element.hh>
 
 #include "M100TransientPower.hh"
+#include "M100TheveninFit.hh"
 
 namespace m100
 {
@@ -477,8 +479,36 @@ class PackDrive final : public gz::sim::System,
     this->modelName = model.Name(ecm);
     this->entity = entity;
     this->fit = Fit::Read(*sdf);
+    const char *setting = std::getenv("M100_PACK_DYNAMICS");
+    const std::string mode = setting ? setting : "cmu_2rc";
+    if (mode != "cmu_2rc" && mode != "cmu_static")
+      throw std::runtime_error("M100_PACK_DYNAMICS must be cmu_2rc or cmu_static");
+    this->dynamicPack = mode == "cmu_2rc";
+    if (this->dynamicPack)
+    {
+      // Use the instantaneous resistance only once. Polarization is advanced
+      // from supported past current and subtracted separately from the source.
+      this->fit.intercept = rcfit::referenceV;
+      this->fit.r = rcfit::r0;
+      this->fit.k = rcfit::slope;
+      const double minimumSource = this->fit.Voltage(0, this->fit.maxQ) -
+                                   (rcfit::r1 + rcfit::r2) * this->fit.maxI;
+      if (minimumSource <= 2.0 * this->fit.r * this->fit.maxI)
+        throw std::runtime_error("Two-RC operating branch is not monotone within the current range");
+    }
     this->predictor.Load();
-    this->heldV = this->fit.Voltage(this->fit.maxI, this->fit.minQ);
+    if (const char *initial = std::getenv("M100_INITIAL_SOC_PERCENT"))
+    {
+      bool ok = false;
+      this->initialSoc = QString::fromUtf8(initial).toDouble(&ok);
+      if (!ok || !std::isfinite(this->initialSoc) || this->initialSoc < 0 || this->initialSoc > 100)
+        throw std::runtime_error("M100_INITIAL_SOC_PERCENT must be in [0, 100]");
+    }
+    // Translating a scenario SOC to an equivalent charge offset uses the
+    // TB47D nameplate only. It is a transferable initial condition, not a BMS reading.
+    this->initialQ = (100.0 - this->initialSoc) * 4.5 / 100.0;
+    this->q = this->initialQ;
+    this->heldV = this->fit.Voltage(this->fit.maxI, std::clamp(this->q, this->fit.minQ, this->fit.maxQ));
     this->WriteMotors(ecm, {});
     this->publisher = this->outputNode.Advertise<gz::msgs::StringMsg>(kStateTopic);
     if (!this->publisher.Valid())
@@ -533,7 +563,14 @@ class PackDrive final : public gz::sim::System,
         this->q = (covered < elapsed) ? this->fit.maxQ :
                   std::min(this->fit.maxQ, this->q + covered * amps / 3600.0);
         this->coveredSeconds += covered;
+        this->AdvancePolarization(*this->previousCurrent, covered);
       }
+      // A declared zero-power disarmed interval allows relaxation. A missing
+      // sample, saturated rotor or unobserved interval never implies zero load.
+      if (contiguous && this->previousBreak == inputs.discontinuity && this->previousIdle &&
+          this->previousState.demandFresh && this->previousState.effectivePower == 0.0 &&
+          state.knownIdle && state.demandFresh && state.effectivePower == 0.0)
+        this->AdvancePolarization(0, elapsed);
       this->IntegratePower(*this->lastStep, now, covered, contiguous, state);
       if (covered > 0)
         state = this->Evaluate(inputs, now);
@@ -718,14 +755,14 @@ class PackDrive final : public gz::sim::System,
     s.knownIdle = armKnown && !armed;
     s.loadPossible = !s.knownIdle && (armed || peak > 0);
     const double fitQ = std::clamp(this->q, this->fit.minQ, this->fit.maxQ);
-    const double atMaxI = this->fit.Voltage(this->fit.maxI, fitQ);
+    const double sourceV = this->fit.Voltage(0, fitQ) - this->polarFast - this->polarSlow;
+    const double atMaxI = sourceV - this->fit.r * this->fit.maxI;
     const bool exhausted = this->q >= this->fit.maxQ;
     const bool highLoad = powerKnown && power > this->fit.maxI * atMaxI;
-    const bool lowLoad = powerKnown && power < this->fit.minI * this->fit.Voltage(this->fit.minI, fitQ);
+    const bool lowLoad = powerKnown && power < this->fit.minI * (sourceV - this->fit.r * this->fit.minI);
     if (!exhausted && power > 0 && !highLoad && !lowLoad)
     {
-      const double a = this->fit.Voltage(0, fitQ);
-      const double voltage = 0.5 * (a + std::sqrt(a * a - 4.0 * this->fit.r * power));
+      const double voltage = 0.5 * (sourceV + std::sqrt(sourceV * sourceV - 4.0 * this->fit.r * power));
       s.requestedV = voltage;
       s.requestedI = power / voltage;
     }
@@ -773,6 +810,14 @@ class PackDrive final : public gz::sim::System,
     return s;
   }
 
+  private: void AdvancePolarization(double current, double duration)
+  {
+    if (!this->dynamicPack || duration <= 0)
+      return;
+    this->polarFast += -std::expm1(-duration / rcfit::tau1) * (rcfit::r1 * current - this->polarFast);
+    this->polarSlow += -std::expm1(-duration / rcfit::tau2) * (rcfit::r2 * current - this->polarSlow);
+  }
+
   private: void Publish(const Inputs &in, const State &s, double now)
   {
     QJsonObject json;
@@ -797,7 +842,22 @@ class PackDrive final : public gz::sim::System,
       for (const auto &flag : QString::fromStdString(this->prediction.flags).split('|'))
         flags.append(flag);
     json["transient_transfer_flags"] = flags;
-    json["airborne_budget"] = this->budget.Json(this->integrals, now);
+    const QString model = this->dynamicPack ? "CMU_LOADED_THEVENIN_2RC_V1" : "CMU_STATIC_LOADED_V1";
+    auto budgetJson = this->budget.Json(this->integrals, now);
+    budgetJson["battery_dynamics_model"] = model;
+    budgetJson["initial_nominal_soc_percent"] = this->initialSoc;
+    budgetJson["battery_parameter_sha256"] = this->dynamicPack ? QJsonValue(rcfit::hash) : QJsonValue(QJsonValue::Null);
+    json["airborne_budget"] = budgetJson;
+    json["battery_dynamics_model"] = model;
+    json["battery_parameter_sha256"] = budgetJson["battery_parameter_sha256"];
+    json["battery_dynamics_scope"] = "CMU_DISCHARGE_RELATIVE_TRANSFER_NOT_TB47D_CHARACTERIZATION";
+    if (this->dynamicPack)
+    {
+      json["polarization_fast_v"] = this->polarFast;
+      json["polarization_slow_v"] = this->polarSlow;
+      json["reference_source_v"] = this->fit.Voltage(0, std::clamp(this->q, this->fit.minQ, this->fit.maxQ));
+      json["polarization_load_history_complete"] = this->uncoveredSeconds == 0;
+    }
     json["px4_land_time_s"] = JsonNumber(in.land ? Number(in.land->time) : std::nullopt);
     json["px4_land_transition_s"] = JsonNumber(in.land ? Number(in.land->transition) : std::nullopt);
     json["px4_land_sequence"] = JsonNumber(in.land ? Number(in.land->sequence) : std::nullopt);
@@ -808,7 +868,9 @@ class PackDrive final : public gz::sim::System,
     json["requested_pack_current_a"] = JsonNumber(s.requestedI);
     json["voltage_v"] = JsonNumber(s.terminalV);
     json["current_a"] = JsonNumber(s.current);
-    json["discharged_ah"] = this->q;
+    json["initial_nominal_soc_percent"] = this->initialSoc;
+    json["initial_nameplate_discharge_offset_ah"] = this->initialQ;
+    json["discharged_ah"] = this->q - this->initialQ;
     json["fit_q_ah"] = std::clamp(this->q, this->fit.minQ, this->fit.maxQ);
     json["q_at_lower_boundary"] = this->q < this->fit.minQ;
     json["q_domain_exhausted"] = this->q >= this->fit.maxQ;
@@ -840,6 +902,9 @@ class PackDrive final : public gz::sim::System,
   private: gz::sim::Entity body{gz::sim::kNullEntity};
   private: std::string modelName;
   private: Fit fit{};
+  private: bool dynamicPack{true};
+  private: double initialQ{0}, initialSoc{100};
+  private: double polarFast{0}, polarSlow{0};
   private: transient::Predictor predictor;
   private: transient::Prediction prediction;
   private: Number predictionAt, predictionPayload, groundZ;

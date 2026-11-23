@@ -98,6 +98,8 @@ def test_live_entrypoint_tracks_actual_height_and_breaks_invalid_intervals(model
     manager._config = model.contract.build_config(15, 0, 0, 0, 10, 100, 500, 60)
     manager._applied_atmosphere = model.atmosphere_module.compare_density_to_15c_reference(15, 100)
     manager._state = "CLIMB"
+    manager._recovering_landing = False
+    manager._active_runtime_model = None
     manager._measurement_active = False
     manager._recording = True
     manager._mav = Mock()

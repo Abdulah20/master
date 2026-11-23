@@ -1,0 +1,188 @@
+{
+  "by_payload": {
+    "0.0": {
+      "comparisons": [
+        {
+          "coverage": "COMPLETE",
+          "descriptive_error_band_Wh": 0.7412174778647426,
+          "expected_seeds": [
+            2711,
+            2712
+          ],
+          "feasible_seeds": [
+            2711,
+            2712
+          ],
+          "matched_seeds": [
+            2711,
+            2712
+          ],
+          "max_observed_difference_on_feasible_pairs_Wh": 3.375542311261473,
+          "mean_observed_difference_on_feasible_pairs_Wh": 3.347150040411817,
+          "min_observed_difference_on_feasible_pairs_Wh": 3.3187577695621613,
+          "observed_energy_order": "WINNER_USED_LESS_ON_ALL_CONFIRMATION_SEEDS",
+          "predicted_gap_Wh": 3.3175374443084245,
+          "roles": [
+            "reference"
+          ],
+          "within_discovery_error_band": false
+        },
+        {
+          "coverage": "COMPLETE",
+          "descriptive_error_band_Wh": 0.7412174778647426,
+          "expected_seeds": [
+            2711,
+            2712
+          ],
+          "feasible_seeds": [
+            2711,
+            2712
+          ],
+          "matched_seeds": [
+            2711,
+            2712
+          ],
+          "max_observed_difference_on_feasible_pairs_Wh": 0.48330291021585126,
+          "mean_observed_difference_on_feasible_pairs_Wh": 0.33894408533137543,
+          "min_observed_difference_on_feasible_pairs_Wh": 0.1945852604468996,
+          "observed_energy_order": "WINNER_USED_LESS_ON_ALL_CONFIRMATION_SEEDS",
+          "predicted_gap_Wh": 0.3958179137241977,
+          "roles": [
+            "closest_runner_up"
+          ],
+          "within_discovery_error_band": true
+        }
+      ],
+      "reference_relation": "DISTINCT_REFERENCE",
+      "winner_coverage": "COMPLETE",
+      "winner_observed_seeds": [
+        2711,
+        2712
+      ]
+    },
+    "0.25": {
+      "comparisons": [
+        {
+          "coverage": "COMPLETE",
+          "descriptive_error_band_Wh": 0.7412174778647426,
+          "expected_seeds": [
+            2711,
+            2712
+          ],
+          "feasible_seeds": [
+            2711,
+            2712
+          ],
+          "matched_seeds": [
+            2711,
+            2712
+          ],
+          "max_observed_difference_on_feasible_pairs_Wh": 3.5986606649335755,
+          "mean_observed_difference_on_feasible_pairs_Wh": 3.398702332954585,
+          "min_observed_difference_on_feasible_pairs_Wh": 3.1987440009755943,
+          "observed_energy_order": "WINNER_USED_LESS_ON_ALL_CONFIRMATION_SEEDS",
+          "predicted_gap_Wh": 3.636603158727908,
+          "roles": [
+            "reference"
+          ],
+          "within_discovery_error_band": false
+        },
+        {
+          "coverage": "COMPLETE",
+          "descriptive_error_band_Wh": 0.7412174778647426,
+          "expected_seeds": [
+            2711,
+            2712
+          ],
+          "feasible_seeds": [
+            2711,
+            2712
+          ],
+          "matched_seeds": [
+            2711,
+            2712
+          ],
+          "max_observed_difference_on_feasible_pairs_Wh": 0.2481213676667231,
+          "mean_observed_difference_on_feasible_pairs_Wh": -0.04956331241730183,
+          "min_observed_difference_on_feasible_pairs_Wh": -0.34724799250132676,
+          "observed_energy_order": "ORDER_VARIED_OR_INCLUDED_EQUAL_ENERGY",
+          "predicted_gap_Wh": 0.3592441988368691,
+          "roles": [
+            "closest_runner_up"
+          ],
+          "within_discovery_error_band": true
+        }
+      ],
+      "reference_relation": "DISTINCT_REFERENCE",
+      "winner_coverage": "COMPLETE",
+      "winner_observed_seeds": [
+        2711,
+        2712
+      ]
+    },
+    "0.5": {
+      "comparisons": [
+        {
+          "coverage": "COMPLETE",
+          "descriptive_error_band_Wh": 0.7412174778647426,
+          "expected_seeds": [
+            2711,
+            2712
+          ],
+          "feasible_seeds": [
+            2711,
+            2712
+          ],
+          "matched_seeds": [
+            2711,
+            2712
+          ],
+          "max_observed_difference_on_feasible_pairs_Wh": 4.294191240680618,
+          "mean_observed_difference_on_feasible_pairs_Wh": 4.064780590936445,
+          "min_observed_difference_on_feasible_pairs_Wh": 3.8353699411922726,
+          "observed_energy_order": "WINNER_USED_LESS_ON_ALL_CONFIRMATION_SEEDS",
+          "predicted_gap_Wh": 3.9680679797209706,
+          "roles": [
+            "reference"
+          ],
+          "within_discovery_error_band": false
+        },
+        {
+          "coverage": "COMPLETE",
+          "descriptive_error_band_Wh": 0.7412174778647426,
+          "expected_seeds": [
+            2711,
+            2712
+          ],
+          "feasible_seeds": [
+            2711,
+            2712
+          ],
+          "matched_seeds": [
+            2711,
+            2712
+          ],
+          "max_observed_difference_on_feasible_pairs_Wh": 0.4172639633154702,
+          "mean_observed_difference_on_feasible_pairs_Wh": 0.3391246596898867,
+          "min_observed_difference_on_feasible_pairs_Wh": 0.2609853560643032,
+          "observed_energy_order": "WINNER_USED_LESS_ON_ALL_CONFIRMATION_SEEDS",
+          "predicted_gap_Wh": 0.3212188785729566,
+          "roles": [
+            "closest_runner_up"
+          ],
+          "within_discovery_error_band": true
+        }
+      ],
+      "reference_relation": "DISTINCT_REFERENCE",
+      "winner_coverage": "COMPLETE",
+      "winner_observed_seeds": [
+        2711,
+        2712
+      ]
+    }
+  },
+  "coverage": "COMPLETE",
+  "expected_distinct_seed_pairs": 12,
+  "observed_distinct_seed_pairs": 12,
+  "pairs_satisfying_nominal_constraints": 12
+}

@@ -1,0 +1,20 @@
+{
+  "accepted": false,
+  "archive_sha256": "6637bf61b74e2cd1ae97bcccf7a92945ed293d8ed3cbb78e77adefe4e5e35fde",
+  "attempt": 1,
+  "case_id": "route_p000_v8_h25_north_dogleg_w0d0_t15_q100_s1701",
+  "checks": {
+    "independent_ulog_rejection": [],
+    "native_budget_reason": "MISSING_AIRBORNE_POWER",
+    "native_uncovered_s": 3.5360000000000014,
+    "native_wire_sha256": "ad7f33dbcb65fd5424920bbac65e9a96267e7e66b63a04d1f42dc0c719b6509c",
+    "recorder_energy_Wh": null,
+    "recorder_status": "INCOMPLETE",
+    "training_row_sha256": "25ddf479ab9ee9951bcad03122e5ac3ab4d09fa2e46d4d98e30ae9bff3f52e2b",
+    "ulog_dropout_events": 10,
+    "ulog_sha256": "71cbaeecabdb54fa2e83660d635c43dc795dd1711ca9f90131079112f803f5cc"
+  },
+  "protocol_sha256": "bff5bef304d42daf4534859a98a69c66baccc996e4b3c7e4c68eb57b0598f92e",
+  "reason": "MISSING_AIRBORNE_POWER",
+  "run_id": "m100_20261123T162144Z"
+}

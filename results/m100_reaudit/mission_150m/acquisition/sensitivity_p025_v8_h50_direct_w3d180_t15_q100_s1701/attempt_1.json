@@ -1,0 +1,12 @@
+{
+  "archive": "sensitivity_p025_v8_h50_direct_w3d180_t15_q100_s1701/attempt_1.zip",
+  "archive_sha256": "d1ce2932aa3b72ef4914fd96607a7aae7caeb574d42ce92fdaf5102b7e73b5a0",
+  "attempt": 1,
+  "case_id": "sensitivity_p025_v8_h50_direct_w3d180_t15_q100_s1701",
+  "launcher_exit": 0,
+  "outcome": "COMPLETE",
+  "protocol_sha256": "bff5bef304d42daf4534859a98a69c66baccc996e4b3c7e4c68eb57b0598f92e",
+  "reason": "",
+  "recorded_utc": "2026-11-23T16:44:57.770272+00:00",
+  "run_id": "m100_20261123T164204Z"
+}

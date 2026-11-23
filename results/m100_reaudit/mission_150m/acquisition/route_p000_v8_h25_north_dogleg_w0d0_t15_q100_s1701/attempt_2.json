@@ -1,0 +1,12 @@
+{
+  "archive": "route_p000_v8_h25_north_dogleg_w0d0_t15_q100_s1701/attempt_2.zip",
+  "archive_sha256": "c5ebe9f4b677d00ab04e4f1f0b39a2444b4535b493167241582911b18c8dbdb5",
+  "attempt": 2,
+  "case_id": "route_p000_v8_h25_north_dogleg_w0d0_t15_q100_s1701",
+  "launcher_exit": 0,
+  "outcome": "COMPLETE",
+  "protocol_sha256": "bff5bef304d42daf4534859a98a69c66baccc996e4b3c7e4c68eb57b0598f92e",
+  "reason": "",
+  "recorded_utc": "2026-11-23T18:16:45.129340+00:00",
+  "run_id": "m100_20261123T181402Z"
+}

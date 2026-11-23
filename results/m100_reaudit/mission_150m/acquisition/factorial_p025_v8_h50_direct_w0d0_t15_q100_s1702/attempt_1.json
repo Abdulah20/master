@@ -1,0 +1,12 @@
+{
+  "archive": "factorial_p025_v8_h50_direct_w0d0_t15_q100_s1702/attempt_1.zip",
+  "archive_sha256": "193b90028a0f7d5b71eb667a43ae37264439f6fc8e79b738b3af17feecf6ebe0",
+  "attempt": 1,
+  "case_id": "factorial_p025_v8_h50_direct_w0d0_t15_q100_s1702",
+  "launcher_exit": 0,
+  "outcome": "ABORTED_BY_GUARD",
+  "protocol_sha256": "bff5bef304d42daf4534859a98a69c66baccc996e4b3c7e4c68eb57b0598f92e",
+  "reason": "REJECTED \u2014 PX4 position telemetry became unavailable during descent",
+  "recorded_utc": "2026-11-23T17:04:43.500186+00:00",
+  "run_id": "m100_20261123T170006Z"
+}

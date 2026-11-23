@@ -1,0 +1,20 @@
+{
+  "accepted": false,
+  "archive_sha256": "9300ee23ea9e7ab0ff716e8fef2cb10bd85ce940f41626585a9cab67236476f2",
+  "attempt": 1,
+  "case_id": "factorial_p000_v10_h100_direct_w0d0_t15_q100_s1702",
+  "checks": {
+    "independent_ulog_rejection": [],
+    "native_budget_reason": "MISSING_AIRBORNE_POWER",
+    "native_uncovered_s": 3.1720000000000006,
+    "native_wire_sha256": "13d11ca1205c8b1e302c0f496434311e8e736a17205a9dffc9d47dfe672f6c34",
+    "recorder_energy_Wh": null,
+    "recorder_status": "INCOMPLETE",
+    "training_row_sha256": "77605672435e8adf6ab7a8e65fd139f90a361b58572e19ccd5193019a890e4c2",
+    "ulog_dropout_events": 13,
+    "ulog_sha256": "3f14aafcd5c69db4918f1b5ee2f70b12e2653679069e0a3b9c08bf294f63d5c5"
+  },
+  "protocol_sha256": "bff5bef304d42daf4534859a98a69c66baccc996e4b3c7e4c68eb57b0598f92e",
+  "reason": "MISSING_AIRBORNE_POWER",
+  "run_id": "m100_20261123T170558Z"
+}

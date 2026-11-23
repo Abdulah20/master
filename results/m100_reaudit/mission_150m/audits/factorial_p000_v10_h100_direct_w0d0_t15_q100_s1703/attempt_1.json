@@ -1,0 +1,20 @@
+{
+  "accepted": false,
+  "archive_sha256": "360bed11c5e4c4ab8cd72bd51964315ace0da44f01625e9156ee82af1a90515a",
+  "attempt": 1,
+  "case_id": "factorial_p000_v10_h100_direct_w0d0_t15_q100_s1703",
+  "checks": {
+    "independent_ulog_rejection": [],
+    "native_budget_reason": "DISCONTINUOUS_PX4_LAND_SEQUENCE",
+    "native_uncovered_s": null,
+    "native_wire_sha256": "0067a92bfebca09e68a7b8057e977a2ab5801f82715a21295c87cb0113561b26",
+    "recorder_energy_Wh": null,
+    "recorder_status": "INCOMPLETE",
+    "training_row_sha256": "78713d864648e8e21e995b02ae832e8113538170695d1bca17ae15363594b116",
+    "ulog_dropout_events": 0,
+    "ulog_sha256": "295c3c41f9ee264914dd97f8639e46ac37171e8ed0d48b29990a92ba082e84af"
+  },
+  "protocol_sha256": "bff5bef304d42daf4534859a98a69c66baccc996e4b3c7e4c68eb57b0598f92e",
+  "reason": "DISCONTINUOUS_PX4_LAND_SEQUENCE",
+  "run_id": "m100_20261123T174404Z"
+}

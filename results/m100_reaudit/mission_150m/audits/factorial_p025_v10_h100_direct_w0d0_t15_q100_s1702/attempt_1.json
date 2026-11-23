@@ -1,0 +1,9 @@
+{
+  "accepted": false,
+  "archive_sha256": "5c0ebfabcdf87e12d2d1aac877648630d112a017f877526a6fd56c5119ea4fde",
+  "attempt": 1,
+  "case_id": "factorial_p025_v10_h100_direct_w0d0_t15_q100_s1702",
+  "outcome": "ABORTED_BY_GUARD",
+  "protocol_sha256": "bff5bef304d42daf4534859a98a69c66baccc996e4b3c7e4c68eb57b0598f92e",
+  "reason": "REJECTED \u2014 precision return-to-home did not settle over the landing center"
+}

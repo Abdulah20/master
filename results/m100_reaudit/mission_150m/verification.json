@@ -1,0 +1,36 @@
+{
+  "accepted": 131,
+  "attempts": 143,
+  "confirmation_cases_excluded_from_model_fit_and_discovery_scores": 18,
+  "confirmation_coverage": "COMPLETE",
+  "confirmation_protocol_sha256": "8b5d5859fbd3c479295e671006127f07f616871a651479140c92e30bf2b97f1a",
+  "counts": {
+    "confirmation": 18,
+    "factorial": 81,
+    "route": 12,
+    "sensitivity": 20
+  },
+  "discovery_exploratory_model_flights": 113,
+  "discovery_protocol_sha256": "bff5bef304d42daf4534859a98a69c66baccc996e4b3c7e4c68eb57b0598f92e",
+  "discovery_reference_model_flights": 93,
+  "eligible_paired_confirmation_rows": 12,
+  "excluded_after_retries": [],
+  "expected_paired_confirmation_rows": 12,
+  "full_energy_observation": "Direct airborne recorder target. Same PX4 takeoff and landing edges. Zero uncovered time.",
+  "independent_confirmation_scope": "Separate Gazebo seeds; paired coverage and actual constraint checks are in confirmation_coverage.json.",
+  "maximum_pack_equation_residual_V": 3.552713678800501e-15,
+  "maximum_supported_power_residual_W": 5.684341886080802e-14,
+  "model_sha256": "03fd3d60c539d3a6ffb746525a7d035a2fa1b587df4d8436a3673fd39946c94e",
+  "new_preflight_csv_sha256": "7b4d1a7e17aad967ebd32de6d6d7849637814d50499f5f133344ff9e0de741c2",
+  "new_series_sha256": "5021323604467dbc6c846f12c7b9b491ab514903533a76133ec925eeb554ac6c",
+  "paired_confirmation_rows": 12,
+  "positive_uncovered_s": 0,
+  "published_interval_checks": {
+    "interval_rows": 21816,
+    "interval_rows_with_causal_features": 21816,
+    "largest_interval_count_per_flight": 216,
+    "smallest_interval_count_per_flight": 134,
+    "unique_joined_flights": 131
+  },
+  "registered": 131
+}

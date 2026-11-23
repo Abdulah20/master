@@ -1,0 +1,12 @@
+{
+  "archive": "factorial_p025_v8_h100_direct_w0d0_t15_q100_s1701/attempt_1.zip",
+  "archive_sha256": "6d666953f9f941e2606bbe279fe5a19c4ada4fbda7b83f15ea5109e770ce4b5a",
+  "attempt": 1,
+  "case_id": "factorial_p025_v8_h100_direct_w0d0_t15_q100_s1701",
+  "launcher_exit": 0,
+  "outcome": "COMPLETE",
+  "protocol_sha256": "bff5bef304d42daf4534859a98a69c66baccc996e4b3c7e4c68eb57b0598f92e",
+  "reason": "",
+  "recorded_utc": "2026-11-23T16:05:47.748129+00:00",
+  "run_id": "m100_20261123T160201Z"
+}

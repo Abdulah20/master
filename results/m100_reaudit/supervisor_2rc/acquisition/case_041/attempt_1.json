@@ -1,0 +1,12 @@
+{
+  "archive": "case_041/attempt_1.zip",
+  "archive_sha256": "a7183729a46b726761bda6f60011954cb776d1b650e11307d35936c3e9f77b2f",
+  "attempt": 1,
+  "case_id": "case_041",
+  "launcher_exit": 0,
+  "outcome": "COMPLETE",
+  "protocol_sha256": "1e67f28cd4fb4bd2f3a8e7382aa258dc2e9557e79171863d03b6a681cefc31d9",
+  "reason": "",
+  "recorded_utc": "2026-11-24T05:22:01.170378+00:00",
+  "run_id": "m100_20261124T051552Z"
+}

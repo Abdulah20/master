@@ -24,6 +24,7 @@ from .supervisor_results import mission_summary
 ROOT = mission.ROOT
 OUT = ROOT / 'results/m100_reaudit/supervisor_2rc'
 WORK = ROOT / 'tmp/m100_supervisor_2rc'
+FLIGHT_WORK = Path(os.environ.get('M100_SUPERVISOR_2RC_FLIGHT_WORK', WORK / 'flights'))
 OLD = OUT.with_name('supervisor_rerun')
 ORIGINAL = ROOT / 'tools/m100_reaudit/runtime_snapshot/original_study/M100_69_experiments_summary.csv'
 REFERENCE = OLD / 'M100_69_experiments_rerun.csv'
@@ -164,7 +165,8 @@ def audit(case, attempt, protocol):
     archive = ARCHIVE / receipt['archive']
     confirm(digest(archive)==receipt['archive_sha256'], 'Raw archive differs from its receipt')
     hashes = protocol['source_sha256']
-    with tempfile.TemporaryDirectory(dir=WORK, prefix='audit-') as path, zipfile.ZipFile(archive) as source:
+    FLIGHT_WORK.mkdir(parents=True, exist_ok=True)
+    with tempfile.TemporaryDirectory(dir=FLIGHT_WORK, prefix='audit-') as path, zipfile.ZipFile(archive) as source:
         raw = Path(path)
         for name in source.namelist():
             member = Path(name)
@@ -227,7 +229,7 @@ def audit(case, attempt, protocol):
 
 
 def acquire(case, attempt, protocol, initial):
-    mission.run_one(case, PROTOCOL, attempt, release_dir=OUT, work_root=WORK / 'flights', archive_root=ARCHIVE,
+    mission.run_one(case, PROTOCOL, attempt, release_dir=OUT, work_root=FLIGHT_WORK, archive_root=ARCHIVE,
                     bootstrap_rootfs=initial, extra_env={'M100_STABLE_CRUISE_PROFILE': 'native',
                                                        'M100_PACK_STABLE_CRUISE_CORRECTION': '1'})
     return audit(case, attempt, protocol)

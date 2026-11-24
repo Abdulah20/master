@@ -1,0 +1,22 @@
+{
+  "checked_report_links": true,
+  "observed_accepted_attempts": {
+    "1": 56,
+    "2": 8,
+    "3": 5
+  },
+  "original_csv_unchanged": true,
+  "previous_csv_unchanged": true,
+  "regression_log_sha256": "e6d0550d849b74736b06a3df1f8442632025177c8f8ae0f09d2b18d79aef3ce4",
+  "regressions": "26 passed in 1.49s",
+  "selected_clock_domains_agreed": true,
+  "verified_direct_takeoff_to_landing": 69,
+  "workbook_csv_import": {
+    "all_deltas_and_source_joins_match": true,
+    "columns": 66,
+    "full_flights": 69,
+    "original_segment_pairs": 69,
+    "repeat_segment_pairs": 69,
+    "rows": 69
+  }
+}

@@ -1,0 +1,29 @@
+{
+  "accepted": false,
+  "archive_sha256": "5429bdb03d696e9f68cf7e9143203a93e41b139d441c10cfc148573b9c2d2064",
+  "attempt": 1,
+  "audit": {},
+  "case_id": "case_034",
+  "metrics": {
+    "attempt": 1,
+    "case_id": "case_034",
+    "charge_fit_exhaustion_observed": null,
+    "estimated_airborne_energy_Wh": null,
+    "first_charge_fit_exhaustion_s": null,
+    "label_source": "unavailable",
+    "last_accounted_discharge_Ah": null,
+    "mission_outcome": "ABORTED_BY_GUARD",
+    "native_VI_coverage_s": null,
+    "rejection_reason": "REJECTED \u2014 centered descent did not reach the final landing altitude",
+    "run_id": "m100_20261124T045703Z",
+    "training_eligible": false,
+    "training_status": "NO_VERIFIED_AIRBORNE_TARGET",
+    "uncovered_s": null
+  },
+  "reason": "REJECTED \u2014 centered descent did not reach the final landing altitude",
+  "sources": {
+    "receipt_sha256": "90567d5b03780c4c009a30010d5fb80ee86bc9e9b6c239d02d8c232a381d88af"
+  },
+  "verified_airborne": false,
+  "verified_segment": false
+}

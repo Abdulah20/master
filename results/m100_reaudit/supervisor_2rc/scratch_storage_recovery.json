@@ -1,0 +1,8 @@
+{
+  "accepted_before_switch": 57,
+  "archival_destination": "/media/abdulah/New Volume/M100_Supervisor_2RC_2026-11-24",
+  "archived_attempts_before_switch": 73,
+  "prior_live_acquisitions_drained": true,
+  "protocol_unchanged": true,
+  "temporary_recording_filesystem": "tmpfs"
+}

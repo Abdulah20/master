@@ -1,0 +1,12 @@
+{
+  "archive": "case_055/attempt_2.zip",
+  "archive_sha256": "3907be4e438545b487ba925e5fd2d7c4ea9b31e3cc7117b3fbe6e39ed8f14ff3",
+  "attempt": 2,
+  "case_id": "case_055",
+  "launcher_exit": 0,
+  "outcome": "ABORTED_BY_GUARD",
+  "protocol_sha256": "1e67f28cd4fb4bd2f3a8e7382aa258dc2e9557e79171863d03b6a681cefc31d9",
+  "reason": "REJECTED \u2014 timeout while waiting for arming",
+  "recorded_utc": "2026-11-24T07:04:11.835565+00:00",
+  "run_id": "m100_20261124T070352Z"
+}

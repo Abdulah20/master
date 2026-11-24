@@ -1,0 +1,14 @@
+{
+  "accepted_before_restart": 18,
+  "current_workers": 3,
+  "flights_closed_before_restart": 24,
+  "phase": "first_attempt",
+  "prior_rejections": {
+    "DISCONTINUOUS_PX4_LAND_SEQUENCE": 1,
+    "MISSING_AIRBORNE_POWER": 4,
+    "MISSING_AIRBORNE_POWER|NATIVE_EDGES_DIFFER_FROM_PX4_ULOG": 1
+  },
+  "prior_workers": 4,
+  "reason": "Several acquisitions lost airborne coverage near landing. Lower concurrency without interrupting any active flight.",
+  "same_flight_inputs_and_seed": true
+}

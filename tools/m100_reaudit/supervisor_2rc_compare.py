@@ -200,7 +200,17 @@ def render(data, summary):
             lines.append(f"| {label} | {stats['pairs']} | {stats['mean_Wh']:+.3f} | {stats['mean_abs_Wh']:.3f} | {stats['mean_pct']:+.2f}% |")
     lines+=['','حُسب كل فرق بطرح الطاقة السابقة من الطاقة الجديدة. النسبة المعروضة متوسط النسب لكل حالة. '
             'تستخدم المقارنة مع الملف الأول طاقة مقطع القياس المنشورة فيه. يتوفر هدف الإقلاع إلى الهبوط في إعادة التشغيل السابقة، '
-            'وكُتب في الحالتين مباشرة عند الهبوط.','']
+            'وكُتب في الحالتين مباشرة عند الهبوط. '
+            '[إعادة التشغيل السابقة](../supervisor_rerun/M100_69_experiments_rerun.csv) · '
+            '[النتائج الأولى](../../../tools/m100_reaudit/runtime_snapshot/original_study/M100_69_experiments_summary.csv)','']
+    lines+=['| مقطع القياس | الأزواج | متوسط فرق الطاقة عن إعادة التشغيل السابقة (Wh) | نطاق الفرق (Wh) |',
+            '|---|---:|---:|---:|']
+    for phase, label in (('CRUISE','الذهاب المقاس'),('HOVER','التحويم')):
+        delta=summary['by_segment'][phase]['measurement_vs_previous']
+        if delta['pairs']:
+            lines.append(f"| {label} | {delta['pairs']} | {delta['mean_Wh']:+.3f} | "
+                         f"{delta['min_Wh']:+.3f} إلى {delta['max_Wh']:+.3f} |")
+    lines.append('')
     parts=summary['full_energy_components']
     if parts['mean_abs_duration_component_Wh'] is not None:
         lines+=['عند تفكيك فرق طاقة الرحلة حسابيًا، بلغ متوسط المقدار المرتبط بتغيّر المدة '
@@ -217,6 +227,9 @@ def render(data, summary):
         if group:
             lines.append(f"| {group[-1]} | {fmt(row['previous_measurement_energy_Wh'])} ← {fmt(row[SEGMENT])} | "
                          f"{fmt(row['previous_estimated_airborne_energy_Wh'])} ← {fmt(row[TARGET])} | {fmt(row['delta_airborne_energy_Wh'],True)} |")
+    fallback = summary['manager_fallback_share_pct']
+    fallback_detail = (f"بلغت الحصة الوسيطة {fallback['median']:.1f}% وتراوحت بين {fallback['min']:.1f}% و{fallback['max']:.1f}%. "
+                       if fallback else '')
     lines+=['','## حدود الاستنتاج','',
             'يستخدم مقطع القياس تعريف القدرة التشغيلية نفسه في مدير الرحلة. '
             'تحققنا من قيمه بإعادة تكامل عينات القدرة بحدود نافذة القياس لكل تشغيل. '
@@ -224,11 +237,27 @@ def render(data, summary):
             'لم تُفعّل معايرة سرعة الطيران المستقر لأن أوامر السرعة هنا خارج سرعات تفعيلها (4 و6 و8 م/ث).','',
             f"وصل نموذج الحزمة إلى حد ملاءمة الشحنة في {summary['fit_limit_reached']} رحلة مقبولة. "
             'يبيّن عمود `airborne_manager_fallback_Wh` حصة الطاقة التي قدّرها مدير الرحلة عندما تعذّر حساب الجهد والتيار ضمن المجال المدعوم. '
+            + fallback_detail +
             'صُنّف تأثير الرياح في القدرة الكهربائية `C_NOT_CALIBRATED`. '
             'تحتاج معايرة بطارية TB47D وخسائر ESC 620D إلى قياسات مستقلة.','']
     if summary['rejected_attempt_reasons']:
+        reasons = {'MISSING_AIRBORNE_POWER':'نقص تغطية القدرة أثناء الطيران',
+                   'DISCONTINUOUS_PX4_LAND_SEQUENCE':'انقطاع تسلسل تسجيل الهبوط في PX4',
+                   'MISSING_AIRBORNE_POWER|NATIVE_EDGES_DIFFER_FROM_PX4_ULOG':
+                       'نقص تغطية القدرة واختلاف حدود الرحلة بين Gazebo وPX4',
+                   'REJECTED — centered descent did not reach the final landing altitude':
+                       'انتهاء المهلة قبل بلوغ ارتفاع الهبوط النهائي',
+                   'REJECTED — timeout while waiting for arming':'انتهاء مهلة تسليح المحركات'}
         lines+=['## المحاولات المستبعدة','', '| السبب المسجّل | العدد |','|---|---:|',
-                *[f"| {reason.replace('|', '، ')} | {n} |" for reason,n in summary['rejected_attempt_reasons'].items()],'']
+                *[f"| {reasons.get(reason, reason).replace('|', '، ')} | {n} |"
+                  for reason,n in summary['rejected_attempt_reasons'].items()],'']
+    if (repeat.OUT / 'acquisition_scheduling.json').is_file():
+        lines+=['خُفّض عدد الرحلات المتزامنة بعد ظهور فجوات في السجلات. أُعيدت المحاولات المتأثرة بالإعدادات نفسها. '
+                '[سجل تعديل التوازي](acquisition_scheduling.json)','']
+    if (repeat.OUT / 'scratch_storage_recovery.json').is_file():
+        lines+=['استُخدمت مساحة مؤقتة في الذاكرة للكتابة أثناء الرحلات المتبقية بعد رصد فجوات التسجيل. '
+                'حُفظت السجلات الأصلية في الأرشيف الدائم، واستمر التشغيل ببروتوكول الحالات المثبّت. '
+                '[سجل تغيير مساحة التسجيل](scratch_storage_recovery.json)','']
     write_bytes(repeat.OUT / 'comparison_ar.md', ('\n'.join(lines).rstrip()+'\n').encode())
 
 
@@ -249,12 +278,15 @@ def publish(protocol):
     confirm(all(r['attempts_reviewed']==protocol['max_attempts'] or r['verification_status']=='VERIFIED' for r in data),
             'An incomplete case is still eligible for a replacement acquisition')
     counts = Counter(r['verification_status'] for r in data)
+    fallback_shares = [100*r['airborne_manager_fallback_Wh']/r[TARGET] for r in data if r[TARGET] is not None]
     verify = dict(registered=len(data), attempts=len(attempts), verified_airborne=sum(r[TARGET] is not None for r in data),
         verified_segment_pairs=sum(r['measurement_comparison_verified'] for r in data),
         original_measurement_pairs=sum(r['delta_measurement_vs_original_Wh'] is not None for r in data),
         status_counts=dict(counts), rejected_attempt_reasons=dict(Counter(a['reason'] for a in attempts if not a['accepted'])),
         historical_full_flights_verified=len(previous), historical_high_rate_windows_verified=sum(w['complete'] for w in prior_windows.values()),
         fit_limit_reached=sum(bool(r['fit_discharge_limit_reached']) for r in data if r[TARGET] is not None),
+        manager_fallback_share_pct=(dict(min=min(fallback_shares), median=median(fallback_shares), max=max(fallback_shares))
+                                    if fallback_shares else {}),
         protocol_sha256=digest(repeat.PROTOCOL), baseline_csv_sha256=protocol['previous_csv_sha256'],
         original_csv_sha256=protocol['original_csv_sha256'], overall=describe(data), full_energy_components=full_energy_components(data),
         by_segment={phase:describe([r for r in data if r['measurement_phase']==phase]) for phase in ('CRUISE','HOVER')},

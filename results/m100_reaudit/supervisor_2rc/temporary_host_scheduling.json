@@ -1,0 +1,13 @@
+{
+  "cause": "Temporary concurrent host workload outside this campaign",
+  "ended_utc": "2026-11-24T05:14:06.974861+00:00",
+  "initially_active": [
+    "case_036",
+    "case_037",
+    "case_038"
+  ],
+  "released_cases": [],
+  "saved_flight_settings_preserved": true,
+  "started_utc": "2026-11-24T05:07:58.887651+00:00",
+  "temporary_workers": 2
+}

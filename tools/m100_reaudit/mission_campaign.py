@@ -152,7 +152,8 @@ def archive(raw, destination):
     return digest(destination)
 
 
-def run_one(case, protocol_path, attempt, *, release_dir=None, work_root=None, archive_root=None, extra_env=None):
+def run_one(case, protocol_path, attempt, *, release_dir=None, work_root=None, archive_root=None, extra_env=None,
+            bootstrap_rootfs=None):
     global last_start
     release_dir = release_dir or OUT
     work_root = work_root or WORK
@@ -187,6 +188,9 @@ def run_one(case, protocol_path, attempt, *, release_dir=None, work_root=None, a
         else:
             raw.mkdir()
             save(plan,[case])
+            if bootstrap_rootfs is not None:
+                # The launcher uses a pre-seeded private rootfs when present.
+                shutil.copytree(bootstrap_rootfs, raw/'state/rootfs', copy_function=shutil.copy2)
             env = dict(os.environ, M100_GAZEBO_SEED=str(case['seed']), M100_MISSION_ROUTE=case['mission_route'],
                        M100_INITIAL_SOC_PERCENT=str(case['initial_soc_percent']), M100_PACK_DYNAMICS='cmu_2rc')
             env.update(extra_env or {})

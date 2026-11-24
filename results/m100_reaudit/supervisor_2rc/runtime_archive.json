@@ -1,0 +1,11 @@
+{
+  "archive": "software/acquisition_runtime_and_bootstrap.zip",
+  "bootstrap_parameters_sha256": "b8374eee7f8f291a79721a85862c6d20e4e5b42eb330c5049e4d876be7a1eae5",
+  "bootstrap_paths": [
+    "bootstrap_rootfs/parameters.bson",
+    "bootstrap_rootfs/parameters_backup.bson"
+  ],
+  "kind": "Subset of exact acquisition files with historical startup parameters. Requires the working ROS/PX4 installation.",
+  "protocol_sha256": "1e67f28cd4fb4bd2f3a8e7382aa258dc2e9557e79171863d03b6a681cefc31d9",
+  "sha256": "4fd9300fb63d51e96c22ce337a96af948a69d5d9851571db2b9d5a669db3922d"
+}
